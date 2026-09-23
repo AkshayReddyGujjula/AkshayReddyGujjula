@@ -3,16 +3,16 @@ import { profile } from "~/data/profile";
 import { hasPublishedWriting } from "~/lib/content";
 
 const links = [
-  { label: "Work", href: "/#work" },
+  { label: "Work", href: "/#studycanvas" },
+  { label: "Optimising", href: "/#optimising" },
   { label: "Hackathons", href: "/#hackathons" },
-  { label: "About", href: "/#about" },
   ...((await hasPublishedWriting()) ? [{ label: "Writing", href: "/writing" }] : []),
   { label: "CV", href: "/cv" },
   { label: "Contact", href: "/#contact" },
 ];
 ---
 
-<header class="bar">
+<header class="bar" data-bar>
   <div class="inner">
     <a class="name" href="/">{profile.name}</a>
     <nav aria-label="Main">
@@ -20,61 +20,78 @@ const links = [
         {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
       </ul>
     </nav>
-    <div class="tools">
-      <button class="palette" type="button" data-palette-open aria-label="Open command palette">
-        <span>Search</span><kbd data-shortcut>Ctrl K</kbd>
-      </button>
-      <button class="theme" type="button" data-theme-toggle aria-label="Switch colour theme">
-        <svg viewBox="0 0 20 20" aria-hidden="true">
-          <circle cx="10" cy="10" r="4.5"></circle>
-          <path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6 16 16M4 16l1.4-1.4M14.6 5.4 16 4"></path>
-        </svg>
-      </button>
-    </div>
+    <button class="palette" type="button" data-palette-open aria-label="Open command palette">
+      <span>Search</span><kbd data-shortcut>Ctrl K</kbd>
+    </button>
   </div>
 </header>
 
 <script>
-  import { toggleTheme } from "~/lib/theme";
-
   const isMac = /Mac|iPhone|iPad/.test(navigator.userAgent);
   for (const kbd of document.querySelectorAll("[data-shortcut]")) {
     kbd.textContent = isMac ? "⌘K" : "Ctrl K";
   }
-  document.querySelector("[data-theme-toggle]")?.addEventListener("click", () => toggleTheme());
   document
     .querySelector("[data-palette-open]")
     ?.addEventListener("click", () => window.dispatchEvent(new Event("palette:open")));
+
+  // The bar stays transparent over the hero canvas and gains a solid ground once
+  // ordinary content scrolls under it.
+  const bar = document.querySelector<HTMLElement>("[data-bar]");
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
+  const update = () => {
+    const past = hero ? hero.getBoundingClientRect().bottom <= (bar?.offsetHeight ?? 0) : true;
+    bar?.toggleAttribute("data-scrolled", past && window.scrollY > 8);
+  };
+  window.addEventListener("scroll", update, { passive: true });
+  update();
 </script>
 
 <style>
   .bar {
-    position: sticky;
-    top: 0;
+    position: fixed;
+    inset: 0 0 auto;
     z-index: 20;
+    transition:
+      background-color 300ms var(--ease-out),
+      box-shadow 300ms var(--ease-out);
+    animation: arrive 900ms var(--ease-out) 1400ms backwards;
+  }
+
+  .bar[data-scrolled] {
     background: var(--bg);
-    border-bottom: 1px solid var(--line);
+    box-shadow: inset 0 -1px 0 var(--line);
+  }
+
+  @keyframes arrive {
+    from {
+      opacity: 0;
+      translate: 0 -0.5rem;
+    }
   }
 
   .inner {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 2.5rem;
     width: min(100% - 2 * var(--gutter), var(--content));
     margin-inline: auto;
-    height: 3.75rem;
+    height: 4rem;
   }
 
   .name {
-    font-weight: 700;
-    letter-spacing: -0.015em;
-    color: var(--ink);
+    font-weight: 600;
+    letter-spacing: -0.02em;
     text-decoration: none;
+  }
+
+  nav {
+    margin-left: auto;
   }
 
   ul {
     display: flex;
-    gap: 1.5rem;
+    gap: 1.75rem;
     padding: 0;
     list-style: none;
     font-size: var(--step--1);
@@ -83,6 +100,29 @@ const links = [
   nav a {
     color: var(--ink-2);
     text-decoration: none;
+    transition: color 160ms var(--ease-out);
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 2.25rem;
+    padding: 0 0.8rem;
+    border: 0;
+    border-radius: var(--radius);
+    box-shadow: inset 0 0 0 1px var(--line);
+    background: none;
+    color: var(--ink-2);
+    font-size: var(--step--1);
+    transition:
+      box-shadow 160ms var(--ease-out),
+      color 160ms var(--ease-out),
+      scale 160ms var(--ease-out);
+  }
+
+  button:active {
+    scale: 0.97;
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -91,29 +131,9 @@ const links = [
     }
 
     button:hover {
-      border-color: var(--ink-3);
+      box-shadow: inset 0 0 0 1px var(--ink-3);
       color: var(--ink);
     }
-  }
-
-  .tools {
-    display: flex;
-    gap: 0.5rem;
-    margin-left: auto;
-  }
-
-  button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    height: 2.25rem;
-    padding: 0 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    color: var(--ink-2);
-    font-size: var(--step--1);
-    cursor: pointer;
   }
 
   kbd {
@@ -122,27 +142,13 @@ const links = [
     color: var(--ink-3);
   }
 
-  .theme {
-    width: 2.25rem;
-    padding: 0;
-    justify-content: center;
-  }
-
-  .theme svg {
-    width: 1.1rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-  }
-
-  @media (max-width: 52rem) {
+  @media (max-width: 56rem) {
     nav {
       display: none;
     }
 
-    .palette span {
-      display: none;
+    button {
+      margin-left: auto;
     }
   }
 

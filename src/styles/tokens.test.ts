@@ -2,17 +2,15 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 /**
- * Checks every text colour against every background it sits on, in both themes,
- * straight from tokens.css, so a palette change cannot quietly break WCAG AA.
+ * Checks every text colour against every background it sits on, straight from
+ * tokens.css, so a palette change cannot quietly break WCAG AA.
  */
 const css = readFileSync(new URL("./tokens.css", import.meta.url), "utf8");
 
-function token(name: string): [string, string] {
-  const pattern = String.raw`--${name}: light-dark\((#[0-9a-f]{6}), (#[0-9a-f]{6})\)`;
-  const match = css.match(new RegExp(pattern, "i"));
-  if (!match?.[1] || !match[2])
-    throw new Error(`Token --${name} is not a light-dark() pair of hex colours`);
-  return [match[1], match[2]];
+function token(name: string): string {
+  const match = css.match(new RegExp(String.raw`--${name}: (#[0-9a-f]{6});`, "i"));
+  if (!match?.[1]) throw new Error(`Token --${name} is not a hex colour`);
+  return match[1];
 }
 
 function luminance(hex: string): number {
@@ -28,21 +26,19 @@ function contrast(a: string, b: string): number {
   return (light + 0.05) / (dark + 0.05);
 }
 
-const texts = ["ink", "ink-2", "ink-3", "accent", "signal"];
+const texts = ["ink", "ink-2", "ink-3", "accent", "signal", "danger"];
 const backgrounds = ["bg", "surface", "surface-2"];
 
 describe("colour tokens", () => {
-  for (const [theme, index] of [
-    ["light", 0],
-    ["dark", 1],
-  ] as const) {
-    for (const text of texts) {
-      for (const background of backgrounds) {
-        it(`--${text} on --${background} meets AA in ${theme}`, () => {
-          const ratio = contrast(token(text)[index], token(background)[index]);
-          expect(ratio).toBeGreaterThanOrEqual(4.5);
-        });
-      }
+  for (const text of texts) {
+    for (const background of backgrounds) {
+      it(`--${text} on --${background} meets AA`, () => {
+        expect(contrast(token(text), token(background))).toBeGreaterThanOrEqual(4.5);
+      });
     }
   }
+
+  it("text on a solid accent meets AA", () => {
+    expect(contrast(token("on-accent"), token("accent"))).toBeGreaterThanOrEqual(4.5);
+  });
 });

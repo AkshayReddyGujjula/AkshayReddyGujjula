@@ -35,14 +35,10 @@ const items = await paletteItems();
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#141a26" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#000000" />
     <script is:inline>
-      // Runs before first paint so a saved theme never flashes the other one.
-      try {
-        const saved = localStorage.getItem("theme");
-        if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
-      } catch {}
+      // Before first paint: reveal styles only apply when the script that clears them can run.
+      document.documentElement.classList.add("js");
     </script>
   </head>
   <body>
@@ -54,6 +50,11 @@ const items = await paletteItems();
     <Footer />
     <!-- Hydrated on load, not idle: Ctrl+K should work the moment the page appears. -->
     <CommandPalette client:load items={items} />
+    <script>
+      import { startReveals } from "~/scripts/reveal";
+
+      startReveals();
+    </script>
   </body>
 </html>
 

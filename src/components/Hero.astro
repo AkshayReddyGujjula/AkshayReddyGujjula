@@ -3,115 +3,145 @@ import { getImage } from "astro:assets";
 import moneywell from "~/assets/projects/moneywell-town/town.png";
 import studycanvas from "~/assets/projects/studycanvas/learning-canvas.png";
 import undiffused from "~/assets/projects/undiffused/undiffused-hero.svg";
-import CanvasHero, { type HeroNode } from "~/islands/CanvasHero";
+import CanvasJourney, { type JourneyNode, type Thumb } from "~/islands/CanvasJourney";
 
-const THUMB_WIDTH = 432;
-
-/** Raster thumbnails are resized to twice their displayed width; SVGs are used as they are. */
-async function thumb(src: ImageMetadata, pixelated = false) {
-  const height = Math.round((THUMB_WIDTH * src.height) / src.width);
-  const url =
-    src.format === "svg"
-      ? src.src
-      : (await getImage({ src, width: THUMB_WIDTH, format: "webp" })).src;
-  return { src: url, width: THUMB_WIDTH, height, pixelated };
+/**
+ * Raster thumbnails are resized to the width they reach at the deepest zoom, so the
+ * dive into StudyCanvas stays sharp. SVGs are used as they are.
+ */
+async function thumb(src: ImageMetadata, width: number, pixelated = false): Promise<Thumb> {
+  const height = Math.round((width * src.height) / src.width);
+  const url = src.format === "svg" ? src.src : (await getImage({ src, width, format: "webp" })).src;
+  return { src: url, width, height, pixelated };
 }
 
-const nodes: HeroNode[] = [
+const nodes: JourneyNode[] = [
   {
     id: "studycanvas",
     title: "StudyCanvas",
     meta: "Live at studycanvas.app",
     href: "#studycanvas",
-    at: { x: 0.585, y: 0 },
-    thumb: await thumb(studycanvas),
+    thumb: await thumb(studycanvas, 1400),
   },
   {
     id: "moneywell-town",
     title: "Moneywell Town",
     meta: "1st place, WIF AI Summit",
     href: "#moneywell-town",
-    at: { x: 0.81, y: 0.2 },
-    thumb: await thumb(moneywell, true),
+    thumb: await thumb(moneywell, 760, true),
   },
   {
     id: "rayneo-spatial",
     title: "RayNeo Spatial",
     meta: "C++20 and Direct3D 11",
     href: "#rayneo-spatial",
-    at: { x: 0.585, y: 0.52 },
-    thumb: "screens",
+    lines: ["Real Windows monitors in AR glasses", "Head-tracked, held still in space"],
   },
   {
     id: "undiffused",
     title: "UnDiffused",
     meta: "On-device ML in Chrome",
     href: "#undiffused",
-    at: { x: 0.81, y: 0.7 },
-    thumb: await thumb(undiffused),
+    thumb: await thumb(undiffused, 760),
+  },
+  {
+    id: "optimising",
+    title: "Making agents faster",
+    meta: "What my evenings go on",
+    href: "#optimising",
+    lines: ["A leaner Pi coding harness", "A quicker Jev browser agent"],
+  },
+  {
+    id: "hackathons",
+    title: "Hackathons",
+    meta: "Weekends, mostly",
+    href: "#hackathons",
+    lines: ["1st at the WIF AI Summit", "1st in the UCL DSS Finance Track"],
+  },
+  {
+    id: "about",
+    title: "Off the keyboard",
+    meta: "About me",
+    href: "#about",
+    lines: ["Formula 1", "Cricket"],
+  },
+  {
+    id: "contact",
+    title: "Say hello",
+    meta: "Email or LinkedIn",
+    href: "#contact",
   },
 ];
 ---
 
 <section class="hero" aria-labelledby="hero-title">
-  <CanvasHero client:load nodes={nodes}>
-    <h1 id="hero-title">I build software and <mark>show my working</mark>.</h1>
-    <p>
-      Second-year Computer Science student at UCL. Right now I'm building StudyCanvas, a spatial
-      AI study workspace, and Moneywell Town, a finance game that won the WIF AI Summit hackathon.
+  <CanvasJourney client:load nodes={nodes}>
+    <p class="kicker">Akshay Gujjula, Computer Science at UCL</p>
+    <h1 id="hero-title">I build software, then I make it faster.</h1>
+    <p class="lede">
+      I'm in my second year at UCL. Most days I'm working on StudyCanvas, a study app students use
+      every week. Most evenings I'm making AI agents quicker and cheaper to run.
     </p>
     <div class="actions">
-      <a class="primary" href="#work">See my work</a>
+      <a class="primary" href="#studycanvas">See the work</a>
       <a href="#contact">Get in touch</a>
     </div>
-  </CanvasHero>
+  </CanvasJourney>
 </section>
 
 <style>
-  h1 {
-    font-size: clamp(2.5rem, 1.9rem + 2.4vw, 3.5rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1.02;
-  }
-
-  mark {
-    color: inherit;
-    background: linear-gradient(transparent 58%, var(--mark) 58%, var(--mark) 92%, transparent 92%)
-      no-repeat 0 0 / 0% 100%;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-    animation: highlight 900ms 1100ms var(--ease-out) forwards;
-  }
-
-  @keyframes highlight {
-    to {
-      background-size: 100% 100%;
-    }
-  }
-
-  p {
-    max-width: 46ch;
-    margin-top: 1rem;
-    font-size: var(--step-1);
-    line-height: 1.45;
+  .kicker {
+    font-size: var(--step-0);
     color: var(--ink-2);
+    animation: rise 900ms var(--ease-out) 350ms backwards;
+  }
+
+  h1 {
+    margin-top: 1rem;
+    font-size: var(--step-5);
+    font-weight: 600;
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+    animation: type-in 1300ms var(--ease-out) 450ms backwards;
+  }
+
+  .lede {
+    max-width: 38ch;
+    margin-top: 1.5rem;
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink-2);
+    animation: rise 900ms var(--ease-out) 750ms backwards;
   }
 
   .actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 1.75rem;
+    margin-top: 2rem;
+    animation: rise 900ms var(--ease-out) 900ms backwards;
   }
 
   .actions a {
-    padding: 0.6rem 1.1rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    height: 3rem;
+    padding: 0 1.4rem;
+    border-radius: var(--radius);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
     color: var(--ink);
     font-weight: 500;
     text-decoration: none;
+    transition:
+      background-color 200ms var(--ease-out),
+      box-shadow 200ms var(--ease-out),
+      scale 160ms var(--ease-out);
+  }
+
+  .actions .primary {
+    background: var(--ink);
+    color: var(--bg);
+    box-shadow: none;
   }
 
   .actions a:active {
@@ -120,23 +150,45 @@ const nodes: HeroNode[] = [
 
   @media (hover: hover) and (pointer: fine) {
     .actions a:hover {
-      border-color: var(--ink-3);
+      box-shadow: inset 0 0 0 1px var(--ink);
     }
 
     .actions .primary:hover {
-      background: color-mix(in srgb, var(--ink) 85%, var(--accent));
+      background: var(--accent);
+      color: var(--on-accent);
+      box-shadow: none;
     }
   }
 
-  .actions .primary {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--bg);
+  /* On the canvas the intro is in world units, so its type is set in pixels. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    .kicker {
+      font-size: 20px;
+    }
+
+    h1 {
+      font-size: 84px;
+    }
+
+    .lede {
+      font-size: 23px;
+    }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    mark {
-      background-size: 100% 100%;
+  /* The headline arrives condensed and opens out to its full width as it fades in. */
+  @keyframes type-in {
+    from {
+      opacity: 0;
+      font-stretch: 75%;
+      translate: 0 0.15em;
+      filter: blur(6px);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 0.75rem;
     }
   }
 </style>

@@ -1,7 +1,7 @@
 import { profile } from "~/data/profile";
 import { projectsByTier, publishedWriting } from "~/lib/content";
 
-export type PaletteAction = "toggle-theme" | "copy-email";
+export type PaletteAction = "copy-email";
 
 export interface PaletteItem {
   id: string;
@@ -44,12 +44,5 @@ export async function paletteItems(): Promise<PaletteItem[]> {
     { id: "github", label: "GitHub", group: "Elsewhere", href: profile.links.github },
     { id: "linkedin", label: "LinkedIn", group: "Elsewhere", href: profile.links.linkedin },
     { id: "copy-email", label: "Copy email address", group: "Actions", action: "copy-email" },
-    {
-      id: "theme",
-      label: "Switch colour theme",
-      group: "Actions",
-      keywords: "dark light mode",
-      action: "toggle-theme",
-    },
   ];
 }
