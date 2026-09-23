@@ -1,0 +1,11 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist", "design-previews"],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "types": ["./worker-configuration.d.ts"],
+    "paths": { "~/*": ["./src/*"] }
+  }
+}
