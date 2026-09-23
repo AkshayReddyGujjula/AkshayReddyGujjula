@@ -7,7 +7,7 @@
 const screens = [
   { yaw: -45, label: "Display 1", kind: "code" },
   { yaw: 0, label: "Display 2", kind: "browser" },
-  { yaw: 45, label: "Display 3", kind: "terminal" },
+  { yaw: 45, label: "Display 3", kind: "sheet" },
 ] as const;
 ---
 
@@ -87,10 +87,9 @@ const screens = [
     height: clamp(18rem, 42vw, 30rem);
     overflow: hidden;
     border-radius: var(--radius);
-    background: radial-gradient(120% 80% at 50% 38%, #2b3550, #141a26 72%);
+    background: linear-gradient(#1f2638, #141a26 70%);
     perspective: var(--r);
     touch-action: pan-y;
-    box-shadow: var(--glow), var(--shadow);
   }
 
   .floor {
@@ -123,8 +122,7 @@ const screens = [
     overflow: hidden;
     border: 1px solid rgb(255 255 255 / 0.14);
     border-radius: 8px;
-    background: linear-gradient(160deg, #1d4f7a, #0f2a47);
-    box-shadow: 0 30px 80px -20px rgb(60 198 181 / 0.3);
+    background: #173a5c;
     transform: rotateY(calc(-1 * var(--at))) translateZ(calc(-1 * var(--r)));
   }
 
@@ -143,8 +141,12 @@ const screens = [
     background: #1b2130;
   }
 
-  .terminal .window {
-    background: #0b0e14;
+  .sheet .window {
+    background: #f2f4f8;
+    background-image:
+      linear-gradient(#d5dae4 1px, transparent 1px),
+      linear-gradient(90deg, #d5dae4 1px, transparent 1px);
+    background-size: 100% 12%, 20% 100%;
   }
 
   .titlebar {
@@ -165,12 +167,11 @@ const screens = [
   }
 
   .code .line:nth-child(odd) {
-    background: #3cc6b5;
+    background: #7cc0b6;
   }
 
-  .terminal .line {
-    background: #3cc6b5;
-    opacity: 0.8;
+  .sheet .line {
+    visibility: hidden;
   }
 
   .w30 { width: 30%; }
@@ -200,7 +201,7 @@ const screens = [
     bottom: 0.8rem;
     font-size: 0.8125rem;
     font-family: ui-monospace, "Cascadia Mono", "SF Mono", monospace;
-    color: #3cc6b5;
+    color: #7cc0b6;
     white-space: pre;
   }
 

@@ -4,7 +4,6 @@
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
-  "assets": { "directory": "./dist", "binding": "ASSETS" },
   // The binding can only ever deliver to my inbox, whatever the code asks for.
   "send_email": [{ "name": "EMAIL", "destination_address": "akshayreddyg07@gmail.com" }],
   "vars": {

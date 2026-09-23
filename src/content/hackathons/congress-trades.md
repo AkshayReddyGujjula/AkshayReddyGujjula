@@ -8,4 +8,4 @@ links:
   - { label: Source and findings, href: "https://github.com/AkshayReddyGujjula/DSS-Finance-Project" }
 ---
 
-I led a team of three through 11,879 congressional stock trades from 172 members over five years. They beat the S&P 500 only 46.9% of the time and underperformed significantly (p < 0.001). Our Random Forest was close to random (AUC 0.571), and we reported that as the finding instead of tuning it away.
+I led a team of three through 11,879 congressional stock trades from 172 members over five years. They beat the S&P 500 only 46.9% of the time and underperformed significantly (p < 0.001). Our Random Forest was close to random (AUC 0.571), and we reported that result as the finding.

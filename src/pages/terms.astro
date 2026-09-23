@@ -1,0 +1,54 @@
+---
+import { profile } from "~/data/profile";
+import Prose from "~/layouts/Prose.astro";
+---
+
+<Prose
+  title="Terms of use"
+  description="The terms for using akshaygujjula.com."
+  dateline="Last updated 23 September 2026"
+>
+  <p>
+    These terms cover your use of akshaygujjula.com, the personal website of {profile.fullName}. By
+    using the site you agree to them.
+  </p>
+
+  <h2>What the site is</h2>
+  <p>
+    A portfolio of my work, provided for information. I keep it accurate and up to date as best I
+    can, but it comes without any warranty, and I may change or remove anything on it at any time.
+  </p>
+
+  <h2>Content</h2>
+  <p>
+    The writing, design and images on this site are mine unless stated otherwise, and you need my
+    permission to reuse them. Screenshots of team projects, such as Moneywell Town, belong to those
+    projects. The site's source code is published in its
+    <a href="https://github.com/AkshayReddyGujjula/AkshayReddyGujjula">GitHub repository</a> under
+    the licence stated there.
+  </p>
+
+  <h2>The contact form</h2>
+  <p>
+    Please use it for genuine messages. Don't send anything unlawful, abusive or automated. I may
+    ignore messages that break these terms.
+  </p>
+
+  <h2>Links to other sites</h2>
+  <p>
+    The site links to projects and services I don't control. I'm not responsible for their content
+    or how they handle your data.
+  </p>
+
+  <h2>Liability</h2>
+  <p>
+    To the extent the law allows, I'm not liable for any loss arising from your use of this site.
+    Nothing in these terms limits liability that cannot be limited by law.
+  </p>
+
+  <h2>Law</h2>
+  <p>These terms are governed by the law of England and Wales.</p>
+
+  <h2>Questions</h2>
+  <p>Email <a href={`mailto:${profile.email}`}>{profile.email}</a>.</p>
+</Prose>

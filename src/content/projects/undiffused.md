@@ -16,4 +16,4 @@ facts:
 
 The first model the extension shipped performed at chance. Its replacement looked better until I caught it learning a dataset shortcut. So I rebuilt the evaluation around content-matched pairs, where each real image has a generated twin of the same subject, before trusting any number.
 
-The shipped detector is a fine-tuned DINOv2-S/14, quantised to INT8 and run through ONNX Runtime Web with WebAssembly. It scores 0.954 AUROC across four diffusion models, holds between 0.948 and 0.958 under JPEG compression, resizing, WebP conversion and screenshot recapture, and abstains instead of guessing when it is unsure. Ten interactive forensic tools sit behind every verdict so you can check it yourself.
+The shipped detector is a fine-tuned DINOv2-S/14, quantised to INT8 and run through ONNX Runtime Web with WebAssembly. It scores 0.954 AUROC across four diffusion models, holds between 0.948 and 0.958 under JPEG compression, resizing, WebP conversion and screenshot recapture, and abstains when it is unsure. Ten interactive forensic tools sit behind every verdict so you can check it yourself.

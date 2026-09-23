@@ -8,11 +8,7 @@ const posterUrl = (await getImage({ src: poster, width: 1600, format: "webp" }))
 ---
 
 <div class="studycanvas">
-  <figure class="main">
-    <div class="chrome" aria-hidden="true">
-      <span></span><span></span><span></span>
-      <p>studycanvas.app</p>
-    </div>
+  <figure class="demo">
     <video
       src="/media/studycanvas-highlight-to-answer.mp4"
       poster={posterUrl}
@@ -26,14 +22,16 @@ const posterUrl = (await getImage({ src: poster, width: 1600, format: "webp" }))
     <figcaption>Highlight, ask, and the answer streams into a node linked to its source.</figcaption>
   </figure>
 
-  <figure>
-    <Image src={examShot} widths={[480, 960]} sizes="(min-width: 52rem) 22rem, 100vw" alt="The Exam Room, sitting a generated practice paper with timing and marks" />
-    <figcaption>The Exam Room turns past papers into a fresh practice paper.</figcaption>
-  </figure>
-  <figure>
-    <Image src={pythonShot} widths={[480, 960]} sizes="(min-width: 52rem) 22rem, 100vw" alt="A code node running Python in the browser next to an explanation" />
-    <figcaption>Python runs in the browser through Pyodide.</figcaption>
-  </figure>
+  <div class="stills">
+    <figure>
+      <Image src={examShot} widths={[560, 1120]} sizes="(min-width: 52rem) 36rem, 100vw" alt="The Exam Room, sitting a generated practice paper with timing and marks" />
+      <figcaption>The Exam Room turns past papers into a fresh practice paper.</figcaption>
+    </figure>
+    <figure>
+      <Image src={pythonShot} widths={[560, 1120]} sizes="(min-width: 52rem) 36rem, 100vw" alt="A code node running Python in the browser next to an explanation" />
+      <figcaption>Python runs in the browser through Pyodide.</figcaption>
+    </figure>
+  </div>
 </div>
 
 <script>
@@ -54,55 +52,27 @@ const posterUrl = (await getImage({ src: poster, width: 1600, format: "webp" }))
 <style>
   .studycanvas {
     display: grid;
-    grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
-  .main {
-    grid-row: span 2;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    box-shadow: var(--glow), var(--shadow);
+  .stills {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
   }
 
-  .chrome {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.6rem 0.9rem;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .chrome span {
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
-    background: var(--line);
-  }
-
-  .chrome p {
-    margin-inline: auto;
-    padding: 0.1rem 2.5rem;
-    border-radius: 6px;
-    background: var(--surface-2);
-    font-size: 0.75rem;
-    color: var(--ink-3);
-  }
-
-  video {
-    width: 100%;
-    height: auto;
-    background: var(--surface-2);
-  }
-
+  video,
   figure :global(img) {
     width: 100%;
     height: auto;
     border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+  }
+
+  video {
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
   }
 
   figcaption {
@@ -111,20 +81,9 @@ const posterUrl = (await getImage({ src: poster, width: 1600, format: "webp" }))
     color: var(--ink-2);
   }
 
-  .main figcaption {
-    margin: 0;
-    padding: 0.75rem 1rem;
-    border-top: 1px solid var(--line);
-  }
-
-  @media (max-width: 52rem) {
-    .studycanvas {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .main {
-      grid-column: 1 / -1;
-      grid-row: auto;
+  @media (max-width: 40rem) {
+    .stills {
+      grid-template-columns: 1fr;
     }
   }
 </style>

@@ -32,6 +32,7 @@ import { profile } from "~/data/profile";
       <small data-error-for="message"></small>
     </label>
     <div class="wide turnstile" data-turnstile data-sitekey={TURNSTILE_SITE_KEY}></div>
+    <noscript class="wide">The form needs JavaScript. Email me at {profile.email} instead.</noscript>
     <div class="wide actions">
       <button type="submit">Send message</button>
       <p role="status" data-status></p>
@@ -73,10 +74,18 @@ import { profile } from "~/data/profile";
     document.head.appendChild(script);
   }
 
+  /** Shows each field's first error and moves focus to the first field that has one. */
   function showErrors(fields: Record<string, string[] | undefined>) {
+    let first: HTMLElement | null = null;
     for (const slot of form?.querySelectorAll<HTMLElement>("[data-error-for]") ?? []) {
-      slot.textContent = fields[slot.dataset.errorFor ?? ""]?.[0] ?? "";
+      const name = slot.dataset.errorFor ?? "";
+      const message = fields[name]?.[0] ?? "";
+      slot.textContent = message;
+      const field = form?.elements.namedItem(name);
+      if (field instanceof HTMLElement) field.setAttribute("aria-invalid", String(Boolean(message)));
+      if (message && !first && field instanceof HTMLElement) first = field;
     }
+    first?.focus();
   }
 
   if (form && widget && status && button) {
@@ -141,7 +150,6 @@ import { profile } from "~/data/profile";
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--surface);
-    box-shadow: var(--shadow);
   }
 
   label {
@@ -184,8 +192,27 @@ import { profile } from "~/data/profile";
     color: light-dark(#b42318, #ff8a80);
   }
 
+  /* Holds the widget's space while Turnstile loads, so the button doesn't jump. */
+  .turnstile {
+    min-height: 65px;
+  }
+
   .turnstile:empty {
-    display: none;
+    display: grid;
+    place-items: center start;
+    padding-inline: 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+  }
+
+  .turnstile:empty::before {
+    content: "Loading spam check…";
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  noscript {
+    color: var(--ink-2);
   }
 
   .actions {
@@ -198,11 +225,15 @@ import { profile } from "~/data/profile";
   button {
     padding: 0.7rem 1.4rem;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--radius-sm);
     background: var(--ink);
     color: var(--bg);
     font-weight: 600;
     cursor: pointer;
+  }
+
+  button:active {
+    scale: 0.97;
   }
 
   button:disabled {

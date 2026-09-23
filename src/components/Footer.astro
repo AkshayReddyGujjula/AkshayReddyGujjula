@@ -6,10 +6,11 @@ const year = new Date().getFullYear();
 
 <footer class="container">
   <p>© {year} {profile.fullName}</p>
-  <p>
-    Built with Astro, deployed on Cloudflare.{" "}
-    <a href="https://github.com/AkshayReddyGujjula/AkshayReddyGujjula">Read the source</a>
-  </p>
+  <nav aria-label="Site information">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="https://github.com/AkshayReddyGujjula/AkshayReddyGujjula">Source</a>
+  </nav>
 </footer>
 
 <style>
@@ -22,6 +23,11 @@ const year = new Date().getFullYear();
     border-top: 1px solid var(--line);
     font-size: var(--step--1);
     color: var(--ink-3);
+  }
+
+  nav {
+    display: flex;
+    gap: 1.25rem;
   }
 
   @media print {
