@@ -1,13 +1,8 @@
-<a href="https://akshaygujjula.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner-dark.png">
-    <img alt="I build software and show my working. Akshay Gujjula, Computer Science at UCL." src="docs/readme/banner-light.png">
-  </picture>
-</a>
+<a href="https://akshaygujjula.com"><img alt="I build software, then I make it faster. Akshay Gujjula, Computer Science at UCL." src="docs/readme/banner.png"></a>
 
 I'm a second-year Computer Science student at UCL. I build full-stack, AI and performance-sensitive systems, and I like getting them in front of real people: ten students use StudyCanvas every week, and Moneywell Town won the Work in Fintech AI Summit hackathon.
 
-[![Website](https://img.shields.io/badge/akshaygujjula.com-4F5A73?style=flat-square)](https://akshaygujjula.com) [![LinkedIn](https://img.shields.io/badge/LinkedIn-4F5A73?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/akshayreddygujjula/) [![Email](https://img.shields.io/badge/akshayreddyg07%40gmail.com-4F5A73?style=flat-square&logo=gmail&logoColor=white)](mailto:akshayreddyg07@gmail.com)
+[![Website](https://img.shields.io/badge/akshaygujjula.com-0B0B0C?style=flat-square)](https://akshaygujjula.com) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0B0B0C?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/akshayreddygujjula/) [![Email](https://img.shields.io/badge/akshayreddyg07%40gmail.com-0B0B0C?style=flat-square&logo=gmail&logoColor=white)](mailto:akshayreddyg07@gmail.com)
 
 ## Featured
 
@@ -40,21 +35,23 @@ I'm a second-year Computer Science student at UCL. I build full-stack, AI and pe
   </tr>
 </table>
 
+Most evenings I'm making AI agents quicker and cheaper to run: a leaner harness for the Pi coding agent (23% fewer tool calls over 96 matched tasks, every task still passing) and a second engine for the Jev browser agent, with a [knowledge base](https://github.com/AkshayReddyGujjula/jev-knowledge) any coding agent can load.
+
 Hackathons: 1st at the UCL Data Science Society Finance Track, 5th of 100+ at the Imperial × Anthropic Claude Hackathon, and one of 6 projects from 50+ presented on stage at the London A2A and A2UI Hackathon. [The full list is on my site](https://akshaygujjula.com/#hackathons).
 
 ## Stack
 
-![Python](https://img.shields.io/badge/Python-4F5A73?style=flat-square&logo=python&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-4F5A73?style=flat-square&logo=typescript&logoColor=white) ![Java](https://img.shields.io/badge/Java-4F5A73?style=flat-square&logo=openjdk&logoColor=white) ![C](https://img.shields.io/badge/C-4F5A73?style=flat-square&logo=c&logoColor=white) ![Haskell](https://img.shields.io/badge/Haskell-4F5A73?style=flat-square&logo=haskell&logoColor=white) ![SQL](https://img.shields.io/badge/SQL-4F5A73?style=flat-square&logo=sqlite&logoColor=white)
+![Python](https://img.shields.io/badge/Python-0B0B0C?style=flat-square&logo=python&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-0B0B0C?style=flat-square&logo=typescript&logoColor=white) ![Java](https://img.shields.io/badge/Java-0B0B0C?style=flat-square&logo=openjdk&logoColor=white) ![C](https://img.shields.io/badge/C-0B0B0C?style=flat-square&logo=c&logoColor=white) ![Haskell](https://img.shields.io/badge/Haskell-0B0B0C?style=flat-square&logo=haskell&logoColor=white) ![SQL](https://img.shields.io/badge/SQL-0B0B0C?style=flat-square&logo=sqlite&logoColor=white)
 
-![React](https://img.shields.io/badge/React-4F5A73?style=flat-square&logo=react&logoColor=white) ![Next.js](https://img.shields.io/badge/Next.js-4F5A73?style=flat-square&logo=nextdotjs&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-4F5A73?style=flat-square&logo=fastapi&logoColor=white) ![Flask](https://img.shields.io/badge/Flask-4F5A73?style=flat-square&logo=flask&logoColor=white) ![LangGraph](https://img.shields.io/badge/LangGraph-4F5A73?style=flat-square&logo=langchain&logoColor=white) ![pandas](https://img.shields.io/badge/pandas-4F5A73?style=flat-square&logo=pandas&logoColor=white) ![scikit-learn](https://img.shields.io/badge/scikit--learn-4F5A73?style=flat-square&logo=scikitlearn&logoColor=white) ![ONNX Runtime](https://img.shields.io/badge/ONNX_Runtime-4F5A73?style=flat-square&logo=onnx&logoColor=white)
+![React](https://img.shields.io/badge/React-0B0B0C?style=flat-square&logo=react&logoColor=white) ![Next.js](https://img.shields.io/badge/Next.js-0B0B0C?style=flat-square&logo=nextdotjs&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-0B0B0C?style=flat-square&logo=fastapi&logoColor=white) ![Flask](https://img.shields.io/badge/Flask-0B0B0C?style=flat-square&logo=flask&logoColor=white) ![LangGraph](https://img.shields.io/badge/LangGraph-0B0B0C?style=flat-square&logo=langchain&logoColor=white) ![pandas](https://img.shields.io/badge/pandas-0B0B0C?style=flat-square&logo=pandas&logoColor=white) ![scikit-learn](https://img.shields.io/badge/scikit--learn-0B0B0C?style=flat-square&logo=scikitlearn&logoColor=white) ![ONNX Runtime](https://img.shields.io/badge/ONNX_Runtime-0B0B0C?style=flat-square&logo=onnx&logoColor=white)
 
-![Docker](https://img.shields.io/badge/Docker-4F5A73?style=flat-square&logo=docker&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-4F5A73?style=flat-square&logo=githubactions&logoColor=white) ![WebAssembly](https://img.shields.io/badge/WebAssembly-4F5A73?style=flat-square&logo=webassembly&logoColor=white) ![Vercel](https://img.shields.io/badge/Vercel-4F5A73?style=flat-square&logo=vercel&logoColor=white) ![Claude API](https://img.shields.io/badge/Claude_API-4F5A73?style=flat-square&logo=anthropic&logoColor=white) ![Gemini API](https://img.shields.io/badge/Gemini_API-4F5A73?style=flat-square&logo=googlegemini&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-0B0B0C?style=flat-square&logo=docker&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-0B0B0C?style=flat-square&logo=githubactions&logoColor=white) ![WebAssembly](https://img.shields.io/badge/WebAssembly-0B0B0C?style=flat-square&logo=webassembly&logoColor=white) ![Vercel](https://img.shields.io/badge/Vercel-0B0B0C?style=flat-square&logo=vercel&logoColor=white) ![Claude API](https://img.shields.io/badge/Claude_API-0B0B0C?style=flat-square&logo=anthropic&logoColor=white) ![Gemini API](https://img.shields.io/badge/Gemini_API-0B0B0C?style=flat-square&logo=googlegemini&logoColor=white)
 
 ## This repository
 
 Besides this profile, the repository is the source of [akshaygujjula.com](https://akshaygujjula.com): Astro 7 with React islands, served from Cloudflare Workers.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/AkshayReddyGujjula/AkshayReddyGujjula/ci.yml?branch=main&style=flat-square&label=CI&color=4F5A73)](https://github.com/AkshayReddyGujjula/AkshayReddyGujjula/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/AkshayReddyGujjula/AkshayReddyGujjula/ci.yml?branch=main&style=flat-square&label=CI&color=0B0B0C)](https://github.com/AkshayReddyGujjula/AkshayReddyGujjula/actions/workflows/ci.yml)
 
 ```bash
 npm install
