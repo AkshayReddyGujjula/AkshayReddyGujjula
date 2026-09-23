@@ -15,7 +15,8 @@
     "test": "vitest run",
     "deploy": "astro build && wrangler deploy",
     "types": "wrangler types",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "og": "node scripts/og-image.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.3",
