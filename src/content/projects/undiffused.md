@@ -3,6 +3,7 @@ title: UnDiffused
 tagline: A privacy-first Chrome extension that estimates whether an image is AI-generated, entirely on your device, and shows its working.
 order: 4
 tier: flagship
+origin: Started at the AI Ventures Hackathon, Imperial
 period: Dec 2025 – present
 stack: [TypeScript, React, ONNX Runtime Web, PyTorch, DINOv2]
 links:

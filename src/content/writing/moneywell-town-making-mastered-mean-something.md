@@ -1,36 +1,36 @@
 ---
-title: Making "mastered" mean something in Moneywell Town
-description: Moneywell Town won the Work in Fintech AI Summit hackathon. The design choices that mattered most were about honesty, from the review scheduler to a puffin that won't give you the answer.
+title: How we made "mastered" actually mean something in Moneywell Town
+description: Moneywell Town is a money game for teenagers that won the Work in Fintech AI Summit hackathon. A few small design rules ended up mattering more than anything flashy.
 published: 2026-09-23
 draft: true
 ---
 
-Moneywell Town is a browser game that teaches UK teenagers how money works. You learn a topic from someone in town, then walk into the outskirts where creatures quiz you on it. The four answer buttons are your four moves, so the quiz is the battle. We built it as Team 17 for the Work in Fintech AI Summit hackathon on 28 August 2026, and it won first place.
+Moneywell Town is a browser game that teaches UK teenagers about money: interest, tax, credit, scams and mortgages. You learn a topic by talking to someone in the town, then you head out of town where creatures quiz you on it. The four answer buttons are your four battle moves, so answering questions is how you fight. We built it as Team 17 for the Work in Fintech AI Summit hackathon on 28 August 2026, and we won first place, which I'm still pretty happy about.
 
-The format came from the research. In the LFBF Young Persons' Money Index for 2025/26, 80% of 15 to 18 year olds said they want to learn more about money, 9% said school is where they actually learn it, and 34% picked games or apps with competitions as the thing that would help. The harder question was whether something learned at 16 is still there at 19, when the tenancy deposit and the first payslip arrive.
+We picked a game because of a survey. In the LFBF Young Persons' Money Index for 2025/26, 80% of 15 to 18 year olds said they want to learn more about money, only 9% said they actually learn it at school, and 34% said games or apps with competitions would help them most. The harder question for us was whether someone who learns this at 16 still remembers it at 19, when they're signing their first tenancy.
 
-## Spaced repetition that can't be gamed
+## Spaced repetition
 
-Every answer feeds a five-box Leitner scheduler, with questions coming back after 1, 3, 7, 14 and 30 days. Spaced retrieval beats cramming for long-term retention, and that's the whole point of the game.
+Every answer goes into a Leitner system with five boxes. Questions come back after 1, 3, 7, 14 and 30 days depending on which box they're in. Spacing out practice like this helps people remember things for longer than cramming does, which was kind of the whole point.
 
-Two rules keep the progress honest. A wrong answer drops a question by one box instead of sending it back to the start, because losing a month of progress over one slip reads as punishment to a sixteen-year-old. And a correct answer only promotes a question that was actually due. Without that gate you could climb to the top box in one evening, and "mastered" would mean "answered four times tonight" instead of "remembered across a month".
+We added two rules so the progress would be honest. If you get a question wrong, it only drops back one box instead of all the way to the start. Losing a month of progress for one mistake would feel really harsh to a 16 year old and they'd probably just stop playing. And if you get a question right, it only moves up if it was actually due. Without that, you could reach the top box in one evening by answering the same thing four times, and "mastered" wouldn't mean you'd remembered anything for a month.
 
-Every progress screen is derived from the review log when it's shown, never stored, so no number on screen can disagree with the history behind it.
+The progress screens work everything out from the history of answers each time they're opened, so the numbers on screen always match what you actually did.
 
-## The explanation always appears
+## You always get the explanation
 
-Every question carries a required explanation field, so there's no way to skip it. Get it right and you see why. Get it wrong, lose some HP, and you still see why. The teaching moment is the same either way.
+Every question has an explanation attached, and the game shows it whether you get it right or wrong. If you get it wrong you lose some HP, but you still see why the answer was what it was. That was important to us because the wrong answers are where you actually learn something.
 
-## A helper that won't do your homework
+## Skipper, the puffin
 
-Press P and a phone opens on Skipper, a puffin in a captain's cap and the game's only network call. His instructions are built from every lesson page, so he knows what the town teaches. Quiz questions are left out on purpose: he never writes out an answer. He names the building that teaches it, and a button walks you to its door.
+If you press P, a phone opens with Skipper on it, a puffin wearing a captain's hat. He's the only part of the game that talks to an AI model. His instructions are built from all the lesson pages, so he knows what the town teaches. We deliberately didn't give him the quiz questions, so he can't just tell you the answer. He tells you which building teaches it instead, and there's a button that walks you there.
 
-Card numbers, sort codes, email addresses and National Insurance numbers are stripped before anything is sent. Twenty-two crisis phrases never reach a model at all, and get a fixed signpost to Childline, Samaritans and StepChange instead.
+We were careful with safety because the players are teenagers. Card numbers, sort codes, email addresses and National Insurance numbers get removed before anything is sent. If someone types something that sounds like they're in crisis, it never goes to the model at all, and they get a message pointing them to Childline, Samaritans and StepChange.
 
-## Keeping it smooth
+## Making it run smoothly
 
-The town is a custom 2D tile renderer written in React and TypeScript. Moving the ambient animation across the 792-tile world out of React's render cycle and into CSS made tile updates 2.5 times faster, and end-to-end frame rate rose 53% once camera, movement and input scheduling were rebalanced off the main thread.
+The town is drawn by a custom 2D tile renderer written in React and TypeScript. At first the ambient animations were going through React's render cycle for all 792 tiles, which was slow. Moving those animations into CSS made tile updates 2.5 times faster, and after we sorted out how the camera, movement and input were scheduled, the frame rate went up by 53%.
 
 ## What's next
 
-We're taking it to Web Summit Lisbon in November as an ALPHA startup. You can play it at [moneywelltown.com](https://moneywelltown.com).
+We're taking it to Web Summit Lisbon in November as an ALPHA startup, which is exciting and slightly terrifying. You can play it at [moneywelltown.com](https://moneywelltown.com).

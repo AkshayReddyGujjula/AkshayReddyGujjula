@@ -18,9 +18,9 @@
   --line: #1d1d20;
   --line-strong: #3a3a40;
   --grid: #101012;
-  /* Placeholder until the final hex arrives: every blue on the site reads this one token. */
-  --accent: #4d8dff;
-  --accent-soft: rgb(77 141 255 / 0.16);
+  /* Every blue on the site reads these two tokens. */
+  --accent: #5cdbff;
+  --accent-soft: rgb(92 219 255 / 0.14);
   --on-accent: #000000;
   --signal: #5ad19a;
   --caution: #e8c468;

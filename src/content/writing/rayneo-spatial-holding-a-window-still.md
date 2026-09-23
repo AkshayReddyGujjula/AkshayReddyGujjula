@@ -1,36 +1,36 @@
 ---
-title: Holding a window still while your head moves
-description: What it took to make Windows desktops stay put in space on RayNeo GT glasses, from coordinate frames to a bug that slowly rotated the whole workspace.
+title: Keeping a window still while your head moves
+description: Notes from building RayNeo Spatial, which puts Windows monitors in the air around you on RayNeo GT glasses, and the bugs that made it much harder than I thought.
 published: 2026-09-23
 draft: true
 ---
 
-RayNeo Spatial turns Windows into a spatial workspace on RayNeo GT glasses. Real Windows monitors float around you, three of them in an arc by default, and they stay where they are as you turn your head. The glasses report their orientation from an IMU; a Direct3D 11 renderer draws each screen where it belongs.
+RayNeo Spatial is a Windows app for RayNeo GT glasses. It puts your Windows monitors in the air around you, three of them in a curve by default, and they're meant to stay in the same place when you turn your head. The glasses have a sensor (an IMU) that reports which way your head is pointing, and a Direct3D 11 renderer draws each screen in the right spot.
 
-Making a window move is easy. Making it stay still is the hard part.
+I assumed the hard part would be the rendering. It was actually getting the screens to stay still.
 
-## Two worlds that disagree
+## Two coordinate systems
 
-The sensor's quaternion is right-handed with Z up. The Direct3D scene is left-handed with Y up. Get one sign wrong and the world is mirrored by up to 180 degrees, so there are no sign toggles anywhere in the app: the conversion is written once, in the camera, and tested.
+The sensor gives its rotation as a quaternion in a right-handed system with Z pointing up. Direct3D uses a left-handed system with Y pointing up. If you get even one sign wrong, the whole world can end up mirrored or rotated by up to 180 degrees. I ended up doing the conversion in exactly one place, in the camera code, with tests around it, and there are no "flip this axis" settings anywhere in the app.
 
-Recentering had a subtler version of the same problem. I first built the relative rotation in the head's own frame, which mixes yaw into pitch and roll whenever you recenter with your head tilted. In the field that cost up to 16 degrees of lost pan and 26 to 34 degrees of tilt that wasn't there. Building it in the earth frame instead fixed it. How the sensor sits in the glasses comes from a measured calibration, not a guess about which axis is which.
+Recentering caused a sneakier version of the same problem. My first attempt worked out the rotation relative to your head's own axes, which is fine if you're looking straight ahead. But if you recentered with your head tilted, it mixed some of your left-right turning into up-down and roll. When I tested it wearing the glasses, I was losing up to 16 degrees of turning and getting 26 to 34 degrees of tilt that wasn't really there. Working it out relative to the world instead fixed it. I also replaced my guess about how the sensor is mounted in the glasses with a proper calibration step that measures it.
 
-## A bug that took ten minutes to see
+## The workspace that slowly rotated
 
-Gyroscopes drift. The fix is to estimate the gyro's bias while your head is still and subtract it. I had two mechanisms doing that job: bias adaptation, and a separate drift correction on the published pose.
+Gyroscopes drift over time, so you have to estimate how much they're off (the bias) while your head is still, and subtract it. I had two separate bits of code trying to fix that drift, one adjusting the bias and one correcting the final pose.
 
-Both removed the same error, so they fought. Over about ten minutes the whole workspace slowly rotated until the left screen was almost in the middle. Nothing looked wrong in any single frame. The fix was to give steady error exactly one owner, the bias estimate, and turn the correction off by default.
+They ended up fighting each other. Over about ten minutes the whole workspace would slowly rotate until the left screen was nearly in front of me. It was really hard to spot because every single frame looked fine. The fix was to let only the bias estimate deal with drift, and switch the other correction off by default.
 
-## Small movements matter
+## Small head movements
 
-An early version froze the pose whenever you were "still". Small head adjustments then disappeared, and arrived as a snap once they crossed a threshold. Now the pose path is always live, and being at rest only controls when the bias is allowed to adapt. A synthetic test checks that at least 90% of half-degree, one-degree and two-degree adjustments come through, with no step bigger than 0.05 degrees.
+An earlier version froze the pose completely whenever it thought you were still. That meant small head movements got ignored, and then suddenly jumped once you moved past a threshold, which felt awful. Now the pose always updates, and being still only affects when the bias is allowed to adjust. There's a test that checks at least 90% of small half-degree, one-degree and two-degree movements actually come through, with no single step bigger than 0.05 degrees.
 
-## Maths you can trust
+## A quaternion gotcha
 
-One function scales a rotation by a fraction. Quaternions have a trap here: `q` and `-q` describe the same rotation, and if you don't normalise which hemisphere you're in, the angle comes out as 360 minus the real one. That's the snippet on the left display in the demo on my home page, comment and all.
+One function scales a rotation by some fraction, like "turn 30% of the way". Quaternions have a trap here: `q` and `-q` are the same rotation. If you don't check which one you've got first, the angle can come out as 360 minus what it should be. That function, including my comment about the bug, is the code on the left screen in the demo on my home page.
 
-## Tested without the glasses
+## Testing without wearing the glasses
 
-Nine CTest suites cover the camera frames, pose behaviour, synthetic head-motion scenarios, calibration, protocol decoding, layout, the virtual display logic, projection and the controller. Every bug in the list above has a scenario that fails before the fix and passes after it. The worn-glasses feel still needs the hardware, but the maths doesn't.
+There are nine test suites covering the camera maths, how the pose behaves, fake head-movement scenarios, calibration, decoding the sensor data, the screen layout, the virtual display logic, projection and the controller. Every bug above has a test scenario that failed before the fix and passes after. You still need the glasses to check how it feels, but I don't have to put them on to know the maths is right.
 
-The [source is on GitHub](https://github.com/AkshayReddyGujjula/Rayneo-Spatial-App). It's an independent project, not an official RayNeo product.
+The [code is on GitHub](https://github.com/AkshayReddyGujjula/Rayneo-Spatial-App). It's my own project and isn't affiliated with RayNeo.

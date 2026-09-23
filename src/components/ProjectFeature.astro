@@ -6,7 +6,7 @@ interface Props {
 }
 
 const { project } = Astro.props;
-const { title, tagline, award, facts, stack, links, period } = project.data;
+const { title, tagline, award, origin, facts, stack, links, period } = project.data;
 const { Content } = await render(project);
 ---
 
@@ -20,6 +20,7 @@ const { Content } = await render(project);
     <p class="kicker" data-reveal>
       {award ? <span class="award">{award}</span> : null}
       <span>{period}</span>
+      {origin ? <span class="origin">{origin}</span> : null}
     </p>
     <h2 id={`${project.id}-title`} data-reveal>{title}</h2>
     <p class="tagline" data-reveal>{tagline}</p>
@@ -74,6 +75,17 @@ const { Content } = await render(project);
     align-items: center;
     gap: 0.75rem;
     color: var(--ink-3);
+  }
+
+  /* Where it started reads as a quiet note after the dates. */
+  .origin::before {
+    content: "";
+    display: inline-block;
+    width: 1.25rem;
+    height: 1px;
+    margin: 0 0.75rem 0.3rem 0;
+    vertical-align: middle;
+    background: var(--line-strong);
   }
 
   .award {

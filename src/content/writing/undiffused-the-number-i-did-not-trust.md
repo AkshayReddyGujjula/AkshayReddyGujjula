@@ -1,44 +1,42 @@
 ---
-title: The 0.990 I didn't trust
-description: How UnDiffused went from a detector that performed at chance to 0.954 AUROC on content-matched pairs, and why the evaluation mattered more than the model.
+title: The time my AI image detector scored 0.990 and I didn't believe it
+description: What I learned rebuilding UnDiffused, a Chrome extension that guesses whether an image is AI generated, after finding out the first version was basically flipping a coin.
 published: 2026-09-23
 draft: true
 ---
 
-UnDiffused is a Chrome extension that estimates whether an image is AI-generated, entirely on your device. The most useful thing I learned building it was that a good number can be the most dangerous result you get.
+UnDiffused is a Chrome extension. You right-click an image and it tells you whether it thinks the image is AI generated, and it does all of this on your own computer without uploading anything. It started at the AI Ventures Hackathon at Imperial, and I've been rebuilding it properly since.
 
-## Measuring what shipped
+Honestly, the biggest thing I learned from this project was about testing.
 
-The first version of the extension shipped with two ViT-B/16 checkpoints, 174 MB between them. When I finally measured it properly, it scored 0.500 AUROC. That's chance: a coin flip with extra steps. Nothing in the product said so.
+## The first version didn't work
 
-That set the rule for everything after: measure the exact artefact that ships, not the model in a notebook.
+The version I shipped first used two ViT-B/16 checkpoints, 174 MB in total. At some point I actually sat down and measured it properly, and it scored 0.500 AUROC. That's the same as guessing. It had been sitting there looking confident and giving people answers, and none of them meant anything.
 
-## A result that was too good
+That was a bit embarrassing, but it gave me a rule I stuck to for the rest of the project: always test the exact model that ships, running in the browser the same way a user would run it.
 
-For the rebuild I moved to DINOv2 and held one generator out of training to test generalisation. It scored 0.990 AUROC on that held-out generator. That should have been the end of the project.
+## A score that was too good
 
-It wasn't, because of where the images came from. The real photos came from COCO. The generated images came from ELSA, whose prompts were derived from LAION captions. Two different corpora, with different subjects, framing and processing. A model can tell those apart without learning anything about whether an image is real.
+For the rebuild I switched to DINOv2. To check it could handle image generators it hadn't seen before, I left one generator out of training completely. On that held-out generator it scored 0.990 AUROC.
 
-So I built content-matched pairs. Each pair is a LAION source image and an ELSA generation made from that image's own caption, so the subject stays roughly constant and only authenticity changes. On matched pairs the 0.990 model fell to 0.659. It had learned the seam between two datasets.
+I was pretty happy for about a day. Then I looked at where the images were coming from. The real photos were from a dataset called COCO, and the AI images were from ELSA, whose prompts came from a different dataset called LAION. Those two sources look different in lots of boring ways, like what the photos are of and how they were framed and compressed. So the model could tell them apart without learning anything about whether an image was real.
 
-Holding a generator out didn't protect the evaluation, because the seam was still visible. That finding shaped the project more than any choice of architecture.
+To test this I made matched pairs. Each pair is a real LAION image plus an ELSA image generated from that same photo's caption, so both images are roughly of the same thing. On those pairs, the model that scored 0.990 dropped to 0.659. It had mostly learned to recognise the two datasets.
 
-## Rebuilding on honest data
+## Training on the matched pairs
 
-Training on matched pairs closed the gap between unmatched and matched scores from about 0.32 to under 0.01. A frozen DINOv2-S/14 with a linear head reached 0.894. Fine-tuning its last four blocks reached 0.954 AUROC on 400 unseen matched pairs, 800 images, none of them used for training or for fitting thresholds.
+Once I trained on matched pairs, the gap between the easy test and the matched test went from about 0.32 to under 0.01. A frozen DINOv2-S/14 with a simple linear layer on top got 0.894. Fine-tuning the last four blocks got it to 0.954 AUROC on 400 matched pairs (800 images) that were never used for training or for picking thresholds.
 
-It holds between 0.948 and 0.958 after JPEG compression, resizing, WebP conversion and screenshot recapture, which matters because that's what happens to images on the real web.
+I also tested what happens to images on the real internet, like JPEG compression, resizing, converting to WebP and taking screenshots. It stayed between 0.948 and 0.958 through all of those.
 
-## Saying "I'm not sure"
+## Letting it say "not sure"
 
-The score is calibrated, and the extension gives three answers rather than two: likely authentic, inconclusive, or likely AI-generated. On the external set it abstains on 14.25% of images. Among the ones it decides, the false-positive rate is 6.88%.
+The extension gives one of three answers: likely real, can't tell, or likely AI generated. On the test set it says "can't tell" for 14.25% of images. For the rest, it wrongly flags a real image as AI 6.88% of the time. I'd rather it admit when it doesn't know than force a yes or no. There are also ten forensic tools you can open, like error level analysis and a frequency view, if you want to look at the image yourself.
 
-A forced yes or no would make the interface look simpler and the result less honest. Ten forensic tools sit behind every verdict, from error level analysis to frequency plots, so you can check its working yourself.
+## Getting it into the browser
 
-## Getting it into a browser
+A model that works in Python is only half the job. The shipped model is quantised to INT8, which makes it 24.9 MB (3.55 times smaller than the full-precision one), and it runs with ONNX Runtime Web and WebAssembly in about 0.7 to 0.9 seconds once it's loaded. Before every run it checks the input and output shapes, so if something's wrong it throws an error. That way a broken model can't quietly hand back a nonsense score.
 
-A good Python result isn't a working extension. The shipping model is INT8, 24.9 MB, 3.55 times smaller than FP32, and runs through ONNX Runtime Web and WebAssembly in about 0.7 to 0.9 seconds warm. The input and output contract is asserted before every inference, so a mismatched tensor or a non-finite logit fails loudly instead of quietly becoming a confidence score.
+## What it can't do
 
-## The limits
-
-This is one model against one carefully controlled protocol. The evaluation covers four open-source diffusion families, not Midjourney, Firefly or whatever comes next, and LAION's "real" images include graphics and screenshots. C2PA provenance, where it exists, should beat any detector. All of that is written down in the [repository](https://github.com/AkshayReddyGujjula/UnDiffused-AI), along with the v1 failure, because publishing the negative results is part of the work.
+It's one model tested one careful way. The test set covers four open-source image generators, so I can't say anything about Midjourney or Firefly or whatever comes out next month. Some of LAION's "real" images are actually graphics or screenshots too. If an image has C2PA provenance data, that's more trustworthy than any detector. All of this, including the first version failing, is written up in the [repo](https://github.com/AkshayReddyGujjula/UnDiffused-AI).

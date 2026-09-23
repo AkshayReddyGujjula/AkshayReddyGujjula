@@ -49,7 +49,7 @@ function html({ width, height, headline, list }) {
   p { margin-top: ${tall ? 24 : 16}px; font-size: ${tall ? 26 : 21}px; color: #a8a8b0; }
   ul { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: ${tall ? "1fr" : "1fr 1fr"}; }
   li { padding: 14px 18px; border-radius: 10px; background: #0b0b0c; box-shadow: inset 0 0 0 1.5px #1d1d20; }
-  li:first-child { box-shadow: inset 0 0 0 1.5px #4d8dff; }
+  li:first-child { box-shadow: inset 0 0 0 1.5px #5cdbff; }
   li b { display: block; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
   li span { font-size: 15px; color: #85858d; }
 </style>
