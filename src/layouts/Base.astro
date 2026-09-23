@@ -73,4 +73,9 @@ const items = await paletteItems();
   .skip:focus {
     top: 1rem;
   }
+
+  /* The header is fixed, so pages clear it. The home page's hero sits under it on purpose. */
+  main:not(:has([data-hero])) {
+    padding-top: 4rem;
+  }
 </style>

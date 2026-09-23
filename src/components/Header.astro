@@ -55,6 +55,10 @@ const links = [
     transition:
       background-color 300ms var(--ease-out),
       box-shadow 300ms var(--ease-out);
+  }
+
+  /* On the home page the bar waits for the hero's opening, then arrives after it. */
+  :global(body:has([data-hero])) .bar {
     animation: arrive 900ms var(--ease-out) 1400ms backwards;
   }
 
