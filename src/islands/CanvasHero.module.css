@@ -21,7 +21,6 @@
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
-  box-shadow: var(--shadow);
   animation: pop 520ms var(--ease-spring) backwards;
 }
 
@@ -44,14 +43,12 @@
   padding: 0.55rem 0.55rem 0.8rem;
   color: var(--ink);
   text-decoration: none;
-  transition:
-    border-color 160ms,
-    box-shadow 160ms;
 }
 
-.project:hover {
-  border-color: var(--ink-3);
-  box-shadow: var(--glow), var(--shadow);
+@media (hover: hover) and (pointer: fine) {
+  .project:hover {
+    border-color: var(--ink-3);
+  }
 }
 
 .thumb {
@@ -127,7 +124,7 @@
 }
 
 /* Wide screens: the canvas. Nodes sit at fractional positions on a plane that tilts
-   with the pointer, lifted 24px above a dotted floor that carries the edges. */
+   with the pointer, lifted 24px above a gridded floor that carries the edges. */
 @media (min-width: 60rem) {
   .stage {
     height: clamp(40rem, 100svh - 3.75rem, 54rem);
@@ -147,10 +144,12 @@
   .plane::before {
     content: "";
     position: absolute;
-    inset: -20% -30%;
-    background-image: radial-gradient(var(--dot) 1.2px, transparent 1.5px);
-    background-size: 24px 24px;
-    mask-image: radial-gradient(closest-side, #000 55%, transparent);
+    inset: -45% -40%;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(transparent 20%, #000 38%, #000 62%, transparent 80%);
     pointer-events: none;
   }
 

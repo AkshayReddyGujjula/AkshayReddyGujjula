@@ -3,31 +3,25 @@
  * chosen by color-scheme alone: the OS preference by default, or data-theme when
  * someone picks one with the toggle.
  *
- * Light is paper: a dotted canvas, navy ink and a highlighter.
+ * Light is paper: a faint canvas grid, navy ink and a highlighter.
  * Dark is a room: slate walls, lit screens and a teal readout.
+ * Depth comes from borders and position, never from shadows.
  */
 :root {
   color-scheme: light dark;
 
   --bg: light-dark(#f6f7f9, #141a26);
-  --surface: light-dark(#ffffff, #1c2333);
+  --surface: light-dark(#fbfbfc, #1c2333);
   --surface-2: light-dark(#eef1f6, #232b3e);
   --ink: light-dark(#16203a, #e8ecf4);
   --ink-2: light-dark(#4f5a73, #a3aec3);
-  --ink-3: light-dark(#7e879b, #6f7b93);
+  --ink-3: light-dark(#656c7c, #8a94a8);
   --line: light-dark(#dfe3ec, #2c3548);
   --line-strong: light-dark(#16203a, #e8ecf4);
-  --dot: light-dark(#c3cad8, #2e374b);
+  --grid: light-dark(#e4e7ee, #1f2636);
   --accent: light-dark(#2f5bea, #86a3ff);
-  --mark: light-dark(#ffe066, rgb(255 214 90 / 0.32));
-  --signal: light-dark(#0e8074, #3cc6b5);
-
-  --shadow:
-    0 1px 0 light-dark(rgb(22 32 58 / 0.04), rgb(0 0 0 / 0.3)),
-    0 18px 40px -22px light-dark(rgb(22 32 58 / 0.35), rgb(0 0 0 / 0.7));
-  --glow:
-    0 0 0 1px light-dark(transparent, rgb(255 255 255 / 0.04)),
-    0 40px 80px -40px light-dark(rgb(22 32 58 / 0.4), rgb(60 198 181 / 0.22));
+  --mark: light-dark(#f3cf4a, rgb(243 207 74 / 0.3));
+  --signal: light-dark(#0e7a6f, #5aa99f);
 
   --font: "Schibsted Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
 
@@ -43,8 +37,8 @@
   --gutter: clamp(1rem, 4vw, 3rem);
   --content: 72rem;
   --measure: 62ch;
-  --radius: 14px;
-  --radius-sm: 8px;
+  --radius: 6px;
+  --radius-sm: 4px;
 
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring: cubic-bezier(0.3, 1.4, 0.5, 1);

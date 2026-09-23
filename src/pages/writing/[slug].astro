@@ -1,6 +1,6 @@
 ---
 import { type CollectionEntry, render } from "astro:content";
-import Base from "~/layouts/Base.astro";
+import Prose from "~/layouts/Prose.astro";
 import { publishedWriting } from "~/lib/content";
 
 export async function getStaticPaths() {
@@ -14,70 +14,14 @@ interface Props {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
-const date = new Intl.DateTimeFormat("en-GB", { dateStyle: "long" });
+const date = new Intl.DateTimeFormat("en-GB", { dateStyle: "long" }).format(post.data.published);
 ---
 
-<Base title={post.data.title} description={post.data.description}>
-  <article class="container post">
-    <header>
-      <a href="/writing">Writing</a>
-      <h1>{post.data.title}</h1>
-      <time datetime={post.data.published.toISOString()}>{date.format(post.data.published)}</time>
-    </header>
-    <div class="prose">
-      <Content />
-    </div>
-  </article>
-</Base>
-
-<style>
-  .post {
-    max-width: 42rem;
-    padding-block: 4rem 6rem;
-  }
-
-  header a {
-    font-size: var(--step--1);
-  }
-
-  h1 {
-    margin-top: 0.75rem;
-    font-size: var(--step-4);
-    font-weight: 800;
-  }
-
-  time {
-    display: block;
-    margin-top: 0.75rem;
-    color: var(--ink-3);
-  }
-
-  .prose {
-    margin-top: 3rem;
-    font-size: 1.125rem;
-    line-height: 1.7;
-  }
-
-  .prose :global(:is(p, ul, ol, pre, blockquote, figure) + *) {
-    margin-top: 1.25em;
-  }
-
-  .prose :global(h2) {
-    margin-top: 2.5em;
-    font-size: var(--step-2);
-  }
-
-  .prose :global(pre) {
-    padding: 1rem 1.25rem;
-    overflow-x: auto;
-    border-radius: var(--radius-sm);
-    background: var(--surface-2);
-    font-size: 0.9rem;
-  }
-
-  .prose :global(blockquote) {
-    padding-left: 1rem;
-    border-left: 3px solid var(--mark);
-    color: var(--ink-2);
-  }
-</style>
+<Prose
+  title={post.data.title}
+  description={post.data.description}
+  dateline={date}
+  back={{ label: "Writing", href: "/writing" }}
+>
+  <Content />
+</Prose>

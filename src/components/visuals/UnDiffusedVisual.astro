@@ -15,25 +15,14 @@ const patches = Array.from({ length: PATCHES * PATCHES }, (_, i) => ({
   <div class="panel scan">
     <svg viewBox="0 0 240 240" role="img" aria-labelledby="ud-scan-title">
       <title id="ud-scan-title">An example image divided into a 12 by 12 grid of patches</title>
-      <defs>
-        <linearGradient id="ud-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#f7b58a"></stop>
-          <stop offset="0.55" stop-color="#e7839b"></stop>
-          <stop offset="1" stop-color="#6d5ba8"></stop>
-        </linearGradient>
-        <linearGradient id="ud-sweep" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#3cc6b5" stop-opacity="0"></stop>
-          <stop offset="1" stop-color="#3cc6b5" stop-opacity="0.55"></stop>
-        </linearGradient>
-      </defs>
-      <rect width="240" height="240" fill="url(#ud-sky)"></rect>
-      <circle cx="170" cy="92" r="30" fill="#ffe3b8" opacity="0.9"></circle>
-      <path d="M0 170 Q60 120 120 160 T240 140 V240 H0Z" fill="#3e3a78"></path>
-      <path d="M0 200 Q80 160 150 195 T240 185 V240 H0Z" fill="#26244f"></path>
+      <rect width="240" height="240" fill="#c3cbd3"></rect>
+      <path d="M0 150 L50 118 L92 140 L140 96 L190 132 L240 110 V240 H0Z" fill="#8f9a8c"></path>
+      <path d="M0 176 Q70 150 130 170 T240 162 V240 H0Z" fill="#66735f"></path>
+      <path d="M0 206 Q90 186 160 202 T240 198 V240 H0Z" fill="#48533f"></path>
       <g class="grid">
         {patches.map((p) => <rect x={p.x} y={p.y} width="20" height="20" />)}
       </g>
-      <rect class="sweep" x="0" y="-60" width="240" height="60" fill="url(#ud-sweep)"></rect>
+      <rect class="sweep" x="0" y="-2" width="240" height="2"></rect>
     </svg>
   </div>
 
@@ -87,7 +76,6 @@ const patches = Array.from({ length: PATCHES * PATCHES }, (_, i) => ({
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--surface);
-    box-shadow: var(--shadow);
   }
 
   .scan svg {
@@ -103,6 +91,7 @@ const patches = Array.from({ length: PATCHES * PATCHES }, (_, i) => ({
 
   /* The scan follows the scroll: it crosses the image as the section comes into view. */
   .sweep {
+    fill: var(--signal);
     visibility: hidden;
   }
 
@@ -117,7 +106,7 @@ const patches = Array.from({ length: PATCHES * PATCHES }, (_, i) => ({
 
   @keyframes scan {
     to {
-      transform: translateY(300px);
+      transform: translateY(242px);
     }
   }
 
@@ -136,15 +125,21 @@ const patches = Array.from({ length: PATCHES * PATCHES }, (_, i) => ({
     position: relative;
     height: 0.75rem;
     margin-top: 1rem;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #3cc6b5, var(--surface-2) 45%, var(--surface-2) 55%, #e7839b);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
   }
 
+  /* Hatched, so the abstain band reads without relying on colour. */
   .abstain {
     position: absolute;
-    inset: -0.35rem 40%;
-    border: 1px dashed var(--ink-3);
-    border-radius: 6px;
+    inset: -1px 40%;
+    border-inline: 1px solid var(--ink-3);
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent 0 4px,
+      color-mix(in srgb, var(--ink-3) 35%, transparent) 4px 5px
+    );
   }
 
   .needle {

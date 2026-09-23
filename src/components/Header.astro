@@ -52,9 +52,8 @@ const links = [
     position: sticky;
     top: 0;
     z-index: 20;
-    background: color-mix(in srgb, var(--bg) 82%, transparent);
-    backdrop-filter: blur(12px) saturate(1.4);
-    border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
   }
 
   .inner {
@@ -86,8 +85,15 @@ const links = [
     text-decoration: none;
   }
 
-  nav a:hover {
-    color: var(--ink);
+  @media (hover: hover) and (pointer: fine) {
+    nav a:hover {
+      color: var(--ink);
+    }
+
+    button:hover {
+      border-color: var(--ink-3);
+      color: var(--ink);
+    }
   }
 
   .tools {
@@ -108,11 +114,6 @@ const links = [
     color: var(--ink-2);
     font-size: var(--step--1);
     cursor: pointer;
-  }
-
-  button:hover {
-    border-color: var(--ink-3);
-    color: var(--ink);
   }
 
   kbd {

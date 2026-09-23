@@ -8,4 +8,4 @@ links:
   - { label: Source, href: "https://github.com/AkshayReddyGujjula/ClaudeImperialHackathon" }
 ---
 
-An AI pre-appointment interview that turns a patient's symptoms into a structured timeline for their GP. Independent Claude calls run in parallel rather than chained, which keeps the interview responsive, and acute symptoms are flagged for escalation.
+An AI pre-appointment interview that turns a patient's symptoms into a structured timeline for their GP. Independent Claude calls run in parallel to keep the interview responsive, and acute symptoms are flagged for escalation.
