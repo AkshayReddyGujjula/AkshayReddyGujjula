@@ -21,6 +21,12 @@ describe("contactInput", () => {
     expect(messages).toEqual(["Please add your name.", "That email address doesn't look right."]);
   });
 
+  it("rejects control characters in the name, which is used in email headers", () => {
+    const injection = { ...valid, name: "Ada\r\nBcc: victim@example.com" };
+    expect(contactInput.safeParse(injection).success).toBe(false);
+    expect(contactInput.safeParse({ ...valid, name: "Ada Lovelace-Byron" }).success).toBe(true);
+  });
+
   it("trims whitespace before checking length", () => {
     const result = contactInput.safeParse({ ...valid, name: "   " });
     expect(result.success).toBe(false);

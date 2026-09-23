@@ -10,6 +10,19 @@ async function waitForTurnstile(page: Page) {
   );
 }
 
+/**
+ * Opens the palette with Ctrl+K. React attaches the shortcut a moment after the island
+ * hydrates, so press only while the dialog is closed and retry until it opens.
+ */
+async function openPalette(page: Page) {
+  await page.goto("/");
+  const dialog = page.getByRole("dialog", { name: "Command palette" });
+  await expect(async () => {
+    if (!(await dialog.isVisible())) await page.keyboard.press("Control+K");
+    await expect(dialog).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 10_000 });
+}
+
 test.describe("home page", () => {
   test("shows the four flagship projects in order", async ({ page }) => {
     await page.goto("/");
@@ -20,6 +33,35 @@ test.describe("home page", () => {
       "RayNeo Spatial",
       "UnDiffused",
     ]);
+  });
+
+  test("a canvas node is a link as well as draggable", async ({ page, isMobile }) => {
+    await page.goto("/");
+    const node = page.getByRole("link", { name: /Moneywell Town/ }).first();
+    if (!isMobile) {
+      const box = await node.boundingBox();
+      if (!box) throw new Error("node has no box");
+      await page.mouse.move(box.x + 40, box.y + 40);
+      await page.mouse.down();
+      await page.mouse.move(box.x - 60, box.y + 80, { steps: 8 });
+      await page.mouse.up();
+      await expect(page).toHaveURL(/\/$/);
+    }
+    await node.click();
+    await expect(page).toHaveURL(/#moneywell-town$/);
+  });
+
+  // Playwright's Chromium cannot decode H.264, so this checks the control stays truthful
+  // about the video's state rather than assuming playback.
+  test("the StudyCanvas demo control matches the video's state", async ({ page }) => {
+    await page.goto("/#studycanvas");
+    const video = page.locator(".player video");
+    const toggle = page.getByRole("button", { name: /^(Play|Pause) demo$/ });
+    for (let press = 0; press < 2; press++) {
+      await toggle.click();
+      const paused = await video.evaluate((v: HTMLVideoElement) => v.paused);
+      await expect(toggle).toHaveText(paused ? "Play demo" : "Pause demo");
+    }
   });
 
   test("the Moneywell console pages through the game", async ({ page }) => {
@@ -41,16 +83,14 @@ test.describe("command palette", () => {
   test.skip(({ isMobile }) => isMobile, "keyboard shortcut");
 
   test("jumps to a project from the keyboard", async ({ page }) => {
-    await page.goto("/");
-    await page.keyboard.press("Control+K");
+    await openPalette(page);
     await page.getByRole("combobox").fill("canvas");
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#studycanvas$/);
   });
 
   test("says so when nothing matches", async ({ page }) => {
-    await page.goto("/");
-    await page.keyboard.press("Control+K");
+    await openPalette(page);
     await page.getByRole("combobox").fill("zzzz");
     await expect(page.getByText("Nothing matches")).toBeVisible();
   });
@@ -71,7 +111,8 @@ test.describe("contact form", () => {
     await page.getByLabel("Email").fill("check@example.com");
     await page.getByLabel("Message").fill("An automated check that the contact form delivers.");
     await page.getByRole("button", { name: "Send message" }).click();
-    await expect(page.getByText("Sent. I'll reply")).toBeVisible();
+    // A real round trip and an email send, so allow longer than the default.
+    await expect(page.getByText("Sent. I'll reply")).toBeVisible({ timeout: 15_000 });
   });
 });
 

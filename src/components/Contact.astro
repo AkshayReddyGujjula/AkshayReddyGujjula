@@ -18,18 +18,24 @@ import { profile } from "~/data/profile";
   <form class="form" data-contact-form novalidate>
     <label>
       <span>Name</span>
-      <input name="name" autocomplete="name" required maxlength="100" />
-      <small data-error-for="name"></small>
+      <input name="name" autocomplete="name" required maxlength="100" aria-describedby="error-name" />
+      <small id="error-name" data-error-for="name"></small>
     </label>
     <label>
       <span>Email</span>
-      <input name="email" type="email" autocomplete="email" required />
-      <small data-error-for="email"></small>
+      <input name="email" type="email" autocomplete="email" required aria-describedby="error-email" />
+      <small id="error-email" data-error-for="email"></small>
     </label>
     <label class="wide">
       <span>Message</span>
-      <textarea name="message" rows="6" required minlength="10" maxlength="5000"></textarea>
-      <small data-error-for="message"></small>
+      <textarea
+        name="message"
+        rows="6"
+        required
+        minlength="10"
+        maxlength="5000"
+        aria-describedby="error-message"></textarea>
+      <small id="error-message" data-error-for="message"></small>
     </label>
     <div class="wide turnstile" data-turnstile data-sitekey={TURNSTILE_SITE_KEY}></div>
     <noscript class="wide">The form needs JavaScript. Email me at {profile.email} instead.</noscript>
@@ -60,10 +66,14 @@ import { profile } from "~/data/profile";
 
   // Load Turnstile only when the form is about to be seen, so no one else pays for it.
   function loadTurnstile() {
-    if (!widget) return;
+    if (!widget || !status) return;
     const script = document.createElement("script");
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     script.async = true;
+    script.onerror = () => {
+      widget.dataset.failed = "";
+      status.textContent = "The spam check couldn't load, so the form can't send. Please email me instead.";
+    };
     script.onload = () => {
       widgetId = window.turnstile?.render(widget, {
         sitekey: widget.dataset.sitekey,
@@ -100,20 +110,25 @@ import { profile } from "~/data/profile";
       button.disabled = true;
       status.textContent = "Sending…";
 
-      const { error } = await actions.contact(new FormData(form));
-      button.disabled = false;
-
-      if (!error) {
-        form.reset();
-        showErrors({});
-        status.textContent = "Sent. I'll reply to the address you gave.";
-      } else if (isInputError(error)) {
-        showErrors(error.fields);
-        status.textContent = error.fields["cf-turnstile-response"]?.[0] ?? "Please check the fields above.";
-      } else {
-        status.textContent = error.message;
+      try {
+        const { error } = await actions.contact(new FormData(form));
+        if (!error) {
+          form.reset();
+          showErrors({});
+          status.textContent = "Sent. I'll reply to the address you gave.";
+        } else if (isInputError(error)) {
+          showErrors(error.fields);
+          status.textContent =
+            error.fields["cf-turnstile-response"]?.[0] ?? "Please check the fields above.";
+        } else {
+          status.textContent = error.message;
+        }
+      } catch {
+        status.textContent = "Your message couldn't be sent. Check your connection and try again.";
+      } finally {
+        button.disabled = false;
+        window.turnstile?.reset(widgetId);
       }
-      window.turnstile?.reset(widgetId);
     });
   }
 </script>
@@ -203,6 +218,10 @@ import { profile } from "~/data/profile";
     padding-inline: 1rem;
     border-radius: var(--radius-sm);
     background: var(--surface-2);
+  }
+
+  .turnstile[data-failed] {
+    display: none;
   }
 
   .turnstile:empty::before {

@@ -35,8 +35,8 @@ const screens = [
     <p class="readout" data-readout aria-hidden="true">yaw 0.0°  pitch 0.0°</p>
   </div>
   <figcaption>
-    The default layout: three Windows desktops at −45°, 0° and +45°. Move across the scene to turn
-    your head.
+    The default layout: three Windows desktops at −45°, 0° and +45°.
+    <span class="hint">Move across the scene to turn your head.</span>
   </figcaption>
 </figure>
 
@@ -46,14 +46,17 @@ const screens = [
   const MAX_YAW = 50;
   const MAX_PITCH = 10;
 
-  for (const room of document.querySelectorAll<HTMLElement>("[data-spatial-room]")) {
+  // Turning the whole scene is large motion, so it only follows the pointer when that's welcome.
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  for (const room of calm ? [] : document.querySelectorAll<HTMLElement>("[data-spatial-room]")) {
     const scene = room.querySelector<HTMLElement>(".room");
     const readout = room.querySelector<HTMLElement>("[data-readout]");
     if (!scene || !readout) continue;
 
     const target = { yaw: 0, pitch: 0 };
     const pose = { yaw: 0, pitch: 0 };
-    const halfLife = matchMedia("(prefers-reduced-motion: reduce)").matches ? 1 : 110;
+    const halfLife = 110;
     let frame = 0;
     let last = 0;
 
@@ -203,6 +206,12 @@ const screens = [
     font-family: ui-monospace, "Cascadia Mono", "SF Mono", monospace;
     color: #7cc0b6;
     white-space: pre;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hint {
+      display: none;
+    }
   }
 
   figcaption {

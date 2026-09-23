@@ -9,8 +9,16 @@ const EMAIL = "That email address doesn't look right.";
 const MESSAGE = "A little more detail, please.";
 const HUMAN = "Please complete the spam check.";
 
+/** A name ends up in email headers, so line breaks and other control characters are refused. */
+const PRINTABLE = /^\P{Cc}*$/u;
+
 export const contactInput = z.object({
-  name: z.string({ error: NAME }).trim().min(1, NAME).max(100, "That name is too long."),
+  name: z
+    .string({ error: NAME })
+    .trim()
+    .min(1, NAME)
+    .max(100, "That name is too long.")
+    .regex(PRINTABLE, "Please use letters, spaces and punctuation only."),
   email: z.email({ error: EMAIL }),
   message: z
     .string({ error: MESSAGE })

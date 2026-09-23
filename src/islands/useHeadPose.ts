@@ -52,6 +52,9 @@ export function useHeadPose(
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
       cancelAnimationFrame(frame);
+      // Leave the plane flat if tracking stops, e.g. when reduced motion is switched on.
+      plane.current?.style.removeProperty("--yaw");
+      plane.current?.style.removeProperty("--pitch");
     };
   }, [plane, readout, enabled]);
 }

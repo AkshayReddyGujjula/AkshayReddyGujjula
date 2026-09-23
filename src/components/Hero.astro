@@ -5,11 +5,16 @@ import studycanvas from "~/assets/projects/studycanvas/learning-canvas.png";
 import undiffused from "~/assets/projects/undiffused/undiffused-hero.svg";
 import CanvasHero, { type HeroNode } from "~/islands/CanvasHero";
 
+const THUMB_WIDTH = 432;
+
 /** Raster thumbnails are resized to twice their displayed width; SVGs are used as they are. */
 async function thumb(src: ImageMetadata, pixelated = false) {
+  const height = Math.round((THUMB_WIDTH * src.height) / src.width);
   const url =
-    src.format === "svg" ? src.src : (await getImage({ src, width: 432, format: "webp" })).src;
-  return { src: url, width: 432, height: 243, pixelated };
+    src.format === "svg"
+      ? src.src
+      : (await getImage({ src, width: THUMB_WIDTH, format: "webp" })).src;
+  return { src: url, width: THUMB_WIDTH, height, pixelated };
 }
 
 const nodes: HeroNode[] = [
