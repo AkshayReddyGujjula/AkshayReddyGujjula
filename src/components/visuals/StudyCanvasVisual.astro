@@ -9,16 +9,18 @@ const posterUrl = (await getImage({ src: poster, width: 1600, format: "webp" }))
 
 <div class="studycanvas">
   <figure class="demo">
-    <video
+    <div class="player">
+      <video
       src="/media/studycanvas-highlight-to-answer.mp4"
       poster={posterUrl}
       muted
       loop
       playsinline
       preload="none"
-      data-autoplay
       aria-label="Highlighting a sentence in a PDF, asking about it, and the answer streaming into a linked node"
     ></video>
+      <button class="toggle" type="button" data-video-toggle>Play demo</button>
+    </div>
     <figcaption>Highlight, ask, and the answer streams into a node linked to its source.</figcaption>
   </figure>
 
@@ -35,17 +37,32 @@ const posterUrl = (await getImage({ src: poster, width: 1600, format: "webp" }))
 </div>
 
 <script>
-  // Play the demo only while it is on screen, and never for people who asked for less motion.
+  // The demo plays while it is on screen, unless someone paused it or asked for less motion.
   const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  for (const video of document.querySelectorAll<HTMLVideoElement>("video[data-autoplay]")) {
-    if (calm) {
-      video.controls = true;
-      continue;
-    }
-    new IntersectionObserver(([entry]) => {
-      if (entry?.isIntersecting) void video.play().catch(() => (video.controls = true));
-      else video.pause();
-    }, { threshold: 0.4 }).observe(video);
+
+  for (const player of document.querySelectorAll<HTMLElement>(".player")) {
+    const video = player.querySelector("video");
+    const toggle = player.querySelector<HTMLButtonElement>("[data-video-toggle]");
+    if (!video || !toggle) continue;
+    let paused = calm;
+
+    const sync = () => (toggle.textContent = video.paused ? "Play demo" : "Pause demo");
+    video.addEventListener("play", sync);
+    video.addEventListener("pause", sync);
+
+    toggle.addEventListener("click", () => {
+      paused = !video.paused;
+      if (paused) video.pause();
+      else void video.play();
+    });
+
+    new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting && !paused) void video.play().catch(sync);
+        else video.pause();
+      },
+      { threshold: 0.4 },
+    ).observe(video);
   }
 </script>
 
@@ -73,6 +90,27 @@ const posterUrl = (await getImage({ src: poster, width: 1600, format: "webp" }))
   video {
     aspect-ratio: 16 / 10;
     object-fit: cover;
+  }
+
+  .player {
+    position: relative;
+  }
+
+  .toggle {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--ink);
+    font-size: var(--step--1);
+    cursor: pointer;
+  }
+
+  .toggle:active {
+    scale: 0.97;
   }
 
   figcaption {

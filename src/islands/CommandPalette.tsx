@@ -15,10 +15,14 @@ async function run(item: PaletteItem): Promise<string | undefined> {
     return undefined;
   }
   if (item.action === "copy-email") {
-    await navigator.clipboard.writeText(profile.email);
-    return "Email address copied";
+    try {
+      await navigator.clipboard.writeText(profile.email);
+      return "Email address copied";
+    } catch {
+      return `Couldn't copy it. The address is ${profile.email}`;
+    }
   }
-  if (item.href?.startsWith("http")) window.open(item.href, "_blank", "noopener");
+  if (item.href?.startsWith("http")) window.open(item.href, "_blank", "noopener,noreferrer");
   else if (item.href) window.location.assign(item.href);
   return undefined;
 }

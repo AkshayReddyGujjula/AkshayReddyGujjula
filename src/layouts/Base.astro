@@ -52,7 +52,8 @@ const items = await paletteItems();
       <slot />
     </main>
     <Footer />
-    <CommandPalette client:idle items={items} />
+    <!-- Hydrated on load, not idle: Ctrl+K should work the moment the page appears. -->
+    <CommandPalette client:load items={items} />
   </body>
 </html>
 

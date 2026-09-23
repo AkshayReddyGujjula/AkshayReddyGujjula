@@ -1,4 +1,5 @@
 import {
+  type MouseEvent,
   type PointerEvent,
   type ReactNode,
   useEffect,
@@ -77,44 +78,50 @@ export default function CanvasHero({ nodes, children }: Props) {
   const calm = useMediaQuery("(prefers-reduced-motion: reduce)");
   useHeadPose(plane, readout, spatial && !calm);
 
-  // Re-measure whenever a node moves or the canvas resizes. Positions are fractions,
-  // so a resize moves every node and every edge with it.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: positions changing is the trigger.
+  // Positions are fractions of the canvas, so resizing it moves every node and edge.
   useLayoutEffect(() => {
     if (!plane.current) return;
-    const update = () => setBoxes(measure(elements.current));
-    update();
-    const observer = new ResizeObserver(update);
+    const observer = new ResizeObserver(() => setBoxes(measure(elements.current)));
     observer.observe(plane.current);
     return () => observer.disconnect();
-  }, [positions]);
+  }, []);
+
+  // A dragged node carries its edge with it.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: positions changing is the trigger.
+  useLayoutEffect(() => setBoxes(measure(elements.current)), [positions]);
 
   const startDrag = (id: string) => (event: PointerEvent<HTMLElement>) => {
     if (!spatial || event.button !== 0 || !plane.current) return;
     const el = event.currentTarget;
-    const canvas = plane.current.getBoundingClientRect();
+    // Capture at once, so the drag keeps tracking, and always ends, even off the node.
+    el.setPointerCapture(event.pointerId);
+    // offset* sizes ignore the plane's tilt, like the fractions they are divided into.
+    const canvas = { width: plane.current.offsetWidth, height: plane.current.offsetHeight };
     const origin = positions[id] ?? ROOT;
     const start = { x: event.clientX, y: event.clientY };
-    suppressClick.current = false;
+    let dragging = false;
 
     const onMove = (move: globalThis.PointerEvent) => {
       const dx = move.clientX - start.x;
       const dy = move.clientY - start.y;
-      if (!suppressClick.current && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-      if (!suppressClick.current) el.setPointerCapture(event.pointerId);
+      if (!dragging && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+      dragging = true;
       suppressClick.current = true;
       const x = clamp(origin.x + dx / canvas.width, 0, 1 - el.offsetWidth / canvas.width);
       const y = clamp(origin.y + dy / canvas.height, 0, 1 - el.offsetHeight / canvas.height);
       setPositions((prev) => ({ ...prev, [id]: { x, y } }));
     };
-    const onUp = () => {
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerup", onUp);
-      el.removeEventListener("pointercancel", onUp);
-    };
     el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerup", onUp);
-    el.addEventListener("pointercancel", onUp);
+    el.addEventListener("lostpointercapture", () => el.removeEventListener("pointermove", onMove), {
+      once: true,
+    });
+  };
+
+  // A drag ends with a click on the node; swallow that one click and no other.
+  const endDrag = (event: MouseEvent<HTMLElement>) => {
+    if (!suppressClick.current) return;
+    suppressClick.current = false;
+    event.preventDefault();
   };
 
   const place = (id: string) => {
@@ -169,7 +176,7 @@ export default function CanvasHero({ nodes, children }: Props) {
             className={`${styles.node} ${styles.project}`}
             style={{ ...place(node.id), animationDelay: `${450 + index * 120}ms` }}
             onPointerDown={startDrag(node.id)}
-            onClick={(event) => suppressClick.current && event.preventDefault()}
+            onClick={endDrag}
             draggable={false}
           >
             <span className={`${styles.port} ${styles.portIn}`} />

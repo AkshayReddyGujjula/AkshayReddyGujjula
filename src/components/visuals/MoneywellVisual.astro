@@ -34,8 +34,9 @@ const screens = [
     <svg class="dpad" viewBox="0 0 60 60" aria-hidden="true">
       <path d="M22 4h16v18h18v16H38v18H22V38H4V22h18z"></path>
     </svg>
-    <button class="hit left" type="button" data-step="-1" tabindex="-1" aria-hidden="true"></button>
-    <button class="hit right" type="button" data-step="1" tabindex="-1" aria-hidden="true"></button>
+    <!-- Pointer targets on the D-pad arms. Keyboard and screen reader users have A and B. -->
+    <span class="hit left" data-step="-1" aria-hidden="true"></span>
+    <span class="hit right" data-step="1" aria-hidden="true"></span>
 
     <div class="bezel">
       <div class="screen">
@@ -78,9 +79,10 @@ const screens = [
       captions.forEach((caption, i) => (caption.hidden = i !== current));
     };
 
-    for (const button of root.querySelectorAll<HTMLButtonElement>("[data-step]")) {
-      button.addEventListener("click", () => show(current + Number(button.dataset.step)));
-    }
+    root.addEventListener("click", (event) => {
+      const control = (event.target as Element).closest<HTMLElement>("[data-step]");
+      if (control) show(current + Number(control.dataset.step));
+    });
   }
 </script>
 
@@ -140,8 +142,6 @@ const screens = [
     width: 2.75rem;
     height: 3rem;
     margin-top: -1.5rem;
-    border: 0;
-    background: transparent;
     cursor: pointer;
   }
 
