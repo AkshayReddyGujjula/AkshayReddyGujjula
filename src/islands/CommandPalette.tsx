@@ -2,7 +2,6 @@ import { type KeyboardEvent, useEffect, useId, useMemo, useRef, useState } from 
 import { profile } from "~/data/profile";
 import { rank } from "~/lib/fuzzy";
 import type { PaletteItem } from "~/lib/paletteItems";
-import { toggleTheme } from "~/lib/theme";
 import styles from "./CommandPalette.module.css";
 
 interface Props {
@@ -10,10 +9,6 @@ interface Props {
 }
 
 async function run(item: PaletteItem): Promise<string | undefined> {
-  if (item.action === "toggle-theme") {
-    toggleTheme();
-    return undefined;
-  }
   if (item.action === "copy-email") {
     try {
       await navigator.clipboard.writeText(profile.email);

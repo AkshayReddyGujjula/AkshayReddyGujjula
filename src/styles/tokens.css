@@ -1,53 +1,48 @@
 /*
- * Design tokens. Each colour is declared once with light-dark(), so the theme is
- * chosen by color-scheme alone: the OS preference by default, or data-theme when
- * someone picks one with the toggle.
+ * Design tokens. The site has one theme: true black, so on an OLED screen the
+ * background is switched-off pixels and the work is the only thing lit. White is
+ * the second accent and carries the type; blue marks what you can act on and
+ * where you are.
  *
- * Light is paper: a faint canvas grid, navy ink and a highlighter.
- * Dark is a room: slate walls, lit screens and a teal readout.
- * Depth comes from borders and position, never from shadows.
+ * Depth comes from hairlines and position, never from shadows or glow.
  */
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 
-  --bg: light-dark(#f6f7f9, #141a26);
-  --surface: light-dark(#fbfbfc, #1c2333);
-  --surface-2: light-dark(#eef1f6, #232b3e);
-  --ink: light-dark(#16203a, #e8ecf4);
-  --ink-2: light-dark(#4f5a73, #a3aec3);
-  --ink-3: light-dark(#656c7c, #8a94a8);
-  --line: light-dark(#dfe3ec, #2c3548);
-  --line-strong: light-dark(#16203a, #e8ecf4);
-  --grid: light-dark(#e4e7ee, #1f2636);
-  --accent: light-dark(#2f5bea, #86a3ff);
-  --mark: light-dark(#f3cf4a, rgb(243 207 74 / 0.3));
-  --signal: light-dark(#0e7a6f, #5aa99f);
+  --bg: #000000;
+  --surface: #0b0b0c;
+  --surface-2: #141416;
+  --ink: #ffffff;
+  --ink-2: #a8a8b0;
+  --ink-3: #85858d;
+  --line: #1d1d20;
+  --line-strong: #3a3a40;
+  --grid: #101012;
+  /* Placeholder until the final hex arrives: every blue on the site reads this one token. */
+  --accent: #4d8dff;
+  --accent-soft: rgb(77 141 255 / 0.16);
+  --on-accent: #000000;
+  --signal: #5ad19a;
+  --danger: #ff7a7a;
 
-  --font: "Schibsted Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
 
-  /* Type scale: a major third from a 17px base. */
+  /* Type scale: a perfect fourth from a 17px base, with a display size for the hero. */
   --step--1: 0.875rem;
   --step-0: 1.0625rem;
-  --step-1: 1.3281rem;
-  --step-2: 1.6602rem;
-  --step-3: clamp(1.75rem, 1.4rem + 1.4vw, 2.0752rem);
-  --step-4: clamp(2.1rem, 1.6rem + 2.2vw, 2.594rem);
-  --step-5: clamp(2.5rem, 1.6rem + 3.6vw, 4rem);
+  --step-1: 1.25rem;
+  --step-2: clamp(1.4rem, 1.2rem + 0.8vw, 1.75rem);
+  --step-3: clamp(1.75rem, 1.35rem + 1.6vw, 2.5rem);
+  --step-4: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
+  --step-5: clamp(2.75rem, 1.4rem + 5.4vw, 6rem);
 
   --gutter: clamp(1rem, 4vw, 3rem);
-  --content: 72rem;
-  --measure: 62ch;
+  --content: 76rem;
+  --measure: 60ch;
   --radius: 6px;
   --radius-sm: 4px;
 
-  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-spring: cubic-bezier(0.3, 1.4, 0.5, 1);
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
+  /* Strong ease-out for anything that enters, and an in-out for things that travel. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }

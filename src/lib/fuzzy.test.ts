@@ -38,7 +38,7 @@ describe("rank", () => {
   const items = [
     { label: "Moneywell Town", keywords: "React TypeScript" },
     { label: "StudyCanvas", keywords: "React FastAPI" },
-    { label: "Switch colour theme", keywords: "dark light mode" },
+    { label: "Copy email address", keywords: "mail message" },
   ];
   const fields = (item: (typeof items)[number]) => item;
 
@@ -51,7 +51,7 @@ describe("rank", () => {
   });
 
   it("finds items by keyword", () => {
-    expect(rank(items, "dark", fields).map((i) => i.label)).toEqual(["Switch colour theme"]);
+    expect(rank(items, "message", fields).map((i) => i.label)).toEqual(["Copy email address"]);
   });
 
   it("ranks a label match above a keyword match", () => {

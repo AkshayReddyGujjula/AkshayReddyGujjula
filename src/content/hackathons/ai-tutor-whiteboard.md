@@ -1,8 +1,7 @@
 ---
 project: AI Tutor Whiteboard
-# TODO(akshay): confirm the event name and any result.
-event: Google hackathon
-date: 2026-03-31
+event: UCL × Google Hackathon
+date: 2026-03-01
 stack: [Next.js, Fabric.js, Gemini API, Web Speech API]
 links:
   - { label: Source, href: "https://github.com/AkshayReddyGujjula/GoogleHackathon" }

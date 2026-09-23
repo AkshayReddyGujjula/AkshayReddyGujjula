@@ -12,6 +12,14 @@ describe("edgePath", () => {
     expect(edgePath({ x: 0, y: 0 }, { x: 400, y: 100 })).toBe("M0,0 C200,0 200,100 400,100");
   });
 
+  it("uses vertical handles between top and bottom ports", () => {
+    expect(edgePath({ x: 0, y: 0 }, { x: 100, y: 400 }, "y")).toBe("M0,0 C0,200 100,200 100,400");
+  });
+
+  it("points the handles back toward a target on the left", () => {
+    expect(edgePath({ x: 400, y: 0 }, { x: 0, y: 100 })).toBe("M400,0 C200,0 200,100 0,100");
+  });
+
   it("keeps a minimum handle length for short edges", () => {
     expect(edgePath({ x: 0, y: 0 }, { x: 20, y: 50 })).toBe("M0,0 C60,0 -40,50 20,50");
   });
