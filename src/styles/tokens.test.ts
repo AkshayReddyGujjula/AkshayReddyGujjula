@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 const css = readFileSync(new URL("./tokens.css", import.meta.url), "utf8");
 
 function token(name: string): string {
-  const match = css.match(new RegExp(String.raw`--${name}: (#[0-9a-f]{6});`, "i"));
+  const match = css.match(new RegExp(`--${name}: (#[0-9a-f]{6});`, "i"));
   if (!match?.[1]) throw new Error(`Token --${name} is not a hex colour`);
   return match[1];
 }
@@ -26,7 +26,7 @@ function contrast(a: string, b: string): number {
   return (light + 0.05) / (dark + 0.05);
 }
 
-const texts = ["ink", "ink-2", "ink-3", "accent", "signal", "danger"];
+const texts = ["ink", "ink-2", "ink-3", "accent", "signal", "caution", "danger"];
 const backgrounds = ["bg", "surface", "surface-2"];
 
 describe("colour tokens", () => {

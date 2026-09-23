@@ -63,6 +63,7 @@ const screens = [
 
   <div class="captions" aria-live="polite">
     {screens.map((screen, index) => <p data-caption={index} hidden={index > 0}>{screen.caption}</p>)}
+    <p class="counter" data-counter aria-hidden="true">Screen 1 of {screens.length}</p>
     <p class="hint">Press A or the D-pad to look around.</p>
   </div>
 </div>
@@ -71,11 +72,16 @@ const screens = [
   for (const root of document.querySelectorAll<HTMLElement>("[data-console]")) {
     const images = root.querySelectorAll<HTMLElement>("[data-screen]");
     const captions = root.querySelectorAll<HTMLElement>("[data-caption]");
+    const counter = root.querySelector<HTMLElement>("[data-counter]");
     let current = 0;
 
     const show = (index: number) => {
       current = (index + images.length) % images.length;
-      images.forEach((img, i) => (img.hidden = i !== current));
+      images.forEach((img, i) => {
+        img.hidden = i !== current;
+        img.toggleAttribute("data-entering", i === current);
+      });
+      if (counter) counter.textContent = `Screen ${current + 1} of ${images.length}`;
       captions.forEach((caption, i) => (caption.hidden = i !== current));
     };
 
@@ -103,17 +109,17 @@ const screens = [
     gap: 1rem;
     padding: 1.25rem 1rem;
     border-radius: 2.75rem;
-    background: light-dark(#27324f, #2a3348);
+    background: #101013;
     box-shadow:
-      inset 0 2px 0 rgb(255 255 255 / 0.12),
-      inset 0 -6px 0 rgb(0 0 0 / 0.25);
+      inset 0 0 0 1px #26262b,
+      inset 0 1px 0 rgb(255 255 255 / 0.08);
   }
 
   .bezel {
     padding: 0.9rem;
     border-radius: 1rem;
-    background: #10141f;
-    box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.06);
+    background: #000;
+    box-shadow: inset 0 0 0 1px #1d1d21;
   }
 
   .screen {
@@ -130,10 +136,28 @@ const screens = [
     image-rendering: pixelated;
   }
 
+  /* A screen change fades in four hard steps, the way an old handheld's LCD caught up. */
+  .screen :global(img[data-entering]) {
+    animation: lcd 280ms steps(4, end);
+  }
+
+  @keyframes lcd {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .captions .counter {
+    margin-top: 1.5rem;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
   .dpad {
     width: 4.25rem;
     justify-self: center;
-    fill: #121724;
+    fill: #1d1d22;
   }
 
   .hit {
@@ -166,16 +190,25 @@ const screens = [
     height: 2.3rem;
     border: 0;
     border-radius: 50%;
-    background: #c9364a;
+    background: var(--accent);
     box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.3);
-    color: rgb(255 255 255 / 0.85);
+    color: var(--on-accent);
     font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
   }
 
+  .buttons button:first-child {
+    background: #2a2a30;
+    color: var(--ink-2);
+  }
+
+  .buttons button {
+    transition: scale 120ms var(--ease-out);
+  }
+
   .buttons button:active {
-    scale: 0.94;
+    scale: 0.92;
     box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.3);
   }
 

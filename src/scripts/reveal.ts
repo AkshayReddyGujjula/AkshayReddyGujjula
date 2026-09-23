@@ -1,7 +1,10 @@
+import { countUp } from "./countUp";
+
 /**
  * Marks [data-reveal] elements with data-shown the first time they come on screen,
  * and the CSS in global.css animates them in. Elements inside a [data-stagger]
- * group get an index, so a list arrives one item after another.
+ * group get an index, so a list arrives one item after another, and figures marked
+ * [data-count] count up as they arrive.
  */
 export function startReveals(root: ParentNode = document) {
   for (const group of root.querySelectorAll<HTMLElement>("[data-stagger]")) {
@@ -14,8 +17,12 @@ export function startReveals(root: ParentNode = document) {
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
-        (entry.target as HTMLElement).dataset.shown = "";
-        observer.unobserve(entry.target);
+        const el = entry.target as HTMLElement;
+        el.dataset.shown = "";
+        observer.unobserve(el);
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          for (const figure of el.querySelectorAll<HTMLElement>("[data-count]")) countUp(figure);
+        }
       }
     },
     { rootMargin: "0px 0px -12% 0px" },

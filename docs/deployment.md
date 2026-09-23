@@ -36,8 +36,14 @@ The contact form sends through Email Routing, which can only deliver to verified
    npx wrangler secret put TURNSTILE_SECRET_KEY
    ```
 
-If the site key is left as the test key, the form fails closed: every message is rejected by
-the server check. It never becomes an open relay.
+The production widget only accepts `akshaygujjula.com`, so local work uses Cloudflare's
+always-passes test key instead: `npm run dev` and `npm run build:test` select the `test`
+environment in `wrangler.jsonc` (through `.env.test`), and `.dev.vars` holds the matching test
+secret. CI builds with `build:test` for the same reason. `npm run deploy` always uses the
+production key.
+
+If the production secret is missing or wrong, the form fails closed: every message is rejected
+by the server check. It never becomes an open relay.
 
 ## 4. Redirect www to the apex
 

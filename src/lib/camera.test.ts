@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { fit, mix, poseAt, segment, toTransform } from "./camera";
+import { fitView, mix, poseAt, segment, toTransform } from "./camera";
 
 const view = { width: 1000, height: 600 };
 
-describe("fit", () => {
+describe("fitView", () => {
   it("centres the rectangle and uses the tighter axis", () => {
-    const pose = fit({ x: 0, y: 0, w: 2000, h: 500 }, view, 0);
+    const pose = fitView({ x: 0, y: 0, w: 2000, h: 500 }, view, 0);
     expect(pose).toEqual({ x: 1000, y: 250, scale: 0.5 });
   });
 
   it("leaves the margin clear", () => {
-    expect(fit({ x: 0, y: 0, w: 900, h: 100 }, view, 50).scale).toBe(1);
+    expect(fitView({ x: 0, y: 0, w: 900, h: 100 }, view, 50).scale).toBe(1);
   });
 });
 

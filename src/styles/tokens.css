@@ -23,6 +23,7 @@
   --accent-soft: rgb(77 141 255 / 0.16);
   --on-accent: #000000;
   --signal: #5ad19a;
+  --caution: #e8c468;
   --danger: #ff7a7a;
 
   --font: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
@@ -45,4 +46,20 @@
   /* Strong ease-out for anything that enters, and an in-out for things that travel. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Paper is white. Printers drop dark backgrounds, so print gets its own ink. */
+@media print {
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f2f2f4;
+    --ink: #0b0b0c;
+    --ink-2: #3a3a40;
+    --ink-3: #5a5a62;
+    --line: #d8d8de;
+    --line-strong: #9a9aa2;
+    --accent: #1f4fd6;
+  }
 }

@@ -7,7 +7,15 @@ import {
   useState,
 } from "react";
 import { bounds, graph, INTRO } from "~/data/graph";
-import { fit, type Key, type Pose, poseAt, type Rect, segment, toTransform } from "~/lib/camera";
+import {
+  fitView,
+  type Key,
+  type Pose,
+  poseAt,
+  type Rect,
+  segment,
+  toTransform,
+} from "~/lib/camera";
 import { approach, clamp, edgePath } from "~/lib/canvasGeometry";
 import styles from "./CanvasJourney.module.css";
 
@@ -51,7 +59,7 @@ function flightKeys(rects: Map<string, Rect>, view: { width: number; height: num
     y: intro.y + intro.h / 2,
     scale: Math.min(1, (view.width * 0.56) / intro.w, (view.height * 0.66) / intro.h),
   };
-  const overview = fit(bounds([...rects.values()]), view, 72);
+  const overview = fitView(bounds([...rects.values()]), view, 72);
   const keys: Key[] = [
     { at: T.leave, pose: closeUp },
     { at: T.overview, pose: overview },
@@ -327,7 +335,10 @@ export default function CanvasJourney({ nodes, children }: Props) {
 
         <div className={styles.hud} aria-hidden="true">
           <span>
-            Zoom <span ref={zoom}>100%</span>
+            Zoom{" "}
+            <span ref={zoom} data-zoom>
+              100%
+            </span>
           </span>
           <span className={styles.cue}>Scroll to zoom out</span>
         </div>
