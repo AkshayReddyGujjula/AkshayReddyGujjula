@@ -1,0 +1,290 @@
+---
+import { type CvEntry, cvCompetitions, cvProjects } from "~/data/cv";
+import { education, experience, profile, skills } from "~/data/profile";
+import Base from "~/layouts/Base.astro";
+
+const site = Astro.site?.host ?? "akshaygujjula.com";
+const sections: { title: string; entries: CvEntry[] }[] = [
+  { title: "Projects", entries: cvProjects },
+  { title: "Competitions and hackathons", entries: cvCompetitions },
+];
+---
+
+<Base title="CV" description={`CV of ${profile.fullName}. ${profile.summary}`}>
+  <article class="cv container">
+    <div class="toolbar">
+      <p>This page prints as a one-page CV.</p>
+      <button type="button" data-print>Print or save as PDF</button>
+    </div>
+
+    <header>
+      <h1>{profile.fullName}</h1>
+      <p class="contact">
+        <span>{profile.location}</span>
+        <a href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a href={profile.links.linkedin}>LinkedIn</a>
+        <a href={profile.links.github}>GitHub</a>
+        <a href="/">{site}</a>
+      </p>
+      <p class="summary">
+        {profile.summary} Hackathon winner twice, 5th of 100+ teams at the Imperial × Anthropic
+        Claude Hackathon, and one of 6 projects from 50+ selected to present on stage at the Google
+        Generative UI and A2A Hackathon.
+      </p>
+    </header>
+
+    <section>
+      <h2>Education</h2>
+      {
+        education.map((item) => (
+          <div class="entry">
+            <p class="line">
+              <span><strong>{item.school}</strong>, {item.qualification}</span>
+              <span class="period">{item.period}</span>
+            </p>
+            <ul>
+              {item.details.map((detail) => <li>{detail}</li>)}
+            </ul>
+          </div>
+        ))
+      }
+    </section>
+
+    <section>
+      <h2>Technical skills</h2>
+      <dl class="skills">
+        {
+          Object.entries(skills).map(([group, list]) => (
+            <div>
+              <dt>{group}</dt>
+              <dd>{list.join(", ")}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    {
+      sections.map((section) => (
+        <section>
+          <h2>{section.title}</h2>
+          {section.entries.map((entry) => (
+            <div class="entry">
+              <p class="line">
+                <span><strong>{entry.title}</strong>, {entry.context}</span>
+                {entry.link && <a href={entry.link.href}>{entry.link.label}</a>}
+                <span class="period">{entry.period}</span>
+              </p>
+              <p class="stack">{entry.stack}</p>
+              <ul>
+                {entry.points.map((point) => <li>{point}</li>)}
+              </ul>
+            </div>
+          ))}
+        </section>
+      ))
+    }
+
+    <section>
+      <h2>Experience</h2>
+      {
+        experience.map((item) => (
+          <div class="entry">
+            <p class="line">
+              <span><strong>{item.role}</strong>, {item.subject}</span>
+              <span class="period">{item.period}</span>
+            </p>
+            <ul>
+              {item.details.map((detail) => <li>{detail}</li>)}
+            </ul>
+          </div>
+        ))
+      }
+    </section>
+  </article>
+</Base>
+
+<script>
+  document.querySelector("[data-print]")?.addEventListener("click", () => window.print());
+</script>
+
+<style>
+  .cv {
+    max-width: 50rem;
+    padding-block: 3rem 5rem;
+    font-size: var(--step--1);
+    line-height: 1.5;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink-2);
+  }
+
+  .toolbar button {
+    padding: 0.45rem 1rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--ink);
+    color: var(--bg);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  h1 {
+    font-size: var(--step-3);
+    font-weight: 800;
+  }
+
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-top: 0.5rem;
+    color: var(--ink-2);
+  }
+
+  .summary {
+    margin-top: 1rem;
+    font-size: var(--step-0);
+  }
+
+  section {
+    margin-top: 1.75rem;
+  }
+
+  h2 {
+    padding-bottom: 0.3rem;
+    border-bottom: 1.5px solid var(--line-strong);
+    font-size: var(--step-0);
+    letter-spacing: -0.01em;
+  }
+
+  .entry {
+    margin-top: 0.9rem;
+  }
+
+  .line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.6rem;
+  }
+
+  .line .period {
+    margin-left: auto;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+
+  .stack {
+    color: var(--ink-2);
+    font-style: italic;
+  }
+
+  ul {
+    margin-top: 0.3rem;
+    padding-left: 1.1em;
+  }
+
+  li + li {
+    margin-top: 0.25rem;
+  }
+
+  .skills {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+  }
+
+  .skills div {
+    display: grid;
+    grid-template-columns: 13rem 1fr;
+    gap: 1rem;
+  }
+
+  dt {
+    font-weight: 600;
+  }
+
+  /* Printing: just the CV, in black on white, on as few pages as it takes. */
+  @media print {
+    .toolbar {
+      display: none;
+    }
+
+    :global(html) {
+      color-scheme: light;
+    }
+
+    .cv {
+      max-width: none;
+      width: 100%;
+      padding: 0;
+      font-size: 8.3pt;
+      line-height: 1.32;
+    }
+
+    h1 {
+      font-size: 17pt;
+    }
+
+    h2 {
+      padding-bottom: 0.1rem;
+      font-size: 10pt;
+    }
+
+    .summary {
+      margin-top: 0.5rem;
+      font-size: 9pt;
+    }
+
+    section {
+      margin-top: 0.8rem;
+    }
+
+    .entry {
+      margin-top: 0.45rem;
+      break-inside: avoid;
+    }
+
+    ul {
+      margin-top: 0.1rem;
+    }
+
+    li + li {
+      margin-top: 0.1rem;
+    }
+
+    .skills {
+      gap: 0.1rem;
+      margin-top: 0.35rem;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+
+  @page {
+    size: A4;
+    margin: 10mm 12mm;
+  }
+
+  @media (max-width: 40rem) {
+    .skills div {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+</style>

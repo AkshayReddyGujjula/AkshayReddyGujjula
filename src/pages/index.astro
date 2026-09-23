@@ -1,0 +1,69 @@
+---
+import About from "~/components/About.astro";
+import Chapter from "~/components/Chapter.astro";
+import Contact from "~/components/Contact.astro";
+import HackathonTimeline from "~/components/HackathonTimeline.astro";
+import Hero from "~/components/Hero.astro";
+import Minimap from "~/components/Minimap.astro";
+import Optimising from "~/components/Optimising.astro";
+import OtherProjects from "~/components/OtherProjects.astro";
+import ProjectFeature from "~/components/ProjectFeature.astro";
+import MoneywellVisual from "~/components/visuals/MoneywellVisual.astro";
+import RayNeoVisual from "~/components/visuals/RayNeoVisual.astro";
+import StudyCanvasVisual from "~/components/visuals/StudyCanvasVisual.astro";
+import UnDiffusedVisual from "~/components/visuals/UnDiffusedVisual.astro";
+import Base from "~/layouts/Base.astro";
+import { projectsByTier } from "~/lib/content";
+
+const visuals: Record<string, typeof StudyCanvasVisual> = {
+  studycanvas: StudyCanvasVisual,
+  "moneywell-town": MoneywellVisual,
+  "rayneo-spatial": RayNeoVisual,
+  undiffused: UnDiffusedVisual,
+};
+
+const flagships = await projectsByTier("flagship");
+---
+
+<Base>
+  <Hero />
+
+  {
+    flagships.map((project) => {
+      const Visual = visuals[project.id];
+      return <ProjectFeature project={project}>{Visual && <Visual />}</ProjectFeature>;
+    })
+  }
+
+  <Chapter
+    id="optimising"
+    kicker="Optimising"
+    title="Making agents do less."
+    lede="Most evenings go on making AI tools use fewer tokens, fewer steps and less time, and measuring whether it actually worked."
+  >
+    <Optimising />
+  </Chapter>
+
+  <Chapter
+    id="hackathons"
+    kicker="Hackathons"
+    title="Weekends with a deadline."
+    lede="Most of my projects started at a hackathon. These are the ones worth showing, and how they placed."
+  >
+    <HackathonTimeline />
+  </Chapter>
+
+  <Chapter id="more" kicker="Also built" title="Smaller things.">
+    <OtherProjects />
+  </Chapter>
+
+  <Chapter id="about" kicker="Off the keyboard" title="About me.">
+    <About />
+  </Chapter>
+
+  <Chapter id="contact" kicker="Contact" title="Say hello.">
+    <Contact />
+  </Chapter>
+
+  <Minimap />
+</Base>

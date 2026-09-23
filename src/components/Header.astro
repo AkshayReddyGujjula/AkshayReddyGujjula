@@ -1,0 +1,197 @@
+---
+import { profile } from "~/data/profile";
+import { hasPublishedWriting } from "~/lib/content";
+
+const links = [
+  { label: "Work", href: "/#studycanvas" },
+  { label: "Optimising", href: "/#optimising" },
+  { label: "Hackathons", href: "/#hackathons" },
+  ...((await hasPublishedWriting()) ? [{ label: "Writing", href: "/writing" }] : []),
+  { label: "CV", href: "/cv" },
+  { label: "Contact", href: "/#contact" },
+];
+---
+
+<header class="bar" data-bar>
+  <span class="progress" aria-hidden="true"></span>
+  <div class="inner">
+    <a class="name" href="/">{profile.name}</a>
+    <nav aria-label="Main">
+      <ul>
+        {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+      </ul>
+    </nav>
+    <button class="palette" type="button" data-palette-open aria-label="Open command palette">
+      <span>Search</span><kbd data-shortcut>Ctrl K</kbd>
+    </button>
+  </div>
+</header>
+
+<script>
+  const isMac = /Mac|iPhone|iPad/.test(navigator.userAgent);
+  for (const kbd of document.querySelectorAll("[data-shortcut]")) {
+    kbd.textContent = isMac ? "⌘K" : "Ctrl K";
+  }
+  document
+    .querySelector("[data-palette-open]")
+    ?.addEventListener("click", () => window.dispatchEvent(new Event("palette:open")));
+
+  // The bar stays transparent over the hero canvas and gains a solid ground once
+  // ordinary content scrolls under it.
+  const bar = document.querySelector<HTMLElement>("[data-bar]");
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
+  const update = () => {
+    const past = hero ? hero.getBoundingClientRect().bottom <= (bar?.offsetHeight ?? 0) : true;
+    bar?.toggleAttribute("data-scrolled", past && window.scrollY > 8);
+  };
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+</script>
+
+<style>
+  .bar {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 20;
+    transition:
+      background-color 300ms var(--ease-out),
+      box-shadow 300ms var(--ease-out);
+  }
+
+  /* On the home page the bar waits for the hero's opening, then arrives after it. */
+  :global(body:has([data-hero])) .bar {
+    animation: arrive 900ms var(--ease-out) 1400ms backwards;
+  }
+
+  /* How far down the page you are, as a hairline under the bar. Pure CSS, no scroll handler. */
+  .progress {
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: var(--accent);
+    transform-origin: left;
+    scale: 0 1;
+    display: none;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .progress {
+      display: block;
+      animation: progress linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+
+  @keyframes progress {
+    to {
+      scale: 1 1;
+    }
+  }
+
+  .bar[data-scrolled] {
+    background: var(--bg);
+    box-shadow: inset 0 -1px 0 var(--line);
+  }
+
+  @keyframes arrive {
+    from {
+      opacity: 0;
+      translate: 0 -0.5rem;
+    }
+  }
+
+  .inner {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    width: min(100% - 2 * var(--gutter), var(--content));
+    margin-inline: auto;
+    height: 4rem;
+  }
+
+  .name {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+
+  nav {
+    margin-left: auto;
+  }
+
+  ul {
+    display: flex;
+    gap: 1.75rem;
+    padding: 0;
+    list-style: none;
+    font-size: var(--step--1);
+  }
+
+  nav a {
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: color 160ms var(--ease-out);
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 2.25rem;
+    padding: 0 0.8rem;
+    border: 0;
+    border-radius: var(--radius);
+    box-shadow: inset 0 0 0 1px var(--line);
+    background: none;
+    color: var(--ink-2);
+    font-size: var(--step--1);
+    transition:
+      box-shadow 160ms var(--ease-out),
+      color 160ms var(--ease-out),
+      scale 160ms var(--ease-out);
+  }
+
+  button:active {
+    scale: 0.97;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    nav a:hover {
+      color: var(--ink);
+    }
+
+    button:hover {
+      box-shadow: inset 0 0 0 1px var(--ink-3);
+      color: var(--ink);
+    }
+  }
+
+  kbd {
+    font: inherit;
+    font-size: 0.75rem;
+    color: var(--ink-3);
+  }
+
+  /* No keyboard shortcut to advertise on a touch screen. */
+  @media (pointer: coarse) {
+    kbd {
+      display: none;
+    }
+  }
+
+  @media (max-width: 56rem) {
+    nav {
+      display: none;
+    }
+
+    button {
+      margin-left: auto;
+    }
+  }
+
+  @media print {
+    .bar {
+      display: none;
+    }
+  }
+</style>

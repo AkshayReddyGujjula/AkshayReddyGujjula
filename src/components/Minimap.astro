@@ -1,0 +1,315 @@
+---
+import { bounds, graph, INTRO } from "~/data/graph";
+import { edgePath } from "~/lib/canvasGeometry";
+
+/**
+ * The hero's map, drawn small in the corner once the hero has scrolled away. The
+ * node for the chapter being read lights up, and every node jumps to its chapter.
+ * On wide screens it sits open in the page gutter. Where the gutter is too narrow
+ * it folds into a small "you are here" label that opens into the map on hover or
+ * focus, so it never covers content unless asked to.
+ */
+const WIDTH = 136;
+const PADDING = 40;
+const box = bounds([INTRO, ...graph]);
+const scale = WIDTH / (box.w + 2 * PADDING);
+const height = Math.round((box.h + 2 * PADDING) * scale);
+const toMap = (x: number, y: number) => ({
+  x: (x - box.x + PADDING) * scale,
+  y: (y - box.y + PADDING) * scale,
+});
+
+const intro = { ...toMap(INTRO.x, INTRO.y), w: INTRO.w * scale, h: INTRO.h * scale };
+const nodes = graph.map((node) => {
+  const at = toMap(node.x, node.y);
+  const rect = { ...at, w: node.w * scale, h: node.h * scale };
+  const right = rect.x > intro.x + intro.w;
+  const left = rect.x + rect.w < intro.x;
+  const edge = right
+    ? edgePath(
+        { x: intro.x + intro.w, y: intro.y + intro.h / 2 },
+        { x: rect.x, y: rect.y + rect.h / 2 },
+      )
+    : left
+      ? edgePath(
+          { x: intro.x, y: intro.y + intro.h / 2 },
+          { x: rect.x + rect.w, y: rect.y + rect.h / 2 },
+        )
+      : edgePath(
+          { x: rect.x + rect.w / 2, y: intro.y + intro.h },
+          { x: rect.x + rect.w / 2, y: rect.y },
+          "y",
+        );
+  return { ...node, rect, edge };
+});
+---
+
+<nav class="minimap" aria-label="Page map" data-minimap>
+  <div class="map">
+  <svg viewBox={`0 0 ${WIDTH} ${height}`} width={WIDTH} height={height} aria-hidden="true">
+    {nodes.map((node) => <path d={node.edge} data-edge={node.id} />)}
+    <rect x={intro.x} y={intro.y} width={intro.w} height={intro.h} rx="2" class="intro" />
+  </svg>
+  <ul>
+    {
+      nodes.map((node) => (
+        <li
+          style={`left: ${node.rect.x}px; top: ${node.rect.y}px; width: ${node.rect.w}px; height: ${node.rect.h}px`}
+        >
+          <a href={`#${node.id}`} data-map-node={node.id} data-label={node.label}>
+            <span class="visually-hidden">{node.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  </div>
+  <p class="current" aria-hidden="true" data-map-label>Intro</p>
+</nav>
+
+<script>
+  const map = document.querySelector<HTMLElement>("[data-minimap]");
+  const hero = document.querySelector("[data-hero]");
+  const label = map?.querySelector<HTMLElement>("[data-map-label]");
+
+  if (map && hero && label) {
+    // Shown between the hero (which is its own map) and the footer (whose links it
+    // would otherwise sit on top of).
+    const footer = document.querySelector("body > footer");
+    let pastHero = false;
+    let atFooter = false;
+    const update = () => map.toggleAttribute("data-visible", pastHero && !atFooter);
+    new IntersectionObserver(([entry]) => {
+      pastHero = !entry?.isIntersecting && hero.getBoundingClientRect().top < 0;
+      update();
+    }).observe(hero);
+    if (footer) {
+      new IntersectionObserver(([entry]) => {
+        atFooter = Boolean(entry?.isIntersecting);
+        update();
+      }).observe(footer);
+    }
+
+    const select = (chapter: HTMLElement) => {
+      const id = chapter.id;
+      // A chapter with no node on the map (like "Smaller things") still names itself.
+      label.textContent = chapter.querySelector("h2")?.textContent?.trim() ?? "";
+      for (const link of map.querySelectorAll<HTMLElement>("[data-map-node]")) {
+        const active = link.dataset.mapNode === id;
+        link.toggleAttribute("data-active", active);
+        if (active) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+        if (active) label.textContent = link.textContent?.trim() ?? "";
+      }
+      for (const edge of map.querySelectorAll<SVGElement>("[data-edge]")) {
+        edge.toggleAttribute("data-active", edge.dataset.edge === id);
+      }
+    };
+
+    // The chapter crossing the middle of the viewport is the one being read.
+    const chapters = document.querySelectorAll<HTMLElement>("[data-chapter]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) if (entry.isIntersecting) select(entry.target as HTMLElement);
+      },
+      { rootMargin: "-50% 0px -50% 0px" },
+    );
+    for (const chapter of chapters) observer.observe(chapter);
+  }
+</script>
+
+<style>
+  .minimap {
+    position: fixed;
+    right: 0.75rem;
+    bottom: 1.5rem;
+    z-index: 15;
+    padding: 0.6rem;
+    border-radius: 10px;
+    background: var(--bg);
+    box-shadow: inset 0 0 0 1px var(--line);
+    opacity: 0;
+    translate: 0 0.75rem;
+    pointer-events: none;
+    transition:
+      opacity 400ms var(--ease-out),
+      translate 400ms var(--ease-out);
+  }
+
+  .minimap[data-visible] {
+    opacity: 1;
+    translate: none;
+    pointer-events: auto;
+  }
+
+  svg {
+    display: block;
+    overflow: visible;
+  }
+
+  path {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 1;
+    transition: stroke 300ms var(--ease-out);
+  }
+
+  path[data-active] {
+    stroke: var(--accent);
+  }
+
+  .intro {
+    fill: none;
+    stroke: var(--ink-3);
+  }
+
+  .map {
+    position: relative;
+  }
+
+  ul {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    position: absolute;
+  }
+
+  a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    transition:
+      background-color 300ms var(--ease-out),
+      box-shadow 300ms var(--ease-out);
+  }
+
+  a[data-active] {
+    background: var(--accent-soft);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    a:hover {
+      box-shadow: inset 0 0 0 1px var(--ink);
+    }
+  }
+
+  /* Hovering a node names its chapter, to the left where there's room. */
+  a::after {
+    content: attr(data-label);
+    position: absolute;
+    right: calc(100% + 0.5rem);
+    top: 50%;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    color: var(--ink);
+    font-size: 0.72rem;
+    white-space: nowrap;
+    opacity: 0;
+    translate: 0.25rem -50%;
+    pointer-events: none;
+    transition:
+      opacity 150ms var(--ease-out),
+      translate 150ms var(--ease-out);
+  }
+
+  a:hover::after,
+  a:focus-visible::after {
+    opacity: 1;
+    translate: 0 -50%;
+  }
+
+  li {
+    z-index: 0;
+  }
+
+  li:hover {
+    z-index: 1;
+  }
+
+  .current {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    color: var(--ink-2);
+  }
+
+  .current::before {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /*
+   * Where the gutter can't hold the open map, it folds to the label, and the map
+   * opens above it only while the pointer or keyboard focus is on it.
+   */
+  @media (max-width: 97rem) {
+    .map {
+      position: absolute;
+      right: -1px;
+      bottom: calc(100% - 1px);
+      /* Its own width, not the label's, so it opens leftwards over the page. */
+      width: max-content;
+      padding: 0.6rem;
+      border-radius: 10px 10px 0 10px;
+      background: var(--bg);
+      box-shadow: inset 0 0 0 1px var(--line);
+      opacity: 0;
+      translate: 0 0.4rem;
+      visibility: hidden;
+      transition:
+        opacity 250ms var(--ease-out),
+        translate 250ms var(--ease-out),
+        visibility 0s linear 250ms;
+    }
+
+    ul {
+      inset: 0.6rem;
+    }
+
+    .current {
+      margin-top: 0;
+    }
+
+    .minimap:hover,
+    .minimap:focus-within {
+      border-top-right-radius: 0;
+    }
+
+    .minimap:hover .map,
+    .minimap:focus-within .map {
+      opacity: 1;
+      translate: none;
+      visibility: visible;
+      transition-delay: 0s;
+    }
+  }
+
+  @media (max-width: 64rem) {
+    .minimap {
+      display: none;
+    }
+  }
+
+  @media print {
+    .minimap {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,164 @@
+.dialog {
+  width: min(100% - 2rem, 38rem);
+  margin: 14vh auto auto;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: var(--ink);
+  opacity: 1;
+  scale: 1;
+  transition:
+    opacity 200ms var(--ease-out),
+    scale 200ms var(--ease-out),
+    overlay 200ms allow-discrete,
+    display 200ms allow-discrete;
+}
+
+/* Opens from slightly smaller, the way a popover should; closes faster than it opens. */
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
+.dialog:not([open]) {
+  opacity: 0;
+  scale: 0.98;
+  transition-duration: 120ms;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.7);
+  transition:
+    background-color 200ms var(--ease-out),
+    overlay 200ms allow-discrete,
+    display 200ms allow-discrete;
+}
+
+@starting-style {
+  .dialog[open]::backdrop {
+    background: rgb(0 0 0 / 0);
+  }
+}
+
+.panel {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  padding: 1.15rem 1.35rem;
+  border: 0;
+  box-shadow: inset 0 -1px 0 var(--line);
+  background: transparent;
+  font-size: var(--step-1);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--ink-3);
+}
+
+/* A thin line sweeps under the input while Jev is thinking. */
+.thinking {
+  position: absolute;
+  top: calc(1.15rem * 2 + 1.75rem);
+  left: 0;
+  width: 100%;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.thinking::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  translate: -100% 0;
+}
+
+.thinking[data-on] {
+  opacity: 1;
+}
+
+.thinking[data-on]::after {
+  animation: sweep 900ms var(--ease-in-out) infinite;
+}
+
+@keyframes sweep {
+  to {
+    translate: 340% 0;
+  }
+}
+
+.list {
+  max-height: min(24rem, 60vh);
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 120ms var(--ease-out);
+}
+
+.option[aria-selected="true"] {
+  background: var(--surface-2);
+}
+
+.group {
+  font-size: var(--step--1);
+  color: var(--ink-3);
+}
+
+.best {
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  font-size: 0.75rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.empty {
+  padding: 0 1.35rem 0.75rem;
+  color: var(--ink-2);
+}
+
+.footnote {
+  padding: 0.7rem 1.35rem;
+  box-shadow: inset 0 1px 0 var(--line);
+  font-size: 0.8rem;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.status {
+  padding: 0 1.35rem;
+  font-size: var(--step--1);
+  color: var(--signal);
+}
+
+.status:not(:empty) {
+  padding-bottom: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thinking[data-on]::after {
+    animation: none;
+    translate: none;
+    width: 100%;
+  }
+}

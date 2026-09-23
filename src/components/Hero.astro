@@ -1,0 +1,194 @@
+---
+import { getImage } from "astro:assets";
+import moneywell from "~/assets/projects/moneywell-town/town.png";
+import studycanvas from "~/assets/projects/studycanvas/learning-canvas.png";
+import undiffused from "~/assets/projects/undiffused/scan.png";
+import CanvasJourney, { type JourneyNode, type Thumb } from "~/islands/CanvasJourney";
+
+/**
+ * Raster thumbnails are resized to the width they reach at the deepest zoom, so the
+ * dive into StudyCanvas stays sharp. SVGs are used as they are.
+ */
+async function thumb(src: ImageMetadata, width: number, pixelated = false): Promise<Thumb> {
+  const height = Math.round((width * src.height) / src.width);
+  const url = src.format === "svg" ? src.src : (await getImage({ src, width, format: "webp" })).src;
+  return { src: url, width, height, pixelated };
+}
+
+const nodes: JourneyNode[] = [
+  {
+    id: "studycanvas",
+    title: "StudyCanvas",
+    meta: "Live at studycanvas.app",
+    href: "#studycanvas",
+    thumb: await thumb(studycanvas, 1400),
+  },
+  {
+    id: "moneywell-town",
+    title: "Moneywell Town",
+    meta: "1st place, WIF AI Summit",
+    href: "#moneywell-town",
+    thumb: await thumb(moneywell, 760, true),
+  },
+  {
+    id: "rayneo-spatial",
+    title: "RayNeo Spatial",
+    meta: "C++20 and Direct3D 11",
+    href: "#rayneo-spatial",
+    lines: ["Real Windows monitors in AR glasses", "Head-tracked, held still in space"],
+  },
+  {
+    id: "undiffused",
+    title: "UnDiffused",
+    meta: "On-device ML in Chrome",
+    href: "#undiffused",
+    thumb: await thumb(undiffused, 760),
+  },
+  {
+    id: "optimising",
+    title: "Making agents faster",
+    meta: "What my evenings go on",
+    href: "#optimising",
+    lines: ["A leaner Pi coding harness", "A quicker Jev browser agent"],
+  },
+  {
+    id: "hackathons",
+    title: "Hackathons",
+    meta: "Weekends, mostly",
+    href: "#hackathons",
+    lines: ["1st at the WIF AI Summit", "1st in the UCL DSS Finance Track"],
+  },
+  {
+    id: "about",
+    title: "Off the keyboard",
+    meta: "About me",
+    href: "#about",
+    lines: ["Formula 1", "Cricket"],
+  },
+  {
+    id: "contact",
+    title: "Say hello",
+    meta: "Email or LinkedIn",
+    href: "#contact",
+  },
+];
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <CanvasJourney client:load nodes={nodes}>
+    <p class="kicker">Akshay Gujjula, Computer Science at UCL</p>
+    <h1 id="hero-title">I build software, then I make it faster.</h1>
+    <p class="lede">
+      I'm in my second year at UCL. Most days I'm working on StudyCanvas, a study app students use
+      every week. Most evenings I'm making AI agents quicker and cheaper to run.
+    </p>
+    <div class="actions">
+      <a class="primary" href="#studycanvas">See the work</a>
+      <a href="#contact">Get in touch</a>
+    </div>
+  </CanvasJourney>
+</section>
+
+<style>
+  .kicker {
+    font-size: var(--step-0);
+    color: var(--ink-2);
+    animation: rise 900ms var(--ease-out) 350ms backwards;
+  }
+
+  h1 {
+    margin-top: 1rem;
+    font-size: var(--step-5);
+    font-weight: 600;
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+    animation: type-in 1300ms var(--ease-out) 450ms backwards;
+  }
+
+  .lede {
+    max-width: 38ch;
+    margin-top: 1.5rem;
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink-2);
+    animation: rise 900ms var(--ease-out) 750ms backwards;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    animation: rise 900ms var(--ease-out) 900ms backwards;
+  }
+
+  .actions a {
+    display: inline-flex;
+    align-items: center;
+    height: 3rem;
+    padding: 0 1.4rem;
+    border-radius: var(--radius);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      background-color 200ms var(--ease-out),
+      box-shadow 200ms var(--ease-out),
+      scale 160ms var(--ease-out);
+  }
+
+  .actions .primary {
+    background: var(--ink);
+    color: var(--bg);
+    box-shadow: none;
+  }
+
+  .actions a:active {
+    scale: 0.97;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .actions a:hover {
+      box-shadow: inset 0 0 0 1px var(--ink);
+    }
+
+    .actions .primary:hover {
+      background: var(--accent);
+      color: var(--on-accent);
+      box-shadow: none;
+    }
+  }
+
+  /* On the canvas the intro is in world units, so its type is set in pixels. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    .kicker {
+      font-size: 20px;
+    }
+
+    h1 {
+      font-size: 84px;
+    }
+
+    .lede {
+      font-size: 23px;
+    }
+  }
+
+  /* The headline arrives condensed and opens out to its full width as it fades in. */
+  @keyframes type-in {
+    from {
+      opacity: 0;
+      font-stretch: 75%;
+      translate: 0 0.15em;
+      filter: blur(6px);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 0.75rem;
+    }
+  }
+</style>

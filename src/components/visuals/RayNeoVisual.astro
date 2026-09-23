@@ -1,0 +1,330 @@
+---
+import { getImage } from "astro:assets";
+import town from "~/assets/projects/moneywell-town/town.png";
+import canvas from "~/assets/projects/studycanvas/learning-canvas.png";
+
+/**
+ * Three Windows displays floating in front of the wearer, each showing something
+ * real: the head-tracking code from the project itself, StudyCanvas in a browser,
+ * and Moneywell Town. On the glasses black is transparent, so the room is black.
+ */
+const code = `Quat quat_scaled(const Quat& q, float fraction) {
+    const Quat n = quat_normalize(q);
+    const float sin_half = std::sqrt(n.x * n.x + n.y * n.y + n.z * n.z);
+    if (sin_half < 1e-6f) {
+        return Quat{};
+    }
+    // q and -q describe the same rotation; normalise the hemisphere first,
+    // otherwise the angle comes out as 360 - theta and the result is wrong.
+    const float sign = n.w < 0.0f ? -1.0f : 1.0f;
+    const float angle = 2.0f * std::atan2(sin_half, std::fabs(n.w));
+    const float scaled_half = 0.5f * angle * fraction;
+    const float scale = sign * std::sin(scaled_half) / sin_half;
+    return Quat{std::cos(scaled_half), n.x * scale, n.y * scale, n.z * scale};
+}`;
+
+const KEYWORDS = /\b(const|float|return|if|std)\b/g;
+
+/** A deliberately small highlighter: comments, keywords and numbers are all this excerpt needs. */
+function highlight(line: string): string {
+  const escaped = line.replaceAll("&", "&amp;").replaceAll("<", "&lt;");
+  if (escaped.trim().startsWith("//")) return `<span class="c">${escaped}</span>`;
+  return escaped
+    .replace(KEYWORDS, '<span class="k">$1</span>')
+    .replace(/\b(\d[\d.e-]*f?)\b/g, '<span class="n">$1</span>');
+}
+
+const lines = code.split("\n").map(highlight);
+const browser = await getImage({ src: canvas, width: 1200, format: "webp" });
+const game = await getImage({ src: town, width: 800, format: "webp" });
+---
+
+<figure class="rayneo" data-spatial-room>
+  <div class="room">
+    <div class="floor" aria-hidden="true"></div>
+    <div class="rig" aria-hidden="true">
+      <div class="screen" style="--at: -42deg">
+        <div class="editor">
+          <span class="tab">src/imu/fusion.cpp</span>
+          <pre>{lines.map((line, index) => <code><span class="ln">{index + 56}</span><Fragment set:html={line} /></code>)}</pre>
+        </div>
+        <span class="label">Display 1</span>
+      </div>
+      <div class="screen" style="--at: 0deg">
+        <div class="browser">
+          <span class="address">studycanvas.app</span>
+          <img src={browser.src} alt="" width="1200" height="686" loading="lazy" />
+        </div>
+        <span class="label">Display 2</span>
+      </div>
+      <div class="screen" style="--at: 42deg">
+        <img class="game" src={game.src} alt="" width="800" height="512" loading="lazy" />
+        <span class="label">Display 3</span>
+      </div>
+    </div>
+    <p class="readout" aria-hidden="true">
+      Head <span data-readout>yaw 0.0°, pitch 0.0°</span>
+    </p>
+    <p class="hint">Scroll or move the pointer to turn your head</p>
+  </div>
+  <figcaption>
+    Three Windows displays held still in space, as the glasses see them. The code on the left is
+    the project's own quaternion maths.
+  </figcaption>
+</figure>
+
+<script>
+  import { approach, clamp } from "~/lib/canvasGeometry";
+
+  const SWEEP = 34;
+  const POINTER_YAW = 14;
+  const POINTER_PITCH = 8;
+  const HALF_LIFE_MS = 120;
+
+  // Turning the scene is large motion, so it only moves when motion is welcome.
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  for (const figure of calm ? [] : document.querySelectorAll<HTMLElement>("[data-spatial-room]")) {
+    const room = figure.querySelector<HTMLElement>(".room");
+    const readout = figure.querySelector<HTMLElement>("[data-readout]");
+    if (!room || !readout) continue;
+
+    const pointer = { yaw: 0, pitch: 0 };
+    const pose = { yaw: 0, pitch: 0 };
+    let frame = 0;
+    let last = 0;
+
+    // Scrolling through the section turns the head from the left display to the right one.
+    const target = () => {
+      const box = room.getBoundingClientRect();
+      const through = clamp((innerHeight - box.top) / (innerHeight + box.height), 0, 1);
+      return {
+        yaw: (through * 2 - 1) * SWEEP + pointer.yaw,
+        pitch: pointer.pitch,
+      };
+    };
+
+    const render = (now: number) => {
+      const elapsed = last ? Math.min(now - last, 64) : 16;
+      last = now;
+      const goal = target();
+      pose.yaw = approach(pose.yaw, goal.yaw, elapsed, HALF_LIFE_MS);
+      pose.pitch = approach(pose.pitch, goal.pitch, elapsed, HALF_LIFE_MS);
+      room.style.setProperty("--yaw", `${pose.yaw.toFixed(2)}deg`);
+      room.style.setProperty("--pitch", `${pose.pitch.toFixed(2)}deg`);
+      room.style.setProperty("--floor-x", `${(-pose.yaw * 6).toFixed(1)}px`);
+      readout.textContent = `yaw ${pose.yaw.toFixed(1)}°, pitch ${pose.pitch.toFixed(1)}°`;
+
+      const moving = Math.abs(goal.yaw - pose.yaw) + Math.abs(goal.pitch - pose.pitch) > 0.01;
+      frame = moving ? requestAnimationFrame(render) : 0;
+      if (!moving) last = 0;
+    };
+    const wake = () => {
+      if (!frame) frame = requestAnimationFrame(render);
+    };
+
+    room.addEventListener("pointermove", (event) => {
+      const box = room.getBoundingClientRect();
+      pointer.yaw = ((event.clientX - box.left) / box.width - 0.5) * 2 * POINTER_YAW;
+      pointer.pitch = -((event.clientY - box.top) / box.height - 0.5) * 2 * POINTER_PITCH;
+      wake();
+    });
+    room.addEventListener("pointerleave", () => {
+      pointer.yaw = 0;
+      pointer.pitch = 0;
+      wake();
+    });
+
+    // Only follow the scroll while the room is on screen.
+    let visible = false;
+    new IntersectionObserver(([entry]) => {
+      visible = Boolean(entry?.isIntersecting);
+      if (visible) wake();
+    }).observe(room);
+    window.addEventListener("scroll", () => visible && wake(), { passive: true });
+  }
+</script>
+
+<style>
+  .room {
+    --r: 720px;
+    position: relative;
+    height: clamp(22rem, 46vw, 38rem);
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: #000;
+    box-shadow: inset 0 0 0 1px var(--line);
+    perspective: var(--r);
+    touch-action: pan-y;
+  }
+
+  .floor {
+    position: absolute;
+    inset: 64% -60% -60%;
+    transform: rotateX(80deg);
+    transform-origin: top;
+    background-image:
+      linear-gradient(#1c1c20 1px, transparent 1px),
+      linear-gradient(90deg, #1c1c20 1px, transparent 1px);
+    background-size: 72px 72px;
+    background-position: var(--floor-x, 0) 0;
+    mask-image: linear-gradient(#000, transparent 70%);
+  }
+
+  /* The camera sits at the centre of the arc; turning the head rotates the whole rig. */
+  .rig {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    transform-style: preserve-3d;
+    transform: translateZ(var(--r)) rotateX(var(--pitch, 0deg)) rotateY(var(--yaw, 0deg));
+  }
+
+  .screen {
+    --w: 28rem;
+    position: absolute;
+    width: var(--w);
+    aspect-ratio: 16 / 10;
+    margin: calc(var(--w) * -0.3125) 0 0 calc(var(--w) / -2);
+    border-radius: 10px;
+    background: #0b0b0d;
+    box-shadow: 0 0 0 1px #2a2a30;
+    transform: rotateY(calc(-1 * var(--at))) translateZ(calc(-1 * var(--r)));
+    backface-visibility: hidden;
+  }
+
+  .screen > :first-child {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+
+  .label {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 0;
+    font-size: 0.8rem;
+    color: var(--ink-3);
+  }
+
+  .editor {
+    display: flex;
+    flex-direction: column;
+    background: #0d0f14;
+  }
+
+  .tab {
+    padding: 0.55rem 0.9rem;
+    font-size: 0.7rem;
+    color: var(--ink-2);
+    box-shadow: inset 0 -1px 0 #1d2029;
+  }
+
+  pre {
+    display: grid;
+    padding: 0.7rem 0;
+    font: 0.66rem/1.55 ui-monospace, "Cascadia Code", Consolas, monospace;
+    color: #d7dae3;
+    white-space: pre;
+  }
+
+  pre code {
+    padding-right: 1rem;
+  }
+
+  .ln {
+    display: inline-block;
+    width: 2.6rem;
+    padding-right: 0.8rem;
+    text-align: right;
+    color: #4b5060;
+  }
+
+  pre :global(.k) {
+    color: #8fb4ff;
+  }
+
+  pre :global(.n) {
+    color: #f0c987;
+  }
+
+  pre :global(.c) {
+    color: #6d7385;
+  }
+
+  .browser {
+    display: flex;
+    flex-direction: column;
+    background: #f4f5f7;
+  }
+
+  .address {
+    margin: 0.45rem auto;
+    padding: 0.15rem 1.5rem;
+    border-radius: 999px;
+    background: #e2e5ea;
+    font-size: 0.62rem;
+    color: #4a4f5c;
+  }
+
+  .browser img {
+    width: 100%;
+    flex: 1;
+    object-fit: cover;
+    object-position: top left;
+  }
+
+  .game {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    image-rendering: pixelated;
+  }
+
+  .readout,
+  .hint {
+    position: absolute;
+    bottom: 1.25rem;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .readout {
+    left: 1.5rem;
+  }
+
+  .hint {
+    right: 1.5rem;
+  }
+
+  figcaption {
+    margin-top: 1rem;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 48rem) {
+    .room {
+      --r: 420px;
+    }
+
+    .screen {
+      --w: 16rem;
+    }
+
+    .hint {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hint {
+      display: none;
+    }
+  }
+</style>

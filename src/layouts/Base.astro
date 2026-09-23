@@ -1,0 +1,94 @@
+---
+import "~/styles/global.css";
+import Footer from "~/components/Footer.astro";
+import Header from "~/components/Header.astro";
+import { profile } from "~/data/profile";
+import CommandPalette from "~/islands/CommandPalette";
+import { paletteItems } from "~/lib/paletteItems";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = `${profile.name}: ${profile.summary}` } = Astro.props;
+
+const pageTitle = title ? `${title} · ${profile.name}` : profile.name;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/og.png", Astro.site);
+const items = await paletteItems();
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#000000" />
+    <script is:inline>
+      // Before first paint: reveal styles only apply when the script that clears them can run.
+      document.documentElement.classList.add("js");
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <!-- Hydrated on load, not idle: Ctrl+K should work the moment the page appears. -->
+    <CommandPalette client:load items={items} />
+    <script>
+      import { startChapterKeys } from "~/scripts/chapterKeys";
+      import { startReveals } from "~/scripts/reveal";
+
+      startReveals();
+      startChapterKeys();
+
+      // For anyone who opens the console.
+      console.info(
+        [
+          "%cHi, I'm Akshay.%c",
+          "This site's source is at https://github.com/AkshayReddyGujjula/AkshayReddyGujjula",
+          "Ctrl K searches (try asking a question), and J and K move between chapters.",
+        ].join("\n"),
+        "font: 600 14px system-ui",
+        "font: 12px system-ui; color: #a8a8b0",
+      );
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: fixed;
+    left: 1rem;
+    top: -4rem;
+    z-index: 100;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .skip:focus {
+    top: 1rem;
+  }
+
+  /* The header is fixed, so pages clear it. The home page's hero sits under it on purpose. */
+  main:not(:has([data-hero])) {
+    padding-top: 4rem;
+  }
+</style>

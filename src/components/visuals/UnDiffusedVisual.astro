@@ -1,0 +1,185 @@
+---
+import { Image } from "astro:assets";
+import scan from "~/assets/projects/undiffused/scan.png";
+
+/**
+ * The extension as it really behaves: the screenshot is the shipped build scanning
+ * a generated image from its evaluation set (P(AI) = 0.988), captured with
+ * scripts/capture-undiffused.mjs. The AUROC figures are the measured ones.
+ */
+---
+
+<figure class="undiffused">
+  <div class="capture">
+    <Image
+      src={scan}
+      alt="The UnDiffused panel open over a generated photo of a coastal golf course. It reads Likely AI generated, with 99% confidence, above buttons for a reverse image search, a deep scan and forensic tools."
+      widths={[600, 900, 1240]}
+      sizes="(min-width: 76rem) 30rem, 100vw"
+      loading="lazy"
+    />
+  </div>
+
+  <div class="readings">
+    <div class="auroc" data-reveal>
+      <p class="caption">Measured AUROC on 400 unseen, content-matched pairs</p>
+      <svg viewBox="0 0 560 70" role="img" aria-labelledby="ud-auroc-title">
+        <title id="ud-auroc-title">
+          AUROC 0.954 on clean images, and between 0.948 and 0.958 under JPEG compression, resizing,
+          WebP conversion and screenshot recapture, on an axis from 0.90 to 1.00
+        </title>
+        <line x1="10" y1="36" x2="550" y2="36" class="axis"></line>
+        <line x1="280" y1="30" x2="280" y2="42" class="tick"></line>
+        <g class="marker">
+          <rect x="269.2" y="27" width="54" height="18" rx="3" class="band"></rect>
+          <circle cx="301.6" cy="36" r="6" class="point"></circle>
+          <text x="301.6" y="14" text-anchor="middle" class="value">0.954</text>
+        </g>
+        <text x="10" y="66">0.90</text>
+        <text x="280" y="66" text-anchor="middle">0.95</text>
+        <text x="550" y="66" text-anchor="end">1.00</text>
+      </svg>
+      <p class="legend">
+        <span><span class="swatch point"></span>Clean images</span>
+        <span><span class="swatch band"></span>After JPEG, resizing, WebP or a screenshot</span>
+      </p>
+    </div>
+
+    <div class="local" data-reveal>
+      <p class="caption">On your device</p>
+      <p>
+        A 24.9 MB INT8 model runs in WebAssembly inside the extension. The image never leaves your
+        browser, and when the model is unsure it says so instead of guessing.
+      </p>
+    </div>
+  </div>
+
+  <figcaption>
+    The shipped extension, run on a generated image from its own evaluation set.
+  </figcaption>
+</figure>
+
+<style>
+  .undiffused {
+    display: grid;
+    grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: center;
+  }
+
+  .capture {
+    overflow: hidden;
+    border-radius: var(--radius);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+
+  .capture :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .readings {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .caption {
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  svg {
+    width: 100%;
+    margin-top: 1rem;
+    overflow: visible;
+  }
+
+  .axis {
+    stroke: var(--line-strong);
+    stroke-width: 1.5;
+  }
+
+  .tick {
+    stroke: var(--line-strong);
+  }
+
+  .band {
+    fill: var(--accent-soft);
+    stroke: var(--accent);
+  }
+
+  .point {
+    fill: var(--accent);
+  }
+
+  text {
+    fill: var(--ink-3);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .value {
+    fill: var(--ink);
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  /* The reading slides along the axis from 0.90 to where it was measured. */
+  :global(.js) [data-reveal] .marker {
+    transform: translateX(-291.6px);
+    opacity: 0;
+    transition:
+      transform 1400ms var(--ease-out) 300ms,
+      opacity 400ms var(--ease-out) 300ms;
+  }
+
+  :global(.js) [data-reveal][data-shown] .marker {
+    transform: none;
+    opacity: 1;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-top: 1rem;
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  .swatch {
+    display: inline-block;
+    width: 0.7rem;
+    height: 0.7rem;
+    margin-right: 0.45rem;
+    border-radius: 50%;
+    vertical-align: -0.05rem;
+  }
+
+  .swatch.point {
+    background: var(--accent);
+  }
+
+  .swatch.band {
+    border-radius: 2px;
+    background: var(--accent-soft);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .local p + p {
+    margin-top: 0.6rem;
+    color: var(--ink-2);
+  }
+
+  figcaption {
+    grid-column: 1 / -1;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 56rem) {
+    .undiffused {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

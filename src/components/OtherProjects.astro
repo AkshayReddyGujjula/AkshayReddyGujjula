@@ -1,0 +1,69 @@
+---
+import { projectsByTier } from "~/lib/content";
+
+const projects = await projectsByTier("other");
+---
+
+<ul class="others" data-stagger>
+  {
+    projects.map((project) => {
+      const link = project.data.links[0];
+      return (
+        <li data-reveal>
+          <h3>{link ? <a href={link.href}>{project.data.title}</a> : project.data.title}</h3>
+          <p>{project.data.tagline}</p>
+          <p class="meta">
+            {project.data.stack.join(", ")}. {project.data.period}
+            {!link && ", private repository"}
+          </p>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  /* One row per project, the title beside its details. */
+  .others {
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 16rem minmax(0, 1fr);
+    gap: 0.25rem 2rem;
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  h3 {
+    grid-row: span 2;
+    font-size: var(--step-1);
+  }
+
+  h3 a {
+    color: var(--ink);
+  }
+
+  p {
+    max-width: var(--measure);
+    color: var(--ink-2);
+  }
+
+  .meta {
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 40rem) {
+    li {
+      grid-template-columns: 1fr;
+    }
+
+    h3 {
+      grid-row: auto;
+    }
+  }
+</style>

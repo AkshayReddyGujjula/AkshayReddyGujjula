@@ -1,0 +1,566 @@
+---
+import { TURNSTILE_SITE_KEY } from "astro:env/client";
+import Elsewhere from "~/components/Elsewhere.astro";
+import { profile } from "~/data/profile";
+---
+
+<div class="contact">
+  <div class="direct" data-stagger>
+    <p class="lead" data-reveal>
+      Internships, collaborations, or a question about something here. Email is quickest.
+    </p>
+    <button class="email" type="button" data-copy={profile.email} data-reveal>
+      <span class="address">{profile.email}</span>
+      <span class="copy-state" aria-live="polite">
+        <span data-copy-idle>Copy address</span>
+        <span data-copy-done>Copied</span>
+      </span>
+    </button>
+    <p class="mailto" data-reveal>
+      <a href={`mailto:${profile.email}`}>Or open it in your mail app</a>
+    </p>
+    <Elsewhere />
+  </div>
+
+  <div class="flow" data-flow data-state="idle" data-reveal>
+    <form class="node form" data-contact-form novalidate>
+      <p class="node-title">Your message</p>
+      <div class="fields">
+        <label class="field">
+          <input
+            name="name"
+            autocomplete="name"
+            required
+            maxlength="100"
+            placeholder=" "
+            aria-describedby="error-name"
+          />
+          <span>Name</span>
+          <small id="error-name" data-error-for="name"></small>
+        </label>
+        <label class="field">
+          <input
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            placeholder=" "
+            aria-describedby="error-email"
+          />
+          <span>Email</span>
+          <small id="error-email" data-error-for="email"></small>
+        </label>
+        <label class="field wide">
+          <textarea
+            name="message"
+            rows="5"
+            required
+            minlength="10"
+            maxlength="5000"
+            placeholder=" "
+            aria-describedby="error-message"></textarea>
+          <span>Message</span>
+          <small id="error-message" data-error-for="message"></small>
+        </label>
+      </div>
+      <div class="turnstile" data-turnstile data-sitekey={TURNSTILE_SITE_KEY}></div>
+      <noscript>The form needs JavaScript. Email me at {profile.email} instead.</noscript>
+      <div class="actions">
+        <button type="submit">Send message</button>
+        <p role="status" data-status></p>
+      </div>
+    </form>
+
+    <div class="wire" aria-hidden="true"><span class="fill"></span><span class="pulse"></span></div>
+
+    <div class="node inbox" aria-hidden="true">
+      <span class="port"></span>
+      <span>Akshay's inbox</span>
+      <strong data-inbox-idle>Waiting for your message</strong>
+      <strong data-inbox-sent>Delivered</strong>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { actions, isInputError } from "astro:actions";
+
+  declare global {
+    interface Window {
+      turnstile?: {
+        render: (el: HTMLElement, options: Record<string, unknown>) => string;
+        reset: (id?: string) => void;
+      };
+    }
+  }
+
+  const flow = document.querySelector<HTMLElement>("[data-flow]");
+  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+  const widget = form?.querySelector<HTMLElement>("[data-turnstile]");
+  const status = form?.querySelector<HTMLElement>("[data-status]");
+  const button = form?.querySelector<HTMLButtonElement>("button[type=submit]");
+  let widgetId: string | undefined;
+
+  // Load Turnstile only when the form is about to be seen, so no one else pays for it.
+  function loadTurnstile() {
+    if (!widget || !status) return;
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.onerror = () => {
+      widget.dataset.failed = "";
+      status.textContent = "The spam check couldn't load, so the form can't send. Please email me instead.";
+    };
+    script.onload = () => {
+      widgetId = window.turnstile?.render(widget, {
+        sitekey: widget.dataset.sitekey,
+        theme: "dark",
+        size: "flexible",
+      });
+    };
+    document.head.appendChild(script);
+  }
+
+  /** Shows each field's first error and moves focus to the first field that has one. */
+  function showErrors(fields: Record<string, string[] | undefined>) {
+    let first: HTMLElement | null = null;
+    for (const slot of form?.querySelectorAll<HTMLElement>("[data-error-for]") ?? []) {
+      const name = slot.dataset.errorFor ?? "";
+      const message = fields[name]?.[0] ?? "";
+      slot.textContent = message;
+      const field = form?.elements.namedItem(name);
+      if (field instanceof HTMLElement) field.setAttribute("aria-invalid", String(Boolean(message)));
+      if (message && !first && field instanceof HTMLElement) first = field;
+    }
+    first?.focus();
+  }
+
+  /** The wire to the inbox fills a third for each field that would pass the server's checks. */
+  function trackProgress() {
+    if (!form || !flow) return;
+    const fields = ["name", "email", "message"].map((name) => form.elements.namedItem(name));
+    const ready = fields.filter(
+      (field) =>
+        (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) &&
+        field.value.trim() !== "" &&
+        field.checkValidity(),
+    ).length;
+    flow.style.setProperty("--progress", String(ready / fields.length));
+  }
+
+  // The address copies in one click; the label says so, then settles back.
+  for (const copy of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+    let timer = 0;
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(copy.dataset.copy ?? "");
+      } catch {
+        window.location.href = `mailto:${copy.dataset.copy}`;
+        return;
+      }
+      copy.dataset.copied = "";
+      clearTimeout(timer);
+      timer = window.setTimeout(() => delete copy.dataset.copied, 1800);
+    });
+  }
+
+  if (form && flow && widget && status && button) {
+    form.addEventListener("input", trackProgress);
+    new IntersectionObserver((entries, observer) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      loadTurnstile();
+    }, { rootMargin: "400px" }).observe(form);
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      button.disabled = true;
+      status.textContent = "Sending…";
+      flow.dataset.state = "sending";
+
+      try {
+        const { error } = await actions.contact(new FormData(form));
+        if (!error) {
+          form.reset();
+          showErrors({});
+          trackProgress();
+          flow.dataset.state = "sent";
+          status.textContent = "Sent. I'll reply to the address you gave.";
+        } else if (isInputError(error)) {
+          flow.dataset.state = "error";
+          showErrors(error.fields);
+          status.textContent =
+            error.fields["cf-turnstile-response"]?.[0] ?? "Please check the fields above.";
+        } else {
+          flow.dataset.state = "error";
+          status.textContent = error.message;
+        }
+      } catch {
+        flow.dataset.state = "error";
+        status.textContent = "Your message couldn't be sent. Check your connection and try again.";
+      } finally {
+        button.disabled = false;
+        window.turnstile?.reset(widgetId);
+      }
+    });
+  }
+</script>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(2.5rem, 7vw, 6rem);
+    padding-bottom: clamp(6rem, 12vw, 9rem);
+  }
+
+  .lead {
+    max-width: 28ch;
+    font-size: var(--step-2);
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    color: var(--ink-2);
+  }
+
+  /* The address is the biggest thing here, and one click copies it. */
+  .email {
+    display: grid;
+    justify-items: start;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+  }
+
+  .address {
+    font-size: clamp(1.3rem, 0.8rem + 1.6vw, 2.1rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+    background: linear-gradient(var(--accent), var(--accent)) no-repeat left bottom / 0 1px;
+    transition:
+      background-size 500ms var(--ease-out),
+      scale 160ms var(--ease-out);
+  }
+
+  .copy-state {
+    display: grid;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  .copy-state span {
+    grid-area: 1 / 1;
+    transition:
+      opacity 250ms var(--ease-out),
+      translate 250ms var(--ease-out);
+  }
+
+  [data-copy-done] {
+    opacity: 0;
+    translate: 0 0.4rem;
+    color: var(--signal);
+  }
+
+  .email[data-copied] [data-copy-idle] {
+    opacity: 0;
+    translate: 0 -0.4rem;
+  }
+
+  .email[data-copied] [data-copy-done] {
+    opacity: 1;
+    translate: none;
+  }
+
+  .email:active .address {
+    scale: 0.99;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .email:hover .address {
+      background-size: 100% 1px;
+    }
+  }
+
+  .mailto {
+    margin-top: 1.25rem;
+    font-size: var(--step--1);
+  }
+
+  /* The form is a node on the canvas, wired to a node for the inbox. */
+  .flow {
+    --progress: 0;
+    display: grid;
+    justify-items: center;
+  }
+
+  .node {
+    width: 100%;
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: box-shadow 400ms var(--ease-out);
+  }
+
+  .form {
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .form:focus-within {
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+  }
+
+  .node-title {
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .wide {
+    grid-column: 1 / -1;
+  }
+
+  /* Floating labels: the label sits in the field until there's something in it. */
+  .field {
+    position: relative;
+    display: grid;
+  }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding: 1.45rem 0.9rem 0.55rem;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--bg);
+    box-shadow: inset 0 0 0 1px var(--line);
+    font-size: var(--step-0);
+    resize: vertical;
+    transition: box-shadow 200ms var(--ease-out);
+  }
+
+  .field > span {
+    position: absolute;
+    left: 0.9rem;
+    top: 1rem;
+    color: var(--ink-3);
+    pointer-events: none;
+    transform-origin: left top;
+    transition:
+      translate 200ms var(--ease-out),
+      scale 200ms var(--ease-out),
+      color 200ms var(--ease-out);
+  }
+
+  .field :focus + span,
+  .field :not(:placeholder-shown) + span {
+    translate: 0 -0.6rem;
+    scale: 0.78;
+  }
+
+  .field :focus + span {
+    color: var(--accent);
+  }
+
+  .field :focus {
+    outline: none;
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .field [aria-invalid="true"] {
+    box-shadow: inset 0 0 0 1px var(--danger);
+  }
+
+  small {
+    min-height: 1.3em;
+    margin-top: 0.3rem;
+    font-size: var(--step--1);
+    color: var(--danger);
+  }
+
+  .turnstile:empty::before {
+    content: "Loading spam check…";
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  .turnstile[data-failed]::before {
+    content: none;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 1.25rem;
+  }
+
+  button[type="submit"] {
+    height: 3rem;
+    padding: 0 1.5rem;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: var(--bg);
+    font-weight: 500;
+    transition:
+      background-color 200ms var(--ease-out),
+      color 200ms var(--ease-out),
+      scale 160ms var(--ease-out);
+  }
+
+  button[type="submit"]:active {
+    scale: 0.97;
+  }
+
+  button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    button[type="submit"]:hover {
+      background: var(--accent);
+      color: var(--on-accent);
+    }
+  }
+
+  [data-status] {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  /* The wire fills as the form becomes sendable, and a pulse runs down it while sending. */
+  .wire {
+    position: relative;
+    width: 2px;
+    height: 4.5rem;
+    background: var(--line);
+  }
+
+  .fill {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform-origin: top;
+    scale: 1 var(--progress);
+    transition:
+      scale 500ms var(--ease-out),
+      background-color 300ms var(--ease-out);
+  }
+
+  .pulse {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin: -0.3rem 0 0 -0.3rem;
+    border-radius: 50%;
+    background: var(--ink);
+    opacity: 0;
+  }
+
+  [data-state="sending"] .pulse {
+    animation: travel 900ms var(--ease-in-out) infinite;
+  }
+
+  [data-state="sent"] .pulse {
+    animation: travel 700ms var(--ease-in-out) 1;
+  }
+
+  [data-state="error"] .fill {
+    background: var(--danger);
+  }
+
+  @keyframes travel {
+    0% {
+      opacity: 0;
+      translate: 0 0;
+    }
+    15%,
+    85% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      translate: 0 4.5rem;
+    }
+  }
+
+  .inbox {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    width: auto;
+    min-width: 16rem;
+    padding: 1rem 1.5rem;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  .inbox strong {
+    grid-area: 2 / 1;
+    font-size: var(--step-0);
+    font-weight: 500;
+    color: var(--ink-2);
+    transition:
+      opacity 300ms var(--ease-out),
+      translate 300ms var(--ease-out);
+  }
+
+  [data-inbox-sent] {
+    opacity: 0;
+    translate: 0 0.4rem;
+  }
+
+  [data-state="sent"] .inbox {
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  [data-state="sent"] [data-inbox-idle] {
+    opacity: 0;
+    translate: 0 -0.4rem;
+  }
+
+  [data-state="sent"] [data-inbox-sent] {
+    opacity: 1;
+    translate: none;
+    color: var(--ink);
+  }
+
+  .port {
+    position: absolute;
+    top: -0.3rem;
+    left: calc(50% - 0.3rem);
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: inset 0 0 0 1.5px var(--line-strong);
+  }
+
+  @media (max-width: 56rem) {
+    .contact {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .fields {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
