@@ -2,7 +2,7 @@
 title: The time my AI image detector scored 0.990 and I didn't believe it
 description: What I learned rebuilding UnDiffused, a Chrome extension that guesses whether an image is AI generated, after finding out the first version was basically flipping a coin.
 published: 2026-09-23
-draft: true
+draft: false
 ---
 
 UnDiffused is a Chrome extension. You right-click an image and it tells you whether it thinks the image is AI generated, and it does all of this on your own computer without uploading anything. It started at the AI Ventures Hackathon at Imperial, and I've been rebuilding it properly since.
