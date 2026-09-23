@@ -81,3 +81,13 @@ export const skills: Record<string, string[]> = {
     "Chrome Extensions API",
   ],
 };
+
+/** Shown in the About section. The hobbies list renders only once it has entries. */
+export const about = {
+  paragraphs: [
+    "I'm a second-year Computer Science student at UCL, graduating in 2028. I build full-stack, AI and performance-sensitive systems, and I like getting them in front of real people: ten students use StudyCanvas every week, and Moneywell Town is on its way to Web Summit.",
+    "Alongside my degree I tutor seven A-level students in Maths, Computer Science and Python, teaching recursion and abstraction from first principles through live debugging.",
+  ],
+  // TODO(akshay): add hobbies, e.g. "Chess: 1600 on Lichess".
+  hobbies: [] as string[],
+};

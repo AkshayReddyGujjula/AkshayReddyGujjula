@@ -1,8 +1,53 @@
 ---
+import About from "~/components/About.astro";
+import Contact from "~/components/Contact.astro";
+import HackathonTimeline from "~/components/HackathonTimeline.astro";
 import Hero from "~/components/Hero.astro";
+import OtherProjects from "~/components/OtherProjects.astro";
+import ProjectFeature from "~/components/ProjectFeature.astro";
+import Section from "~/components/Section.astro";
+import MoneywellVisual from "~/components/visuals/MoneywellVisual.astro";
+import RayNeoVisual from "~/components/visuals/RayNeoVisual.astro";
+import StudyCanvasVisual from "~/components/visuals/StudyCanvasVisual.astro";
+import UnDiffusedVisual from "~/components/visuals/UnDiffusedVisual.astro";
 import Base from "~/layouts/Base.astro";
+import { projectsByTier } from "~/lib/content";
+
+const visuals: Record<string, typeof StudyCanvasVisual> = {
+  studycanvas: StudyCanvasVisual,
+  "moneywell-town": MoneywellVisual,
+  "rayneo-spatial": RayNeoVisual,
+  undiffused: UnDiffusedVisual,
+};
+
+const flagships = await projectsByTier("flagship");
 ---
 
 <Base>
   <Hero />
+
+  <Section id="work" title="Projects" lede="Four things I've built and shipped, in the order I'd show you them.">
+    {
+      flagships.map((project) => {
+        const Visual = visuals[project.id];
+        return <ProjectFeature project={project}>{Visual && <Visual />}</ProjectFeature>;
+      })
+    }
+  </Section>
+
+  <Section id="hackathons" title="Hackathons" lede="Weekend builds under a deadline, and how they placed.">
+    <HackathonTimeline />
+  </Section>
+
+  <Section id="more" title="Also built">
+    <OtherProjects />
+  </Section>
+
+  <Section id="about" title="About me">
+    <About />
+  </Section>
+
+  <Section id="contact" title="Say hello">
+    <Contact />
+  </Section>
 </Base>

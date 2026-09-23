@@ -1,0 +1,154 @@
+---
+import { render } from "astro:content";
+import { hackathons } from "~/lib/content";
+
+const entries = await Promise.all(
+  (await hackathons()).map(async (entry) => ({ entry, ...(await render(entry)) })),
+);
+
+const monthYear = new Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric" });
+---
+
+<ol class="timeline">
+  {
+    entries.map(({ entry, Content }) => (
+      <li>
+        <time datetime={entry.data.date.toISOString().slice(0, 10)}>
+          {monthYear.format(entry.data.date)}
+        </time>
+        <div class="card">
+          <p class="event">{entry.data.event}</p>
+          <h3>{entry.data.project}</h3>
+          {entry.data.result && <p class="result">{entry.data.result}</p>}
+          <div class="summary">
+            <Content />
+          </div>
+          <p class="meta">
+            <span>{entry.data.stack.join(", ")}</span>
+            {entry.data.links.map((link) => <a href={link.href}>{link.label}</a>)}
+          </p>
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  /* A timeline drawn like the canvas: a vertical edge with a port for each entry. */
+  .timeline {
+    position: relative;
+    display: grid;
+    gap: 1.25rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: calc(8rem - 0.75px);
+    width: 1.5px;
+    background: var(--line);
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  time {
+    position: relative;
+    padding-top: 1.25rem;
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-3);
+  }
+
+  time::after {
+    content: "";
+    position: absolute;
+    top: 1.55rem;
+    right: calc(-1rem - 4.5px);
+    width: 9px;
+    height: 9px;
+    border: 1.5px solid var(--ink-3);
+    border-radius: 50%;
+    background: var(--bg);
+  }
+
+  .card {
+    margin-left: 1rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  .event {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  h3 {
+    margin-top: 0.15rem;
+    font-size: var(--step-2);
+  }
+
+  .result {
+    display: inline-block;
+    margin-top: 0.6rem;
+    padding: 0.15rem 0.65rem;
+    border-radius: 999px;
+    background: var(--mark);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .summary {
+    margin-top: 0.75rem;
+    max-width: var(--measure);
+    color: var(--ink-2);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    margin-top: 1rem;
+    font-size: var(--step--1);
+  }
+
+  .meta span {
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 40rem) {
+    .timeline::before {
+      left: 0.25rem;
+    }
+
+    li {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+      padding-left: 1.25rem;
+    }
+
+    time {
+      padding-top: 0;
+    }
+
+    time::after {
+      top: 0.3rem;
+      right: auto;
+      left: calc(-1.25rem - 0.5px);
+    }
+
+    .card {
+      margin-left: 0;
+    }
+  }
+</style>

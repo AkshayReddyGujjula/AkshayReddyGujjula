@@ -1,0 +1,243 @@
+---
+/**
+ * How UnDiffused reads an image: split into the 14 px patches DINOv2-S/14 attends
+ * over, scored, then placed on a calibrated scale with a band where it abstains.
+ * The example image and its verdict are illustrative; the AUROC figures are measured.
+ */
+const PATCHES = 12;
+const patches = Array.from({ length: PATCHES * PATCHES }, (_, i) => ({
+  x: (i % PATCHES) * 20,
+  y: Math.floor(i / PATCHES) * 20,
+}));
+---
+
+<figure class="undiffused">
+  <div class="panel scan">
+    <svg viewBox="0 0 240 240" role="img" aria-labelledby="ud-scan-title">
+      <title id="ud-scan-title">An example image divided into a 12 by 12 grid of patches</title>
+      <defs>
+        <linearGradient id="ud-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f7b58a"></stop>
+          <stop offset="0.55" stop-color="#e7839b"></stop>
+          <stop offset="1" stop-color="#6d5ba8"></stop>
+        </linearGradient>
+        <linearGradient id="ud-sweep" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#3cc6b5" stop-opacity="0"></stop>
+          <stop offset="1" stop-color="#3cc6b5" stop-opacity="0.55"></stop>
+        </linearGradient>
+      </defs>
+      <rect width="240" height="240" fill="url(#ud-sky)"></rect>
+      <circle cx="170" cy="92" r="30" fill="#ffe3b8" opacity="0.9"></circle>
+      <path d="M0 170 Q60 120 120 160 T240 140 V240 H0Z" fill="#3e3a78"></path>
+      <path d="M0 200 Q80 160 150 195 T240 185 V240 H0Z" fill="#26244f"></path>
+      <g class="grid">
+        {patches.map((p) => <rect x={p.x} y={p.y} width="20" height="20" />)}
+      </g>
+      <rect class="sweep" x="0" y="-60" width="240" height="60" fill="url(#ud-sweep)"></rect>
+    </svg>
+  </div>
+
+  <div class="panel readings">
+    <div class="verdict">
+      <p class="caption">Example verdict</p>
+      <div class="scale" aria-hidden="true">
+        <span class="abstain"></span>
+        <span class="needle"></span>
+      </div>
+      <div class="ends" aria-hidden="true"><span>Real</span><span>Unsure</span><span>AI-generated</span></div>
+      <p class="result">Likely AI-generated</p>
+    </div>
+
+    <div class="auroc">
+      <p class="caption">Measured AUROC, 400 unseen content-matched pairs</p>
+      <svg viewBox="0 0 560 58" role="img" aria-labelledby="ud-auroc-title">
+        <title id="ud-auroc-title">
+          AUROC 0.954 on clean images, and between 0.948 and 0.958 under JPEG compression, resizing,
+          WebP conversion and screenshot recapture, on an axis from 0.90 to 1.00
+        </title>
+        <line x1="10" y1="30" x2="550" y2="30" class="axis"></line>
+        <rect x="269.2" y="22" width="54" height="16" rx="3" class="band"></rect>
+        <circle cx="301.6" cy="30" r="5" class="point"></circle>
+        <text x="10" y="54">0.90</text>
+        <text x="550" y="54" text-anchor="end">1.00</text>
+        <text x="301.6" y="12" text-anchor="middle" class="value">0.954</text>
+      </svg>
+      <p class="legend">
+        <span class="swatch point"></span>clean
+        <span class="swatch band"></span>JPEG, resize, WebP, screenshot
+      </p>
+    </div>
+
+    <div class="local">
+      <p class="caption">On your device</p>
+      <p>A 24.9 MB INT8 model runs in WebAssembly inside the extension. The image never leaves the browser.</p>
+    </div>
+  </div>
+</figure>
+
+<style>
+  .undiffused {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 1.25rem;
+  }
+
+  .panel {
+    padding: clamp(1rem, 3vw, 1.75rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .scan svg {
+    width: 100%;
+    border-radius: var(--radius-sm);
+  }
+
+  .grid rect {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.28);
+    stroke-width: 0.6;
+  }
+
+  /* The scan follows the scroll: it crosses the image as the section comes into view. */
+  .sweep {
+    visibility: hidden;
+  }
+
+  @supports (animation-timeline: view()) {
+    .sweep {
+      visibility: visible;
+      animation: scan linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 60%;
+    }
+  }
+
+  @keyframes scan {
+    to {
+      transform: translateY(300px);
+    }
+  }
+
+  .readings {
+    display: grid;
+    align-content: space-between;
+    gap: 2rem;
+  }
+
+  .caption {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  .scale {
+    position: relative;
+    height: 0.75rem;
+    margin-top: 1rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #3cc6b5, var(--surface-2) 45%, var(--surface-2) 55%, #e7839b);
+  }
+
+  .abstain {
+    position: absolute;
+    inset: -0.35rem 40%;
+    border: 1px dashed var(--ink-3);
+    border-radius: 6px;
+  }
+
+  .needle {
+    position: absolute;
+    left: 88%;
+    top: -0.55rem;
+    width: 3px;
+    height: 1.85rem;
+    border-radius: 2px;
+    background: var(--ink);
+  }
+
+  .ends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--ink-3);
+  }
+
+  .result {
+    margin-top: 0.75rem;
+    font-size: var(--step-2);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .auroc svg {
+    width: 100%;
+    margin-top: 0.75rem;
+    overflow: visible;
+  }
+
+  .axis {
+    stroke: var(--line);
+    stroke-width: 2;
+  }
+
+  .band,
+  .swatch.band {
+    fill: color-mix(in srgb, var(--signal) 30%, transparent);
+    background: color-mix(in srgb, var(--signal) 30%, transparent);
+  }
+
+  .point,
+  .swatch.point {
+    fill: var(--signal);
+    background: var(--signal);
+  }
+
+  text {
+    font-size: 12px;
+    fill: var(--ink-3);
+  }
+
+  .value {
+    font-size: 15px;
+    font-weight: 700;
+    fill: var(--ink);
+  }
+
+  .local p:last-child {
+    margin-top: 0.4rem;
+    max-width: 44ch;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+  }
+
+  .swatch {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 3px;
+  }
+
+  .swatch.point {
+    border-radius: 50%;
+  }
+
+  .swatch.band:not(:first-child) {
+    margin-left: 0.75rem;
+  }
+
+  @media (max-width: 52rem) {
+    .undiffused {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

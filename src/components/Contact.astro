@@ -1,0 +1,224 @@
+---
+import { TURNSTILE_SITE_KEY } from "astro:env/client";
+import { profile } from "~/data/profile";
+---
+
+<div class="contact">
+  <div class="direct">
+    <p class="lead">
+      Internships, collaborations, or a question about something here. The quickest route is email.
+    </p>
+    <ul>
+      <li><a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+      <li><a href={profile.links.linkedin}>LinkedIn</a></li>
+      <li><a href={profile.links.github}>GitHub</a></li>
+    </ul>
+  </div>
+
+  <form class="form" data-contact-form novalidate>
+    <label>
+      <span>Name</span>
+      <input name="name" autocomplete="name" required maxlength="100" />
+      <small data-error-for="name"></small>
+    </label>
+    <label>
+      <span>Email</span>
+      <input name="email" type="email" autocomplete="email" required />
+      <small data-error-for="email"></small>
+    </label>
+    <label class="wide">
+      <span>Message</span>
+      <textarea name="message" rows="6" required minlength="10" maxlength="5000"></textarea>
+      <small data-error-for="message"></small>
+    </label>
+    <div class="wide turnstile" data-turnstile data-sitekey={TURNSTILE_SITE_KEY}></div>
+    <div class="wide actions">
+      <button type="submit">Send message</button>
+      <p role="status" data-status></p>
+    </div>
+  </form>
+</div>
+
+<script>
+  import { actions, isInputError } from "astro:actions";
+
+  declare global {
+    interface Window {
+      turnstile?: {
+        render: (el: HTMLElement, options: Record<string, unknown>) => string;
+        reset: (id?: string) => void;
+      };
+    }
+  }
+
+  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+  const widget = form?.querySelector<HTMLElement>("[data-turnstile]");
+  const status = form?.querySelector<HTMLElement>("[data-status]");
+  const button = form?.querySelector<HTMLButtonElement>("button[type=submit]");
+  let widgetId: string | undefined;
+
+  // Load Turnstile only when the form is about to be seen, so no one else pays for it.
+  function loadTurnstile() {
+    if (!widget) return;
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.onload = () => {
+      widgetId = window.turnstile?.render(widget, {
+        sitekey: widget.dataset.sitekey,
+        theme: "auto",
+        size: "flexible",
+      });
+    };
+    document.head.appendChild(script);
+  }
+
+  function showErrors(fields: Record<string, string[] | undefined>) {
+    for (const slot of form?.querySelectorAll<HTMLElement>("[data-error-for]") ?? []) {
+      slot.textContent = fields[slot.dataset.errorFor ?? ""]?.[0] ?? "";
+    }
+  }
+
+  if (form && widget && status && button) {
+    new IntersectionObserver((entries, observer) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      loadTurnstile();
+    }, { rootMargin: "400px" }).observe(form);
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      button.disabled = true;
+      status.textContent = "Sending…";
+
+      const { error } = await actions.contact(new FormData(form));
+      button.disabled = false;
+
+      if (!error) {
+        form.reset();
+        showErrors({});
+        status.textContent = "Sent. I'll reply to the address you gave.";
+      } else if (isInputError(error)) {
+        showErrors(error.fields);
+        status.textContent = error.fields["cf-turnstile-response"]?.[0] ?? "Please check the fields above.";
+      } else {
+        status.textContent = error.message;
+      }
+      window.turnstile?.reset(widgetId);
+    });
+  }
+</script>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    padding-bottom: clamp(4rem, 10vw, 7.5rem);
+  }
+
+  .lead {
+    max-width: 30ch;
+    font-size: var(--step-2);
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+  }
+
+  .direct ul {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0;
+    list-style: none;
+    font-size: var(--step-1);
+  }
+
+  .form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  label {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  label span {
+    font-size: var(--step--1);
+    font-weight: 500;
+  }
+
+  .wide {
+    grid-column: 1 / -1;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 0;
+    border-color: transparent;
+  }
+
+  small {
+    min-height: 1.2em;
+    font-size: 0.8125rem;
+    color: light-dark(#b42318, #ff8a80);
+  }
+
+  .turnstile:empty {
+    display: none;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  button {
+    padding: 0.7rem 1.4rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--bg);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  [data-status] {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  @media (max-width: 52rem) {
+    .contact,
+    .form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
