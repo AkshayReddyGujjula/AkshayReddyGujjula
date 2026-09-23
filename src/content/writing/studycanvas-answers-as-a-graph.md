@@ -2,7 +2,7 @@
 title: Why StudyCanvas puts answers on a canvas
 description: I got fed up revising with AI chat, so I built a study app where every answer stays attached to the bit of the PDF it came from. Here's how that idea shaped the code.
 published: 2026-09-23
-draft: true
+draft: false
 ---
 
 StudyCanvas started because revising with ChatGPT kept annoying me. I'd highlight something confusing in a lecture PDF, paste it into a chat, get a decent explanation, ask a follow-up, ask another one, and twenty messages later I'd have no idea which answer came from which line of the notes. Scrolling back up through a chat to find "that one explanation about half-open intervals" is a terrible way to revise.

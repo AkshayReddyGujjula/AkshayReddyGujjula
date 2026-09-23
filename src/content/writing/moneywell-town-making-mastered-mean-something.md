@@ -2,7 +2,7 @@
 title: How we made "mastered" actually mean something in Moneywell Town
 description: Moneywell Town is a money game for teenagers that won the Work in Fintech AI Summit hackathon. A few small design rules ended up mattering more than anything flashy.
 published: 2026-09-23
-draft: true
+draft: false
 ---
 
 Moneywell Town is a browser game that teaches UK teenagers about money: interest, tax, credit, scams and mortgages. You learn a topic by talking to someone in the town, then you head out of town where creatures quiz you on it. The four answer buttons are your four battle moves, so answering questions is how you fight. We built it as Team 17 for the Work in Fintech AI Summit hackathon on 28 August 2026, and we won first place, which I'm still pretty happy about.

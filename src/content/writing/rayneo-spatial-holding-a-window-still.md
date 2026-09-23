@@ -2,7 +2,7 @@
 title: Keeping a window still while your head moves
 description: Notes from building RayNeo Spatial, which puts Windows monitors in the air around you on RayNeo GT glasses, and the bugs that made it much harder than I thought.
 published: 2026-09-23
-draft: true
+draft: false
 ---
 
 RayNeo Spatial is a Windows app for RayNeo GT glasses. It puts your Windows monitors in the air around you, three of them in a curve by default, and they're meant to stay in the same place when you turn your head. The glasses have a sensor (an IMU) that reports which way your head is pointing, and a Direct3D 11 renderer draws each screen in the right spot.
