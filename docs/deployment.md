@@ -58,12 +58,25 @@ Without it, search still works with local matching only. The `SEARCH_LIMIT` rate
 To check search quality after changing descriptions, run `npm run dev` and then
 `node scripts/eval-search.mjs`.
 
-## 5. Redirect www to the apex
+## 5. Give the GitHub window a token (optional)
+
+The contact chapter shows live GitHub activity. GitHub limits anonymous requests per IP and
+Workers share IPs, so create a fine-grained personal access token with **no permissions** (it
+only reads public data) and store it:
+
+```bash
+npx wrangler secret put GITHUB_TOKEN
+```
+
+Without it the window still works most of the time, and falls back to the last good answer
+from the past week when GitHub refuses.
+
+## 6. Redirect www to the apex
 
 In **Rules → Redirect Rules**, create a rule from the **Redirect from WWW to root** template,
 and add a proxied `AAAA` record for `www` pointing to `100::` so requests reach the rule.
 
-## 6. Deploy
+## 7. Deploy
 
 ```bash
 npx wrangler login
