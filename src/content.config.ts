@@ -18,6 +18,8 @@ const projects = defineCollection({
         links: z.array(link).default([]),
         facts: z.array(z.object({ value: z.string(), label: z.string() })).default([]),
         award: z.string().optional(),
+        /** Where the project began, if it started life somewhere else, such as a hackathon. */
+        origin: z.string().optional(),
         cover: image().optional(),
         coverAlt: z.string().optional(),
       })

@@ -3,6 +3,7 @@ title: StudyCanvas
 tagline: A spatial AI study workspace. Highlight a passage, ask about it, and the answer becomes a node you can branch, quiz yourself on or turn into flashcards.
 order: 1
 tier: flagship
+origin: Started at HackLondon 2026
 period: Jan 2026 – present
 stack: [React, TypeScript, React Flow, FastAPI, Python, Gemini API, Pyodide]
 links:
