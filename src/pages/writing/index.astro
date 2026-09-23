@@ -1,0 +1,79 @@
+---
+import Base from "~/layouts/Base.astro";
+import { publishedWriting } from "~/lib/content";
+
+const posts = await publishedWriting();
+const date = new Intl.DateTimeFormat("en-GB", { dateStyle: "long" });
+---
+
+<Base title="Writing" description="Write-ups on how and why my projects are built the way they are.">
+  <div class="container page">
+    <h1>Writing</h1>
+    <p class="lede">Write-ups on how and why things are built the way they are.</p>
+    {
+      posts.length === 0 ? (
+        <p class="empty">
+          Nothing published yet. The first write-up is on its way; until then, <a href="/#work">the projects</a> have the detail.
+        </p>
+      ) : (
+        <ol class="posts">
+          {posts.map((post) => (
+            <li>
+              <a href={`/writing/${post.id}`}>{post.data.title}</a>
+              <p>{post.data.description}</p>
+              <time datetime={post.data.published.toISOString()}>{date.format(post.data.published)}</time>
+            </li>
+          ))}
+        </ol>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .page {
+    max-width: 46rem;
+    padding-block: 4rem 6rem;
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-weight: 800;
+  }
+
+  .lede,
+  .empty {
+    margin-top: 0.75rem;
+    font-size: var(--step-1);
+    color: var(--ink-2);
+  }
+
+  .empty {
+    margin-top: 3rem;
+  }
+
+  .posts {
+    display: grid;
+    gap: 2rem;
+    margin-top: 3rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .posts a {
+    font-size: var(--step-2);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .posts p {
+    margin-top: 0.3rem;
+    color: var(--ink-2);
+  }
+
+  time {
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+</style>
