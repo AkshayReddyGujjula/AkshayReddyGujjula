@@ -6,3 +6,5 @@ dist/
 .env
 design-previews/
 worker-configuration.d.ts
+test-results/
+playwright-report/

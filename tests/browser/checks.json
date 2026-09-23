@@ -1,0 +1,75 @@
+{
+  "base_url": "http://localhost:4322",
+  "defaults": {
+    "max_seconds": 60,
+    "tab": "background"
+  },
+  "checks": [
+    {
+      "name": "command palette jumps to a project",
+      "path": "/",
+      "goal": "Press Control+K to open the command palette, type canvas, then press Enter.",
+      "expect": {
+        "url_contains": "#studycanvas",
+        "text_absent": ["Nothing matches"]
+      }
+    },
+    {
+      "name": "contact form explains what is missing",
+      "path": "/#contact",
+      "goal": "Press the Send message button in the contact form. Leave every field empty; the point is to see the validation messages.",
+      "expect": {
+        "text_contains": ["Please add your name."],
+        "text_absent": ["Sent. I'll reply"]
+      }
+    },
+    {
+      "name": "contact form sends a complete message",
+      "path": "/#contact",
+      "goal": "Fill in the contact form with the given values, wait for the spam check to finish, then press Send message.",
+      "values": {
+        "Name": "Jev Browser Check",
+        "Email": "jev@example.com",
+        "Message": "This is an automated check that the contact form delivers messages."
+      },
+      "expect": {
+        "text_contains": ["Sent. I'll reply"],
+        "text_absent": ["couldn't be sent"]
+      }
+    },
+    {
+      "name": "Moneywell console pages through the game",
+      "path": "/#moneywell-town",
+      "goal": "In the Moneywell Town section, press the A button on the handheld console once.",
+      "expect": {
+        "text_contains": ["A lesson from the accountant"]
+      }
+    },
+    {
+      "name": "CV opens from the navigation",
+      "path": "/",
+      "goal": "Open the CV page using the link in the top navigation.",
+      "expect": {
+        "url_contains": "/cv",
+        "text_contains": ["University College London", "Print or save as PDF"]
+      }
+    },
+    {
+      "name": "privacy policy is linked from the footer",
+      "path": "/",
+      "goal": "Press the End key to jump to the bottom of the page, then click the Privacy link in the footer.",
+      "expect": {
+        "url_contains": "/privacy",
+        "text_contains": ["The short version"]
+      }
+    },
+    {
+      "name": "unknown pages show the 404",
+      "path": "/this-page-does-not-exist",
+      "goal": "Read the page.",
+      "expect": {
+        "text_contains": ["There's no node here."]
+      }
+    }
+  ]
+}

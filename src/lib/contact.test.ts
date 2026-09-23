@@ -13,6 +13,14 @@ describe("contactInput", () => {
     expect(contactInput.safeParse(valid).success).toBe(true);
   });
 
+  it("gives the friendly message when a field arrives as null", () => {
+    // Astro turns an empty form field into null before validation.
+    const result = contactInput.safeParse({ ...valid, name: null, email: null });
+    expect(result.success).toBe(false);
+    const messages = result.error?.issues.map((issue) => issue.message);
+    expect(messages).toEqual(["Please add your name.", "That email address doesn't look right."]);
+  });
+
   it("trims whitespace before checking length", () => {
     const result = contactInput.safeParse({ ...valid, name: "   " });
     expect(result.success).toBe(false);
