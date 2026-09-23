@@ -1,0 +1,131 @@
+---
+import { getImage } from "astro:assets";
+import moneywell from "~/assets/projects/moneywell-town/town.png";
+import studycanvas from "~/assets/projects/studycanvas/learning-canvas.png";
+import undiffused from "~/assets/projects/undiffused/undiffused-hero.svg";
+import CanvasHero, { type HeroNode } from "~/islands/CanvasHero";
+
+/** Raster thumbnails are resized to twice their displayed width; SVGs are used as they are. */
+async function thumb(src: ImageMetadata, pixelated = false) {
+  const url =
+    src.format === "svg" ? src.src : (await getImage({ src, width: 432, format: "webp" })).src;
+  return { src: url, width: 432, height: 243, pixelated };
+}
+
+const nodes: HeroNode[] = [
+  {
+    id: "studycanvas",
+    title: "StudyCanvas",
+    meta: "Live at studycanvas.app",
+    href: "#studycanvas",
+    at: { x: 0.585, y: 0 },
+    thumb: await thumb(studycanvas),
+  },
+  {
+    id: "moneywell-town",
+    title: "Moneywell Town",
+    meta: "1st place, WIF AI Summit",
+    href: "#moneywell-town",
+    at: { x: 0.81, y: 0.2 },
+    thumb: await thumb(moneywell, true),
+  },
+  {
+    id: "rayneo-spatial",
+    title: "RayNeo Spatial",
+    meta: "C++20 and Direct3D 11",
+    href: "#rayneo-spatial",
+    at: { x: 0.585, y: 0.52 },
+    thumb: "screens",
+  },
+  {
+    id: "undiffused",
+    title: "UnDiffused",
+    meta: "On-device ML in Chrome",
+    href: "#undiffused",
+    at: { x: 0.81, y: 0.7 },
+    thumb: await thumb(undiffused),
+  },
+];
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <CanvasHero client:load nodes={nodes}>
+    <h1 id="hero-title">I build software and <mark>show my working</mark>.</h1>
+    <p>
+      Second-year Computer Science student at UCL. Right now I'm building StudyCanvas, a spatial
+      AI study workspace, and Moneywell Town, a finance game that won the WIF AI Summit hackathon.
+    </p>
+    <div class="actions">
+      <a class="primary" href="#work">See my work</a>
+      <a href="#contact">Get in touch</a>
+    </div>
+  </CanvasHero>
+</section>
+
+<style>
+  h1 {
+    font-size: clamp(2.5rem, 1.9rem + 2.4vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+  }
+
+  mark {
+    color: inherit;
+    background: linear-gradient(transparent 58%, var(--mark) 58%, var(--mark) 92%, transparent 92%)
+      no-repeat 0 0 / 0% 100%;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    animation: sweep 900ms 1100ms var(--ease-out) forwards;
+  }
+
+  @keyframes sweep {
+    to {
+      background-size: 100% 100%;
+    }
+  }
+
+  p {
+    max-width: 46ch;
+    margin-top: 1rem;
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .actions a {
+    padding: 0.6rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .actions a:hover {
+    border-color: var(--ink-3);
+  }
+
+  .actions .primary {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .actions .primary:hover {
+    background: color-mix(in srgb, var(--ink) 85%, var(--accent));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    mark {
+      background-size: 100% 100%;
+    }
+  }
+</style>

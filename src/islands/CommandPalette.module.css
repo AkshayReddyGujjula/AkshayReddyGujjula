@@ -1,0 +1,80 @@
+.dialog {
+  width: min(100% - 2rem, 36rem);
+  margin: 14vh auto auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--glow), var(--shadow);
+}
+
+.dialog[open] {
+  animation: rise 180ms var(--ease-out);
+}
+
+.dialog::backdrop {
+  background: light-dark(rgb(22 32 58 / 0.25), rgb(5 8 14 / 0.6));
+  backdrop-filter: blur(2px);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+.input {
+  width: 100%;
+  padding: 1.1rem 1.25rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  font-size: var(--step-1);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--ink-3);
+}
+
+.list {
+  max-height: min(24rem, 60vh);
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.option {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.option[aria-selected="true"] {
+  background: var(--surface-2);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.group {
+  font-size: var(--step--1);
+  color: var(--ink-3);
+}
+
+.empty {
+  padding: 0 1.25rem 1rem;
+  color: var(--ink-2);
+}
+
+.status {
+  padding: 0 1.25rem;
+  font-size: var(--step--1);
+  color: var(--signal);
+}
+
+.status:not(:empty) {
+  padding-bottom: 1rem;
+}

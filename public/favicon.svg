@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Akshay Gujjula</title>
+  <style>
+    rect { fill: #16203a; }
+    path { stroke: #9aa6bd; }
+    circle { fill: #ffe066; }
+    @media (prefers-color-scheme: dark) { rect { fill: #e8ecf4; } path { stroke: #4f5a73; } circle { fill: #0e8074; } }
+  </style>
+  <rect x="3" y="11" width="11" height="10" rx="2.5"/>
+  <path d="M14 16 C 20 16, 18 7, 24 7 M14 16 C 20 16, 18 25, 24 25" fill="none" stroke-width="2"/>
+  <circle cx="25" cy="7" r="3.5"/>
+  <circle cx="25" cy="25" r="3.5"/>
+</svg>

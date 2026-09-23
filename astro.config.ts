@@ -6,7 +6,10 @@ import { defineConfig, envField } from "astro/config";
 
 export default defineConfig({
   site: "https://akshaygujjula.com",
-  adapter: cloudflare(),
+  adapter: cloudflare({ imageService: "compile" }),
+  // The site has no per-visitor state, so it needs no session store.
+  session: false,
+  devToolbar: { enabled: false },
   integrations: [react(), mdx(), sitemap({ filter: (page) => !page.includes("/404") })],
   env: {
     schema: {
