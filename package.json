@@ -16,7 +16,7 @@
     "deploy": "astro build && wrangler deploy",
     "types": "wrangler types",
     "test:e2e": "playwright test",
-    "og": "node scripts/og-image.mjs"
+    "cards": "node scripts/render-cards.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.3",
