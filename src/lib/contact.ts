@@ -1,10 +1,23 @@
 import { z } from "astro/zod";
 
+/**
+ * Astro submits an empty form field as null, not "", so each field sets its message
+ * on the schema itself. That way a missing value and a short one read the same.
+ */
+const NAME = "Please add your name.";
+const EMAIL = "That email address doesn't look right.";
+const MESSAGE = "A little more detail, please.";
+const HUMAN = "Please complete the spam check.";
+
 export const contactInput = z.object({
-  name: z.string().trim().min(1, "Please add your name.").max(100),
-  email: z.email("That email address doesn't look right."),
-  message: z.string().trim().min(10, "A little more detail, please.").max(5000),
-  "cf-turnstile-response": z.string().min(1, "Please complete the spam check."),
+  name: z.string({ error: NAME }).trim().min(1, NAME).max(100, "That name is too long."),
+  email: z.email({ error: EMAIL }),
+  message: z
+    .string({ error: MESSAGE })
+    .trim()
+    .min(10, MESSAGE)
+    .max(5000, "Please keep it under 5,000 characters."),
+  "cf-turnstile-response": z.string({ error: HUMAN }).min(1, HUMAN),
 });
 
 export type ContactInput = z.infer<typeof contactInput>;
