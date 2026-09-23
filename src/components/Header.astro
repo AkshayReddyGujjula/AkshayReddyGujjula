@@ -13,6 +13,7 @@ const links = [
 ---
 
 <header class="bar" data-bar>
+  <span class="progress" aria-hidden="true"></span>
   <div class="inner">
     <a class="name" href="/">{profile.name}</a>
     <nav aria-label="Main">
@@ -60,6 +61,31 @@ const links = [
   /* On the home page the bar waits for the hero's opening, then arrives after it. */
   :global(body:has([data-hero])) .bar {
     animation: arrive 900ms var(--ease-out) 1400ms backwards;
+  }
+
+  /* How far down the page you are, as a hairline under the bar. Pure CSS, no scroll handler. */
+  .progress {
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: var(--accent);
+    transform-origin: left;
+    scale: 0 1;
+    display: none;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .progress {
+      display: block;
+      animation: progress linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+
+  @keyframes progress {
+    to {
+      scale: 1 1;
+    }
   }
 
   .bar[data-scrolled] {

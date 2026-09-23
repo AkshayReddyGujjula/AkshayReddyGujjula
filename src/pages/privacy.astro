@@ -17,7 +17,8 @@ import Prose from "~/layouts/Prose.astro";
   <h2>The short version</h2>
   <p>
     There are no analytics, no advertising and no tracking on this site. The only personal data I
-    receive is what you type into the contact form.
+    receive is what you type into the contact form. Search questions go to TypeSafe to rank the
+    results, as explained below.
   </p>
 
   <h2>The contact form</h2>
@@ -34,6 +35,16 @@ import Prose from "~/layouts/Prose.astro";
     you scroll to the form, and it processes technical signals from your browser to make that
     decision. Cloudflare describes what it collects in the
     <a href="https://www.cloudflare.com/turnstile-privacy-policy/">Turnstile privacy addendum</a>.
+  </p>
+
+  <h2>Search</h2>
+  <p>
+    Single words that match something on the site are handled in your browser. If you type a
+    phrase or question into the search box (Ctrl K), that text is sent to
+    <a href="https://typesafe.ai">TypeSafe</a>'s Jev API, which ranks the pages of this site
+    against it. Only the search text is sent, with nothing that identifies you. To make repeat
+    searches instant, Cloudflare caches each search's ranked results for a day, keyed by the
+    search text; nothing links a search to the person who made it.
   </p>
 
   <h2>Hosting</h2>

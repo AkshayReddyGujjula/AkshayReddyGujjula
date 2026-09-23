@@ -51,9 +51,22 @@ const items = await paletteItems();
     <!-- Hydrated on load, not idle: Ctrl+K should work the moment the page appears. -->
     <CommandPalette client:load items={items} />
     <script>
+      import { startChapterKeys } from "~/scripts/chapterKeys";
       import { startReveals } from "~/scripts/reveal";
 
       startReveals();
+      startChapterKeys();
+
+      // For anyone who opens the console.
+      console.info(
+        [
+          "%cHi, I'm Akshay.%c",
+          "This site's source is at https://github.com/AkshayReddyGujjula/AkshayReddyGujjula",
+          "Ctrl K searches (try asking a question), and J and K move between chapters.",
+        ].join("\n"),
+        "font: 600 14px system-ui",
+        "font: 12px system-ui; color: #a8a8b0",
+      );
     </script>
   </body>
 </html>

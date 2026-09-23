@@ -46,6 +46,8 @@ export default defineConfig({
       TURNSTILE_SECRET_KEY: envField.string({ context: "server", access: "secret" }),
       CONTACT_TO: envField.string({ context: "server", access: "public" }),
       CONTACT_FROM: envField.string({ context: "server", access: "public" }),
+      // Optional: without it, natural-language search is off and the palette matches locally.
+      TYPESAFE_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

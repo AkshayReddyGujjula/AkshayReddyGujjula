@@ -1,5 +1,6 @@
 ---
 import { TURNSTILE_SITE_KEY } from "astro:env/client";
+import Elsewhere from "~/components/Elsewhere.astro";
 import { profile } from "~/data/profile";
 ---
 
@@ -15,11 +16,10 @@ import { profile } from "~/data/profile";
         <span data-copy-done>Copied</span>
       </span>
     </button>
-    <ul class="elsewhere" data-reveal>
-      <li><a href={`mailto:${profile.email}`}>Open in your mail app</a></li>
-      <li><a href={profile.links.linkedin}>LinkedIn</a></li>
-      <li><a href={profile.links.github}>GitHub</a></li>
-    </ul>
+    <p class="mailto" data-reveal>
+      <a href={`mailto:${profile.email}`}>Or open it in your mail app</a>
+    </p>
+    <Elsewhere />
   </div>
 
   <div class="flow" data-flow data-state="idle" data-reveal>
@@ -285,13 +285,9 @@ import { profile } from "~/data/profile";
     }
   }
 
-  .elsewhere {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.75rem;
-    margin-top: 2.5rem;
-    padding: 0;
-    list-style: none;
+  .mailto {
+    margin-top: 1.25rem;
+    font-size: var(--step--1);
   }
 
   /* The form is a node on the canvas, wired to a node for the inbox. */

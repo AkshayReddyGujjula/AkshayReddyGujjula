@@ -1,4 +1,6 @@
 ---
+import SplitTitle from "~/components/SplitTitle.astro";
+
 /**
  * One chapter of the page's story. The id matches a node in src/data/graph.ts, which
  * is how the minimap knows where the reader is.
@@ -16,7 +18,7 @@ const { id, kicker, title, lede } = Astro.props;
 <section class="chapter container" id={id} data-chapter aria-labelledby={`${id}-heading`}>
   <header data-stagger>
     <p class="kicker" data-reveal>{kicker}</p>
-    <h2 id={`${id}-heading`} data-reveal>{title}</h2>
+    <SplitTitle id={`${id}-heading`} text={title} />
     {lede && <p class="lede" data-reveal>{lede}</p>}
   </header>
   <slot />
@@ -36,7 +38,7 @@ const { id, kicker, title, lede } = Astro.props;
     color: var(--ink-3);
   }
 
-  h2 {
+  header :global(h2) {
     margin-top: 0.75rem;
     font-size: var(--step-5);
     letter-spacing: -0.045em;

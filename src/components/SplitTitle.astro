@@ -1,0 +1,59 @@
+---
+/**
+ * A heading whose words rise one after another from behind a mask when it scrolls
+ * into view. Real spaces sit between the word spans, so the text reads, copies and
+ * searches normally.
+ */
+interface Props {
+  text: string;
+  id: string;
+  class?: string;
+}
+
+const { text, id, class: className } = Astro.props;
+const words = text.split(" ");
+---
+
+<h2 id={id} class:list={["split", className]} data-reveal>
+  {
+    words.map((word, index) => (
+      <>
+        {index > 0 && " "}
+        <span class="word">
+          <span style={`--wi: ${index}`}>{word}</span>
+        </span>
+      </>
+    ))
+  }
+</h2>
+
+<style>
+  .word {
+    display: inline-block;
+    overflow: clip;
+    overflow-clip-margin: 0.12em;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+    vertical-align: top;
+  }
+
+  .word > span {
+    display: inline-block;
+  }
+
+  /* The heading itself stays put; its words do the moving. */
+  :global(.js) .split[data-reveal] {
+    opacity: 1;
+    translate: none;
+  }
+
+  :global(.js) .split[data-reveal] .word > span {
+    translate: 0 105%;
+    transition: translate 900ms var(--ease-out);
+    transition-delay: calc(var(--wi) * 70ms);
+  }
+
+  :global(.js) .split[data-reveal][data-shown] .word > span {
+    translate: none;
+  }
+</style>

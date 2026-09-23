@@ -3,6 +3,7 @@ title: Moneywell Town
 tagline: A browser game that teaches UK teenagers how money works, from interest and tax to credit and scams. Built in a week and won first place.
 order: 2
 tier: flagship
+search: "It is an educational game about personal finance for teenagers, with spaced repetition and an AI helper."
 period: Aug 2026 – present
 award: 1st place, Work in Fintech AI Summit hackathon
 stack: [React, TypeScript, Vite, CSS]

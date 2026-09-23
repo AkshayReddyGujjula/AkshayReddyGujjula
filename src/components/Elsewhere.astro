@@ -1,0 +1,259 @@
+---
+import { profile } from "~/data/profile";
+
+const handle = new URL(profile.links.github).pathname.slice(1);
+---
+
+<div class="elsewhere" data-stagger>
+  <a class="card github" href={profile.links.github} data-github data-reveal>
+    <span class="head">
+      <span class="brand">GitHub</span>
+      <span class="handle">@{handle}</span>
+    </span>
+    <span class="total" data-github-total>My activity on GitHub</span>
+    <span class="graph" data-github-graph aria-hidden="true"></span>
+    <span class="repos" data-github-repos></span>
+  </a>
+
+  <a class="card linkedin" href={profile.links.linkedin} data-reveal>
+    <span class="head">
+      <span class="brand">LinkedIn</span>
+    </span>
+    <span class="person">
+      <span class="monogram" aria-hidden="true">AG</span>
+      <span>
+        <strong>{profile.fullName}</strong>
+        <span class="role">Computer Science at UCL, London</span>
+      </span>
+    </span>
+    <span class="action">Connect on LinkedIn</span>
+  </a>
+</div>
+
+<script>
+  import { type Activity, ago } from "~/lib/github";
+
+  const card = document.querySelector<HTMLElement>("[data-github]");
+  const graph = card?.querySelector<HTMLElement>("[data-github-graph]");
+  const total = card?.querySelector<HTMLElement>("[data-github-total]");
+  const list = card?.querySelector<HTMLElement>("[data-github-repos]");
+  const dayFormat = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" });
+
+  /** One cell per day, in week columns like GitHub's own calendar, filling left to right. */
+  function drawGraph(activity: Activity) {
+    if (!graph) return;
+    const cells = activity.days.map((day, index) => {
+      const cell = document.createElement("span");
+      const week = Math.floor(index / 7);
+      cell.dataset.level = String(day.level);
+      cell.style.setProperty("--w", String(week));
+      cell.title = `${day.count || "No"} contribution${day.count === 1 ? "" : "s"} on ${dayFormat.format(new Date(day.date))}`;
+      return cell;
+    });
+    graph.replaceChildren(...cells);
+    requestAnimationFrame(() => graph.setAttribute("data-filled", ""));
+  }
+
+  function listRepos(activity: Activity) {
+    if (!list) return;
+    const now = new Date();
+    list.replaceChildren(
+      ...activity.repos.map((repo) => {
+        const row = document.createElement("span");
+        row.className = "repo";
+        const name = document.createElement("span");
+        name.textContent = repo.name;
+        const meta = document.createElement("span");
+        meta.textContent = [repo.language, `pushed ${ago(repo.pushedAt, now)}`].filter(Boolean).join(", ");
+        row.appendChild(name);
+        row.appendChild(meta);
+        return row;
+      }),
+    );
+  }
+
+  // Fetched once the card is close to the screen, so a visitor who never scrolls this far
+  // costs nothing. If GitHub is unreachable the card still links to the profile.
+  if (card) {
+    new IntersectionObserver(
+      async ([entry], observer) => {
+        if (!entry?.isIntersecting) return;
+        observer.disconnect();
+        try {
+          const response = await fetch("/api/github.json");
+          if (!response.ok) return;
+          const activity = (await response.json()) as Activity;
+          if (total) total.textContent = `${activity.total.toLocaleString("en-GB")} contributions in the last year`;
+          drawGraph(activity);
+          listRepos(activity);
+        } catch {
+          // The card is a link either way.
+        }
+      },
+      { rootMargin: "300px" },
+    ).observe(card);
+  }
+</script>
+
+<style>
+  .elsewhere {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+
+  .card {
+    display: grid;
+    gap: 1rem;
+    padding: 1.25rem 1.4rem;
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--line);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      box-shadow 250ms var(--ease-out),
+      translate 250ms var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover {
+      box-shadow: inset 0 0 0 1px var(--line-strong);
+    }
+
+    .card:hover .action,
+    .card:hover .handle {
+      color: var(--accent);
+    }
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: var(--step--1);
+  }
+
+  .brand {
+    color: var(--ink-3);
+  }
+
+  .handle {
+    color: var(--ink-2);
+    transition: color 200ms var(--ease-out);
+  }
+
+  .total {
+    font-size: var(--step-1);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  /*
+   * The calendar: seven rows, one column per week, like GitHub's own. Its box is
+   * sized before the data arrives (53 weeks by 7 days), and the repo list keeps room
+   * for three rows, so nothing below the card jumps when it fills in.
+   */
+  .graph {
+    display: grid;
+    grid-template-rows: repeat(7, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 2px;
+    aspect-ratio: 53 / 7.3;
+  }
+
+  .graph :global(span) {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    background: #151518;
+    opacity: 0;
+    scale: 0.5;
+    transition:
+      opacity 400ms var(--ease-out),
+      scale 400ms var(--ease-out);
+    transition-delay: calc(var(--w) * 14ms);
+  }
+
+  .graph[data-filled] :global(span) {
+    opacity: 1;
+    scale: 1;
+  }
+
+  .graph :global([data-level="1"]) {
+    background: rgb(92 219 255 / 0.25);
+  }
+
+  .graph :global([data-level="2"]) {
+    background: rgb(92 219 255 / 0.48);
+  }
+
+  .graph :global([data-level="3"]) {
+    background: rgb(92 219 255 / 0.72);
+  }
+
+  .graph :global([data-level="4"]) {
+    background: var(--accent);
+  }
+
+  .repos {
+    display: grid;
+    align-content: start;
+    min-height: calc(3 * (1.6em + 1rem));
+    font-size: var(--step--1);
+  }
+
+  .repos :global(.repo) {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.5rem;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .repos :global(.repo span:last-child) {
+    color: var(--ink-3);
+    text-align: right;
+  }
+
+  .person {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .monogram {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .person strong {
+    display: block;
+    font-weight: 500;
+  }
+
+  .role {
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  .action {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+    transition: color 200ms var(--ease-out);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .graph :global(span) {
+      scale: 1;
+    }
+  }
+</style>

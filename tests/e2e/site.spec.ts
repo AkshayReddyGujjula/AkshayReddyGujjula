@@ -99,7 +99,42 @@ test.describe("command palette", () => {
     await expect(page).toHaveURL(/#studycanvas$/);
   });
 
+  test("answers a question with Jev's best match first", async ({ page }) => {
+    // Stubbed so the test is deterministic and never needs the API key.
+    await page.route("**/api/search.json", (route) =>
+      route.fulfill({
+        json: {
+          results: [
+            { id: "project-undiffused", score: 0.9 },
+            { id: "cv", score: 0.7 },
+          ],
+          ms: 321,
+        },
+      }),
+    );
+    await openPalette(page);
+    await page.getByRole("combobox").fill("has he built anything with computer vision");
+    const first = page.getByRole("option").first();
+    await expect(first).toContainText("UnDiffused");
+    await expect(first).toContainText("Best match");
+    await expect(page.getByText("ranked by Jev in 321 ms")).toBeVisible();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#undiffused$/);
+  });
+
+  test("keeps working when Jev is unavailable", async ({ page }) => {
+    await page.route("**/api/search.json", (route) => route.fulfill({ status: 503, json: {} }));
+    await openPalette(page);
+    await page.getByRole("combobox").fill("zzzz qqqq");
+    await expect(page.getByText("Nothing matches")).toBeVisible();
+    await page.getByRole("combobox").fill("canvas");
+    await expect(page.getByRole("option").first()).toContainText("StudyCanvas");
+  });
+
   test("says so when nothing matches", async ({ page }) => {
+    await page.route("**/api/search.json", (route) =>
+      route.fulfill({ json: { results: [], ms: 1 } }),
+    );
     await openPalette(page);
     await page.getByRole("combobox").fill("zzzz");
     await expect(page.getByText("Nothing matches")).toBeVisible();

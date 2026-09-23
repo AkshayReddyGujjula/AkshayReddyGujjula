@@ -3,9 +3,36 @@ import { profile } from "~/data/profile";
 import { rank } from "~/lib/fuzzy";
 import type { PaletteItem } from "~/lib/paletteItems";
 import styles from "./CommandPalette.module.css";
+import { type JevState, useJevSearch } from "./useJevSearch";
 
 interface Props {
   items: PaletteItem[];
+}
+
+interface Result {
+  item: PaletteItem;
+  /** Only Jev's top match is flagged; the rest show their usual group. */
+  best: boolean;
+}
+
+/** Jev's matches first, flagged, then the local matches it didn't already cover. */
+function merge(items: PaletteItem[], local: PaletteItem[], jev: JevState): Result[] {
+  if (jev.status !== "done") return local.map((item) => ({ item, best: false }));
+  const byId = new Map(items.map((item) => [item.id, item]));
+  const best = jev.matches.flatMap((match) => byId.get(match.id) ?? []);
+  const seen = new Set(best.map((item) => item.id));
+  return [
+    ...best.map((item, index) => ({ item, best: index === 0 })),
+    ...local.filter((item) => !seen.has(item.id)).map((item) => ({ item, best: false })),
+  ];
+}
+
+function footnote(jev: JevState): string {
+  if (jev.status === "thinking") return "Asking Jev…";
+  if (jev.status === "done" && jev.matches.length > 0)
+    return `Best matches ranked by Jev in ${jev.ms} ms`;
+  if (jev.status === "done") return "Jev found nothing that fits";
+  return "Type a question, like “has he built anything with computer vision?”";
 }
 
 async function run(item: PaletteItem): Promise<string | undefined> {
@@ -29,7 +56,12 @@ export default function CommandPalette({ items }: Props) {
   const [status, setStatus] = useState("");
   const listId = useId();
 
-  const results = useMemo(() => rank(items, query, (item) => item), [items, query]);
+  const local = useMemo(() => rank(items, query, (item) => item), [items, query]);
+  const jev = useJevSearch(query, local.length);
+  const results = useMemo(() => merge(items, local, jev), [items, local, jev]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: new results should reset the highlight.
+  useEffect(() => setActive(0), [results]);
   const optionId = (index: number) => `${listId}-${index}`;
 
   useEffect(() => {
@@ -69,7 +101,7 @@ export default function CommandPalette({ items }: Props) {
     const last = results.length - 1;
     if (event.key === "ArrowDown") setActive((i) => (i >= last ? 0 : i + 1));
     else if (event.key === "ArrowUp") setActive((i) => (i <= 0 ? last : i - 1));
-    else if (event.key === "Enter") void choose(results[active]);
+    else if (event.key === "Enter") void choose(results[active]?.item);
     else return;
     event.preventDefault();
   };
@@ -92,7 +124,7 @@ export default function CommandPalette({ items }: Props) {
           aria-controls={listId}
           aria-activedescendant={results.length > 0 ? optionId(active) : undefined}
           aria-autocomplete="list"
-          placeholder="Jump to a project, page or action"
+          placeholder="Search, or ask a question"
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
@@ -100,8 +132,13 @@ export default function CommandPalette({ items }: Props) {
           }}
           onKeyDown={onKeyDown}
         />
+        <span
+          className={styles.thinking}
+          data-on={jev.status === "thinking" || undefined}
+          aria-hidden="true"
+        />
         <div id={listId} role="listbox" aria-label="Results" tabIndex={-1} className={styles.list}>
-          {results.map((item, index) => (
+          {results.map(({ item, best }, index) => (
             // Focus stays in the input (the combobox pattern), which owns all keyboard interaction.
             // biome-ignore lint/a11y/useKeyWithClickEvents: the input handles the keyboard.
             <div
@@ -115,11 +152,16 @@ export default function CommandPalette({ items }: Props) {
               onClick={() => void choose(item)}
             >
               <span>{item.label}</span>
-              <span className={styles.group}>{item.group}</span>
+              <span className={best ? styles.best : styles.group}>
+                {best ? "Best match" : item.group}
+              </span>
             </div>
           ))}
         </div>
-        {results.length === 0 && <p className={styles.empty}>Nothing matches “{query}”.</p>}
+        {results.length === 0 && jev.status !== "thinking" && (
+          <p className={styles.empty}>Nothing matches “{query}”.</p>
+        )}
+        <p className={styles.footnote}>{footnote(jev)}</p>
         <p className={styles.status} role="status">
           {status}
         </p>

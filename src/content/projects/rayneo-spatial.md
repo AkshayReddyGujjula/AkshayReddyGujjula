@@ -3,6 +3,7 @@ title: RayNeo Spatial
 tagline: A head-tracked Windows desktop for RayNeo GT glasses. Real Windows monitors float around you and stay put as you turn your head.
 order: 3
 tier: flagship
+search: "It is an augmented reality (AR) and 3D graphics project with 3DoF head tracking from an IMU, written in C++ for Windows."
 period: 2026 – present
 stack: [C++20, Direct3D 11, DXGI, HID, CMake]
 links:

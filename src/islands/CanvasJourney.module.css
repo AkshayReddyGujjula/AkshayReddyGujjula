@@ -270,9 +270,25 @@
     opacity: calc(1 - var(--out, 0));
   }
 
+  /* The edge to the node under the pointer lights up, so the map reads as connected. */
+  .edges path {
+    transition:
+      stroke 250ms var(--ease-out),
+      stroke-width 250ms var(--ease-out);
+  }
+
+  .edges path[data-hot] {
+    stroke: var(--accent);
+    stroke-width: calc(2px / var(--s, 1));
+  }
+
   .edges path[data-dive] {
     stroke: color-mix(in srgb, var(--accent) calc(var(--dived) * 100%), var(--line-strong));
     opacity: 1;
+  }
+
+  .edges path[data-dive][data-hot] {
+    stroke: var(--accent);
   }
 
   /* HUD: a zoom readout, the way a canvas app shows it, and a cue that leaves once you scroll. */
