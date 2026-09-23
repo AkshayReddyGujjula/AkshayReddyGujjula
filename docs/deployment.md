@@ -45,12 +45,25 @@ production key.
 If the production secret is missing or wrong, the form fails closed: every message is rejected
 by the server check. It never becomes an open relay.
 
-## 4. Redirect www to the apex
+## 4. Turn on natural-language search
+
+Ctrl+K sends phrase searches to TypeSafe's Jev. Store the API key as a Worker secret:
+
+```bash
+npx wrangler secret put TYPESAFE_API_KEY
+```
+
+Without it, search still works with local matching only. The `SEARCH_LIMIT` rate limit in
+`wrangler.jsonc` needs no setup. For local development, put the same key in `.dev.vars`.
+To check search quality after changing descriptions, run `npm run dev` and then
+`node scripts/eval-search.mjs`.
+
+## 5. Redirect www to the apex
 
 In **Rules → Redirect Rules**, create a rule from the **Redirect from WWW to root** template,
 and add a proxied `AAAA` record for `www` pointing to `100::` so requests reach the rule.
 
-## 5. Deploy
+## 6. Deploy
 
 ```bash
 npx wrangler login
