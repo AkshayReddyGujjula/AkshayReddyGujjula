@@ -87,6 +87,13 @@ test.describe("minimap", () => {
       "location",
     );
   });
+
+  test("names a chapter that has no node of its own", async ({ page }) => {
+    await page.goto("/#more");
+    const map = page.getByRole("navigation", { name: "Page map" });
+    await expect(map.locator("[data-map-label]")).toHaveText("Smaller things.");
+    await expect(map.locator('[aria-current="location"]')).toHaveCount(0);
+  });
 });
 
 test.describe("command palette", () => {

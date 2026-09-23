@@ -90,7 +90,10 @@ const nodes = graph.map((node) => {
       }).observe(footer);
     }
 
-    const select = (id: string) => {
+    const select = (chapter: HTMLElement) => {
+      const id = chapter.id;
+      // A chapter with no node on the map (like "Smaller things") still names itself.
+      label.textContent = chapter.querySelector("h2")?.textContent?.trim() ?? "";
       for (const link of map.querySelectorAll<HTMLElement>("[data-map-node]")) {
         const active = link.dataset.mapNode === id;
         link.toggleAttribute("data-active", active);
@@ -107,7 +110,7 @@ const nodes = graph.map((node) => {
     const chapters = document.querySelectorAll<HTMLElement>("[data-chapter]");
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) if (entry.isIntersecting) select(entry.target.id);
+        for (const entry of entries) if (entry.isIntersecting) select(entry.target as HTMLElement);
       },
       { rootMargin: "-50% 0px -50% 0px" },
     );
