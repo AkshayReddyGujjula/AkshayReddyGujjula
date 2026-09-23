@@ -40,11 +40,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Provide the Turnstile test secret (before the build, which copies it into dist)
+        run: echo "TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA" > .dev.vars
       # Built here, not downloaded: preview also needs .wrangler/deploy/config.json, which
       # the build writes outside dist. The test build uses the Turnstile test key.
       - run: npm run build:test
-      - name: Provide the Turnstile test secret
-        run: echo "TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA" > .dev.vars
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
