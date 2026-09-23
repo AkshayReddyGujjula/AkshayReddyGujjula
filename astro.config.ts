@@ -48,6 +48,8 @@ export default defineConfig({
       CONTACT_FROM: envField.string({ context: "server", access: "public" }),
       // Optional: without it, natural-language search is off and the palette matches locally.
       TYPESAFE_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      // Optional: lifts GitHub's per-IP limit for the GitHub window. Read-only, no scopes.
+      GITHUB_TOKEN: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });
