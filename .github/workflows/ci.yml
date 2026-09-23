@@ -26,13 +26,7 @@ jobs:
       - run: npm run lint
       - run: npm run check
       - run: npm test
-      # The artefact only feeds the e2e job, so it uses the Turnstile test key.
       - run: npm run build:test
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist
-          retention-days: 3
 
   e2e:
     name: End-to-end tests
@@ -46,10 +40,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist
+      # Built here, not downloaded: preview also needs .wrangler/deploy/config.json, which
+      # the build writes outside dist. The test build uses the Turnstile test key.
+      - run: npm run build:test
       - name: Provide the Turnstile test secret
         run: echo "TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA" > .dev.vars
       - run: npm run test:e2e
