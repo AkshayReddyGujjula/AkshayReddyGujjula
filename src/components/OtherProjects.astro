@@ -4,12 +4,12 @@ import { projectsByTier } from "~/lib/content";
 const projects = await projectsByTier("other");
 ---
 
-<ul class="others">
+<ul class="others" data-stagger>
   {
     projects.map((project) => {
       const link = project.data.links[0];
       return (
-        <li>
+        <li data-reveal>
           <h3>{link ? <a href={link.href}>{project.data.title}</a> : project.data.title}</h3>
           <p>{project.data.tagline}</p>
           <p class="meta">

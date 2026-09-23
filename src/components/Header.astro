@@ -142,6 +142,13 @@ const links = [
     color: var(--ink-3);
   }
 
+  /* No keyboard shortcut to advertise on a touch screen. */
+  @media (pointer: coarse) {
+    kbd {
+      display: none;
+    }
+  }
+
   @media (max-width: 56rem) {
     nav {
       display: none;

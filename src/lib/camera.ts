@@ -20,7 +20,7 @@ export interface Viewport {
 }
 
 /** The pose that shows the whole of `rect`, leaving `margin` pixels clear on every side. */
-export function fit(rect: Rect, view: Viewport, margin: number): Pose {
+export function fitView(rect: Rect, view: Viewport, margin: number): Pose {
   const scale = Math.min((view.width - 2 * margin) / rect.w, (view.height - 2 * margin) / rect.h);
   return { x: rect.x + rect.w / 2, y: rect.y + rect.h / 2, scale };
 }

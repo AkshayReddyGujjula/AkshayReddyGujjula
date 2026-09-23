@@ -82,12 +82,10 @@ export const skills: Record<string, string[]> = {
   ],
 };
 
-/** Shown in the About section. The hobbies list renders only once it has entries. */
+/** Shown in the About section. */
 export const about = {
   paragraphs: [
-    "I'm a second-year Computer Science student at UCL, graduating in 2028. I build full-stack, AI and performance-sensitive systems, and I like getting them in front of real people: ten students use StudyCanvas every week, and Moneywell Town is on its way to Web Summit.",
-    "Alongside my degree I tutor seven A-level students in Maths, Computer Science and Python, teaching recursion and abstraction from first principles through live debugging.",
+    "I'm a second-year Computer Science student at UCL, graduating in 2028. Alongside my degree I tutor seven A-level students in Maths, Computer Science and Python, mostly by debugging live with them until the idea clicks.",
+    "Away from the keyboard I'm usually watching Formula 1 or cricket. Both come down to small margins, and so does my favourite kind of programming: getting something to use fewer tokens, fewer steps and less time than it did yesterday.",
   ],
-  // TODO(akshay): add hobbies, e.g. "Chess: 1600 on Lichess".
-  hobbies: [] as string[],
 };

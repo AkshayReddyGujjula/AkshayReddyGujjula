@@ -1,11 +1,13 @@
 ---
 import About from "~/components/About.astro";
+import Chapter from "~/components/Chapter.astro";
 import Contact from "~/components/Contact.astro";
 import HackathonTimeline from "~/components/HackathonTimeline.astro";
 import Hero from "~/components/Hero.astro";
+import Minimap from "~/components/Minimap.astro";
+import Optimising from "~/components/Optimising.astro";
 import OtherProjects from "~/components/OtherProjects.astro";
 import ProjectFeature from "~/components/ProjectFeature.astro";
-import Section from "~/components/Section.astro";
 import MoneywellVisual from "~/components/visuals/MoneywellVisual.astro";
 import RayNeoVisual from "~/components/visuals/RayNeoVisual.astro";
 import StudyCanvasVisual from "~/components/visuals/StudyCanvasVisual.astro";
@@ -26,28 +28,42 @@ const flagships = await projectsByTier("flagship");
 <Base>
   <Hero />
 
-  <Section id="work" title="Projects" lede="Four things I've built and shipped, in the order I'd show you them.">
-    {
-      flagships.map((project) => {
-        const Visual = visuals[project.id];
-        return <ProjectFeature project={project}>{Visual && <Visual />}</ProjectFeature>;
-      })
-    }
-  </Section>
+  {
+    flagships.map((project) => {
+      const Visual = visuals[project.id];
+      return <ProjectFeature project={project}>{Visual && <Visual />}</ProjectFeature>;
+    })
+  }
 
-  <Section id="hackathons" title="Hackathons" lede="Weekend builds under a deadline, and how they placed.">
+  <Chapter
+    id="optimising"
+    kicker="Optimising"
+    title="Making agents do less."
+    lede="Most evenings go on making AI tools use fewer tokens, fewer steps and less time, and measuring whether it actually worked."
+  >
+    <Optimising />
+  </Chapter>
+
+  <Chapter
+    id="hackathons"
+    kicker="Hackathons"
+    title="Weekends with a deadline."
+    lede="Most of my projects started at a hackathon. These are the ones worth showing, and how they placed."
+  >
     <HackathonTimeline />
-  </Section>
+  </Chapter>
 
-  <Section id="more" title="Also built">
+  <Chapter id="more" kicker="Also built" title="Smaller things.">
     <OtherProjects />
-  </Section>
+  </Chapter>
 
-  <Section id="about" title="About me">
+  <Chapter id="about" kicker="Off the keyboard" title="About me.">
     <About />
-  </Section>
+  </Chapter>
 
-  <Section id="contact" title="Say hello">
+  <Chapter id="contact" kicker="Contact" title="Say hello.">
     <Contact />
-  </Section>
+  </Chapter>
+
+  <Minimap />
 </Base>

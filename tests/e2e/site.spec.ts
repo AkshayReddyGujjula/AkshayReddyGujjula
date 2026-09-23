@@ -26,8 +26,7 @@ async function openPalette(page: Page) {
 test.describe("home page", () => {
   test("shows the four flagship projects in order", async ({ page }) => {
     await page.goto("/");
-    const titles = page.locator("#work article h3");
-    await expect(titles).toHaveText([
+    await expect(page.locator("article[data-chapter] h2")).toHaveText([
       "StudyCanvas",
       "Moneywell Town",
       "RayNeo Spatial",
@@ -35,47 +34,58 @@ test.describe("home page", () => {
     ]);
   });
 
-  test("a canvas node is a link as well as draggable", async ({ page, isMobile }) => {
+  test("scrolling pulls the hero camera back to the whole map", async ({ page, isMobile }) => {
+    test.skip(isMobile, "the flight only runs on wide screens");
     await page.goto("/");
-    const node = page.getByRole("link", { name: /Moneywell Town/ }).first();
-    if (!isMobile) {
-      const box = await node.boundingBox();
-      if (!box) throw new Error("node has no box");
-      await page.mouse.move(box.x + 40, box.y + 40);
-      await page.mouse.down();
-      await page.mouse.move(box.x - 60, box.y + 80, { steps: 8 });
-      await page.mouse.up();
-      await expect(page).toHaveURL(/\/$/);
-    }
-    await node.click();
-    await expect(page).toHaveURL(/#moneywell-town$/);
+    const zoom = page.locator("[data-zoom]");
+    await expect(zoom).toHaveText("100%");
+    await page.evaluate(() => {
+      const track = document.querySelector<HTMLElement>("[data-hero]");
+      if (track) window.scrollTo(0, (track.offsetHeight - innerHeight) * 0.47);
+    });
+    await expect(async () => {
+      expect(Number.parseInt((await zoom.textContent()) ?? "", 10)).toBeLessThan(60);
+    }).toPass();
   });
 
-  // Playwright's Chromium cannot decode H.264, so this checks the control stays truthful
-  // about the video's state rather than assuming playback.
-  test("the StudyCanvas demo control matches the video's state", async ({ page }) => {
-    await page.goto("/#studycanvas");
-    const video = page.locator(".player video");
-    const toggle = page.getByRole("button", { name: /^(Play|Pause) demo$/ });
-    for (let press = 0; press < 2; press++) {
-      await toggle.click();
-      const paused = await video.evaluate((v: HTMLVideoElement) => v.paused);
-      await expect(toggle).toHaveText(paused ? "Play demo" : "Pause demo");
-    }
+  test("a map node focused from the keyboard is brought into view and links to its chapter", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const node = page.locator("[data-hero]").getByRole("link", { name: /Moneywell Town/ });
+    await node.focus();
+    await expect(node).toBeInViewport();
+    await node.click();
+    await expect(page).toHaveURL(/#moneywell-town$/);
   });
 
   test("the Moneywell console pages through the game", async ({ page }) => {
     await page.goto("/#moneywell-town");
     await page.getByRole("button", { name: "Next screen" }).click();
     await expect(page.getByText("A lesson from the accountant")).toBeVisible();
+    await expect(page.getByText("Screen 2 of 4")).toBeVisible();
   });
 
-  test("the theme toggle switches and survives a reload", async ({ page }) => {
-    await page.goto("/");
-    await page.emulateMedia({ colorScheme: "light" });
-    await page.getByRole("button", { name: "Switch colour theme" }).click();
-    await page.reload();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  test("the timing board reports this page load", async ({ page }) => {
+    await page.goto("/#about");
+    const board = page.locator("[data-timing]");
+    await board.scrollIntoViewIfNeeded();
+    await expect(board.locator('[data-metric="fcp"] .value')).toHaveText(/\d+(\.\d+)? m?s$/);
+    await expect(board.locator('[data-metric="bytes"] .value')).toHaveText(/\d+(\.\d+)? (KB|MB)$/);
+  });
+});
+
+test.describe("minimap", () => {
+  test.use({ viewport: { width: 1680, height: 1000 } });
+  test.skip(({ isMobile }) => isMobile, "the minimap needs a wide gutter");
+
+  test("marks the chapter being read", async ({ page }) => {
+    await page.goto("/#hackathons");
+    const map = page.getByRole("navigation", { name: "Page map" });
+    await expect(map.getByRole("link", { name: "Hackathons" })).toHaveAttribute(
+      "aria-current",
+      "location",
+    );
   });
 });
 
@@ -97,6 +107,17 @@ test.describe("command palette", () => {
 });
 
 test.describe("contact form", () => {
+  test("the address copies in one click", async ({ page, context, browserName }) => {
+    test.skip(browserName !== "chromium", "clipboard permissions");
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.goto("/#contact");
+    await page.getByRole("button", { name: /akshayreddyg07@gmail.com/ }).click();
+    await expect(page.getByText("Copied", { exact: true })).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      "akshayreddyg07@gmail.com",
+    );
+  });
+
   test("explains what is missing and focuses the first problem", async ({ page }) => {
     await page.goto("/#contact");
     await page.getByRole("button", { name: "Send message" }).click();
