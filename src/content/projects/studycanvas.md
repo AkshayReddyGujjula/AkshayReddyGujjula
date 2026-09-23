@@ -3,6 +3,7 @@ title: StudyCanvas
 tagline: A spatial AI study workspace. Highlight a passage, ask about it, and the answer becomes a node you can branch, quiz yourself on or turn into flashcards.
 order: 1
 tier: flagship
+search: "It also has Exam Room, which writes timed mock exam papers from your own notes and past papers, plus spaced-repetition flashcards, quizzes, voice notes and handwriting. It is an education and study tool for students."
 origin: Started at HackLondon 2026
 period: Jan 2026 – present
 stack: [React, TypeScript, React Flow, FastAPI, Python, Gemini API, Pyodide]

@@ -1,5 +1,6 @@
 ---
 import { type CollectionEntry, render } from "astro:content";
+import SplitTitle from "~/components/SplitTitle.astro";
 
 interface Props {
   project: CollectionEntry<"projects">;
@@ -22,7 +23,7 @@ const { Content } = await render(project);
       <span>{period}</span>
       {origin ? <span class="origin">{origin}</span> : null}
     </p>
-    <h2 id={`${project.id}-title`} data-reveal>{title}</h2>
+    <SplitTitle id={`${project.id}-title`} text={title} />
     <p class="tagline" data-reveal>{tagline}</p>
   </header>
 
@@ -97,7 +98,7 @@ const { Content } = await render(project);
     font-weight: 500;
   }
 
-  h2 {
+  header :global(h2) {
     margin-top: 1rem;
     font-size: var(--step-5);
     letter-spacing: -0.045em;

@@ -20,6 +20,8 @@ const projects = defineCollection({
         award: z.string().optional(),
         /** Where the project began, if it started life somewhere else, such as a hackathon. */
         origin: z.string().optional(),
+        /** Extra plain sentences for natural-language search only; never shown on the page. */
+        search: z.string().optional(),
         cover: image().optional(),
         coverAlt: z.string().optional(),
       })

@@ -135,6 +135,19 @@ code {
   clip-path: inset(0 0 0 0 round var(--radius));
 }
 
+/* Moving between pages crossfades instead of flashing, where the browser supports it. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 280ms;
+    animation-timing-function: var(--ease-out);
+  }
+}
+
 /* Reduced motion has to beat every component's own animation, so !important is the point here. */
 @media (prefers-reduced-motion: reduce) {
   html {

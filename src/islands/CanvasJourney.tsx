@@ -257,6 +257,7 @@ export default function CanvasJourney({ nodes, children }: Props) {
   const zoom = useRef<HTMLSpanElement>(null);
   const flying = useMediaQuery(FLIGHT_QUERY);
   const [rects, setRects] = useState<Map<string, Rect>>(new Map());
+  const [hot, setHot] = useState<string | null>(null);
 
   useEffect(() => {
     const el = world.current;
@@ -298,6 +299,7 @@ export default function CanvasJourney({ nodes, children }: Props) {
                     d={edgeTo(intro, rect)}
                     pathLength={1}
                     data-dive={node.id === DIVE_TARGET || undefined}
+                    data-hot={node.id === hot || undefined}
                     style={{ "--i": order.get(node.id) } as CSSProperties}
                   />
                 );
@@ -324,7 +326,13 @@ export default function CanvasJourney({ nodes, children }: Props) {
                 data-node={node.id}
                 data-dive={node.id === DIVE_TARGET || undefined}
                 style={{ ...place(at), "--i": order.get(node.id) } as CSSProperties}
-                onFocus={reveal}
+                onFocus={() => {
+                  reveal();
+                  setHot(node.id);
+                }}
+                onBlur={() => setHot(null)}
+                onPointerEnter={() => setHot(node.id)}
+                onPointerLeave={() => setHot(null)}
                 draggable={false}
               >
                 <NodeBody node={node} />
