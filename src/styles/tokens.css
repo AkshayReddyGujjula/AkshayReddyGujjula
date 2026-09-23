@@ -19,7 +19,7 @@
   --line-strong: light-dark(#16203a, #e8ecf4);
   --dot: light-dark(#c3cad8, #2e374b);
   --accent: light-dark(#2f5bea, #86a3ff);
-  --mark: light-dark(#ffe066, #6b5a12);
+  --mark: light-dark(#ffe066, rgb(255 214 90 / 0.32));
   --signal: light-dark(#0e8074, #3cc6b5);
 
   --shadow:

@@ -1,0 +1,157 @@
+---
+import { type CollectionEntry, render } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { title, tagline, award, facts, stack, links, period } = project.data;
+const { Content } = await render(project);
+---
+
+<article class="feature" id={project.id} aria-labelledby={`${project.id}-title`}>
+  <header>
+    {award && <p class="award">{award}</p>}
+    <h3 id={`${project.id}-title`}>{title}</h3>
+    <p class="tagline">{tagline}</p>
+  </header>
+
+  <div class="visual">
+    <slot />
+  </div>
+
+  <div class="detail">
+    <div class="prose">
+      <Content />
+    </div>
+
+    <aside aria-label={`${title} at a glance`}>
+      {
+        facts.length > 0 && (
+          <dl class="facts">
+            {facts.map((fact) => (
+              <div>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+      <p class="stack">{stack.join(", ")}</p>
+      <p class="period">{period}</p>
+      <ul class="links">
+        {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<style>
+  .feature {
+    padding-block: clamp(4rem, 9vw, 7rem);
+    border-top: 1px solid var(--line);
+  }
+
+  header {
+    max-width: 48rem;
+  }
+
+  .award {
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    background: var(--mark);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: var(--step-4);
+    font-weight: 800;
+  }
+
+  .tagline {
+    margin-top: 0.75rem;
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+
+  .visual {
+    margin-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 19rem;
+    gap: clamp(2rem, 6vw, 5rem);
+  }
+
+  .prose {
+    max-width: var(--measure);
+  }
+
+  .prose :global(p + p) {
+    margin-top: 1.1em;
+  }
+
+  aside {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    font-size: var(--step--1);
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem 1rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* The value reads first but is marked up after its label, so it is announced in context. */
+  .facts div {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+  }
+
+  dd {
+    font-size: var(--step-2);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  dt {
+    color: var(--ink-2);
+    line-height: 1.35;
+  }
+
+  .stack {
+    color: var(--ink-2);
+  }
+
+  .period {
+    color: var(--ink-3);
+  }
+
+  .links {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0;
+    list-style: none;
+    font-size: var(--step-0);
+    font-weight: 500;
+  }
+
+  @media (max-width: 52rem) {
+    .detail {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

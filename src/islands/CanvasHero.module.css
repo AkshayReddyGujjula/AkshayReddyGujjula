@@ -116,10 +116,14 @@
   width: min(100% - 2 * var(--gutter), var(--content));
   margin-inline: auto;
   font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, "Cascadia Mono", "SF Mono", monospace;
   color: var(--ink-3);
   white-space: pre;
   pointer-events: none;
+}
+
+.hud p:last-child {
+  font-family: var(--font);
 }
 
 /* Wide screens: the canvas. Nodes sit at fractional positions on a plane that tilts

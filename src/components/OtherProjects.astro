@@ -1,0 +1,56 @@
+---
+import { projectsByTier } from "~/lib/content";
+
+const projects = await projectsByTier("other");
+---
+
+<ul class="others">
+  {
+    projects.map((project) => {
+      const link = project.data.links[0];
+      return (
+        <li>
+          <h3>{link ? <a href={link.href}>{project.data.title}</a> : project.data.title}</h3>
+          <p>{project.data.tagline}</p>
+          <p class="meta">
+            {project.data.stack.join(", ")}. {project.data.period}
+            {!link && ", private repository"}
+          </p>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .others {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 2rem clamp(1.5rem, 4vw, 3rem);
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  h3 {
+    font-size: var(--step-1);
+  }
+
+  h3 a {
+    color: var(--ink);
+  }
+
+  p {
+    margin-top: 0.4rem;
+    color: var(--ink-2);
+  }
+
+  .meta {
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+</style>

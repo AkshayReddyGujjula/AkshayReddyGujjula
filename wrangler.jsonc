@@ -5,7 +5,8 @@
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "directory": "./dist", "binding": "ASSETS" },
-  "send_email": [{ "name": "EMAIL" }],
+  // The binding can only ever deliver to my inbox, whatever the code asks for.
+  "send_email": [{ "name": "EMAIL", "destination_address": "akshayreddyg07@gmail.com" }],
   "vars": {
     // Cloudflare's always-passes test key; the real site key is set per environment.
     "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",

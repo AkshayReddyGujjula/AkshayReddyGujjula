@@ -1,0 +1,235 @@
+---
+import { Image } from "astro:assets";
+import battle from "~/assets/projects/moneywell-town/battle-wrong.png";
+import boxes from "~/assets/projects/moneywell-town/boxes.png";
+import payslip from "~/assets/projects/moneywell-town/lesson-payslip.png";
+import town from "~/assets/projects/moneywell-town/town.png";
+
+const screens = [
+  {
+    src: town,
+    alt: "The town overworld with Northwell Bank, the fountain and the noticeboard",
+    caption: "The town. Each topic is taught by someone who lives here.",
+  },
+  {
+    src: payslip,
+    alt: "A lesson page showing gross pay as a bar, with income tax, National Insurance and pension stacked against it",
+    caption: "A lesson from the accountant. All 144 lesson pages are drawn, not written.",
+  },
+  {
+    src: battle,
+    alt: "A battle after a wrong answer: the player has dropped to 80 HP and the explanation is shown",
+    caption: "A wrong answer costs HP, and the explanation appears anyway.",
+  },
+  {
+    src: boxes,
+    alt: "Five review boxes from BEGINNER to MASTERED, each showing when its questions come back",
+    caption: "Five review boxes. A question only moves up when it was actually due.",
+  },
+];
+---
+
+<div class="moneywell" data-console>
+  <div class="console">
+    <svg class="dpad" viewBox="0 0 60 60" aria-hidden="true">
+      <path d="M22 4h16v18h18v16H38v18H22V38H4V22h18z"></path>
+    </svg>
+    <button class="hit left" type="button" data-step="-1" tabindex="-1" aria-hidden="true"></button>
+    <button class="hit right" type="button" data-step="1" tabindex="-1" aria-hidden="true"></button>
+
+    <div class="bezel">
+      <div class="screen">
+        {
+          screens.map((screen, index) => (
+            <Image
+              src={screen.src}
+              alt={screen.alt}
+              width={800}
+              data-screen={index}
+              hidden={index > 0}
+              loading={index === 0 ? "eager" : "lazy"}
+            />
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button type="button" data-step="-1" aria-label="Previous screen">B</button>
+      <button type="button" data-step="1" aria-label="Next screen">A</button>
+    </div>
+  </div>
+
+  <div class="captions" aria-live="polite">
+    {screens.map((screen, index) => <p data-caption={index} hidden={index > 0}>{screen.caption}</p>)}
+    <p class="hint">Press A or the D-pad to look around.</p>
+  </div>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>("[data-console]")) {
+    const images = root.querySelectorAll<HTMLElement>("[data-screen]");
+    const captions = root.querySelectorAll<HTMLElement>("[data-caption]");
+    let current = 0;
+
+    const show = (index: number) => {
+      current = (index + images.length) % images.length;
+      images.forEach((img, i) => (img.hidden = i !== current));
+      captions.forEach((caption, i) => (caption.hidden = i !== current));
+    };
+
+    for (const button of root.querySelectorAll<HTMLButtonElement>("[data-step]")) {
+      button.addEventListener("click", () => show(current + Number(button.dataset.step)));
+    }
+  }
+</script>
+
+<style>
+  .moneywell {
+    display: grid;
+    grid-template-columns: minmax(0, 46rem) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.5rem, 5vw, 4rem);
+  }
+
+  /* A landscape handheld: D-pad, screen, A and B. The screen keeps the game's 800x512. */
+  .console {
+    position: relative;
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr) 5.5rem;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1rem;
+    border-radius: 2.75rem;
+    background: light-dark(#27324f, #2a3348);
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 0.12),
+      inset 0 -6px 0 rgb(0 0 0 / 0.25),
+      var(--shadow);
+  }
+
+  .bezel {
+    padding: 0.9rem;
+    border-radius: 1rem;
+    background: #10141f;
+    box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.06);
+  }
+
+  .screen {
+    aspect-ratio: 800 / 512;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #000;
+  }
+
+  .screen :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+  }
+
+  .dpad {
+    width: 4.25rem;
+    justify-self: center;
+    fill: #121724;
+    filter: drop-shadow(0 2px 0 rgb(255 255 255 / 0.08));
+  }
+
+  .hit {
+    position: absolute;
+    top: 50%;
+    width: 2.75rem;
+    height: 3rem;
+    margin-top: -1.5rem;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .hit.left {
+    left: 0.9rem;
+  }
+
+  .hit.right {
+    left: 3.6rem;
+  }
+
+  .buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    justify-self: center;
+    rotate: -18deg;
+  }
+
+  .buttons button {
+    width: 2.3rem;
+    height: 2.3rem;
+    border: 0;
+    border-radius: 50%;
+    background: #c9364a;
+    box-shadow:
+      inset 0 -3px 0 rgb(0 0 0 / 0.3),
+      0 2px 0 rgb(255 255 255 / 0.08);
+    color: rgb(255 255 255 / 0.85);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .buttons button:active {
+    translate: 0 1px;
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.3);
+  }
+
+  .buttons button:first-child {
+    margin-top: 1rem;
+  }
+
+  .captions p {
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+
+  .captions .hint {
+    margin-top: 1rem;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 52rem) {
+    .moneywell {
+      grid-template-columns: 1fr;
+    }
+
+    .console {
+      grid-template-columns: 3.5rem minmax(0, 1fr) 3.5rem;
+      gap: 0.5rem;
+      padding: 0.9rem 0.6rem;
+      border-radius: 1.75rem;
+    }
+
+    .dpad {
+      width: 2.9rem;
+    }
+
+    .hit.left {
+      left: 0.5rem;
+    }
+
+    .hit.right {
+      left: 2.1rem;
+    }
+
+    .buttons button {
+      width: 1.6rem;
+      height: 1.6rem;
+      font-size: 0.65rem;
+    }
+
+    .bezel {
+      padding: 0.45rem;
+    }
+  }
+</style>

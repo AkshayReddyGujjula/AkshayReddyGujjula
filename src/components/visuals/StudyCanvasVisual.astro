@@ -1,0 +1,130 @@
+---
+import { getImage, Image } from "astro:assets";
+import pythonShot from "~/assets/projects/studycanvas/browser-python.png";
+import examShot from "~/assets/projects/studycanvas/exam-room.png";
+import poster from "~/assets/projects/studycanvas/highlight-to-question.png";
+
+const posterUrl = (await getImage({ src: poster, width: 1600, format: "webp" })).src;
+---
+
+<div class="studycanvas">
+  <figure class="main">
+    <div class="chrome" aria-hidden="true">
+      <span></span><span></span><span></span>
+      <p>studycanvas.app</p>
+    </div>
+    <video
+      src="/media/studycanvas-highlight-to-answer.mp4"
+      poster={posterUrl}
+      muted
+      loop
+      playsinline
+      preload="none"
+      data-autoplay
+      aria-label="Highlighting a sentence in a PDF, asking about it, and the answer streaming into a linked node"
+    ></video>
+    <figcaption>Highlight, ask, and the answer streams into a node linked to its source.</figcaption>
+  </figure>
+
+  <figure>
+    <Image src={examShot} widths={[480, 960]} sizes="(min-width: 52rem) 22rem, 100vw" alt="The Exam Room, sitting a generated practice paper with timing and marks" />
+    <figcaption>The Exam Room turns past papers into a fresh practice paper.</figcaption>
+  </figure>
+  <figure>
+    <Image src={pythonShot} widths={[480, 960]} sizes="(min-width: 52rem) 22rem, 100vw" alt="A code node running Python in the browser next to an explanation" />
+    <figcaption>Python runs in the browser through Pyodide.</figcaption>
+  </figure>
+</div>
+
+<script>
+  // Play the demo only while it is on screen, and never for people who asked for less motion.
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  for (const video of document.querySelectorAll<HTMLVideoElement>("video[data-autoplay]")) {
+    if (calm) {
+      video.controls = true;
+      continue;
+    }
+    new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) void video.play().catch(() => (video.controls = true));
+      else video.pause();
+    }, { threshold: 0.4 }).observe(video);
+  }
+</script>
+
+<style>
+  .studycanvas {
+    display: grid;
+    grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 1.25rem;
+  }
+
+  .main {
+    grid-row: span 2;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--glow), var(--shadow);
+  }
+
+  .chrome {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .chrome span {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--line);
+  }
+
+  .chrome p {
+    margin-inline: auto;
+    padding: 0.1rem 2.5rem;
+    border-radius: 6px;
+    background: var(--surface-2);
+    font-size: 0.75rem;
+    color: var(--ink-3);
+  }
+
+  video {
+    width: 100%;
+    height: auto;
+    background: var(--surface-2);
+  }
+
+  figure :global(img) {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+
+  figcaption {
+    margin-top: 0.6rem;
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  .main figcaption {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 52rem) {
+    .studycanvas {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .main {
+      grid-column: 1 / -1;
+      grid-row: auto;
+    }
+  }
+</style>
