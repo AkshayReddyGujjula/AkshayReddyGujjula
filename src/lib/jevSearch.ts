@@ -122,7 +122,8 @@ export function rankAnswers(
 
   if (mode === "choice") {
     const answer = answers.page;
-    if (answer?.type !== "choice") return [];
+    // If Jev picked the way out, nothing matches, however likely a runner-up looked.
+    if (answer?.type !== "choice" || answer.choice === NONE) return [];
     const probabilities = answer.probabilities ?? {};
     if (!Object.values(probabilities).every(isProbability)) return [];
     scored = items.map((item) => ({ id: item.id, score: probabilities[item.id] ?? 0 }));

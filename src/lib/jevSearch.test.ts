@@ -60,7 +60,7 @@ describe("rankAnswers", () => {
           type: "choice",
           choice: "none_of_these",
           confidence: 0.9,
-          probabilities: { none_of_these: 0.9, cv: 0.1 },
+          probabilities: { none_of_these: 0.6, cv: 0.4 },
         },
       },
     } as const;
