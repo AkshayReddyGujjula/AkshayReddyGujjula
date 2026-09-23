@@ -7,7 +7,7 @@
   // The binding can only ever deliver to my inbox, whatever the code asks for.
   "send_email": [{ "name": "EMAIL", "destination_address": "akshayreddyg07@gmail.com" }],
   "vars": {
-    // Cloudflare's always-passes test key; the real site key is set per environment.
+    // Cloudflare's always-passes test key. Replace it before deploying: see docs/deployment.md.
     "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
     "CONTACT_TO": "akshayreddyg07@gmail.com",
     "CONTACT_FROM": "contact@akshaygujjula.com"
