@@ -19,7 +19,7 @@ Recentering caused a sneakier version of the same problem. My first attempt work
 
 Gyroscopes drift over time, so you have to estimate how much they're off (the bias) while your head is still, and subtract it. I had two separate bits of code trying to fix that drift, one adjusting the bias and one correcting the final pose.
 
-They ended up fighting each other. Over about ten minutes the whole workspace would slowly rotate until the left screen was nearly in front of me. It was really hard to spot because every single frame looked fine. The fix was to let only the bias estimate deal with drift, and switch the other correction off by default.
+They ended up fighting each other. Over about ten minutes the whole workspace would slowly rotate until the left screen was nearly in front of me. It was really hard to spot because every single frame looked fine. The fix at that stage was to let only the bias estimate deal with drift, and switch the other correction off by default.
 
 ## Small head movements
 
@@ -29,8 +29,12 @@ An earlier version froze the pose completely whenever it thought you were still.
 
 One function scales a rotation by some fraction, like "turn 30% of the way". Quaternions have a trap here: `q` and `-q` are the same rotation. If you don't check which one you've got first, the angle can come out as 360 minus what it should be. That function, including my comment about the bug, is the code on the left screen in the demo on my home page.
 
+## Update: a magnetic heading reference
+
+The bias-only fix stopped the competing corrections, but it could not give the workspace an absolute heading. I later added a separate calibration for the glasses' magnetometer. A slow heading lock now corrects yaw against the local magnetic field and rejects readings when the field changes unexpectedly. In one 22-minute session wearing the glasses, it countered about 20° of thermal gyro drift. The result depends on a stable magnetic environment.
+
 ## Testing without wearing the glasses
 
-There are nine test suites covering the camera maths, how the pose behaves, fake head-movement scenarios, calibration, decoding the sensor data, the screen layout, the virtual display logic, projection and the controller. Every bug above has a test scenario that failed before the fix and passes after. You still need the glasses to check how it feels, but I don't have to put them on to know the maths is right.
+There are ten test suites covering the camera maths, how the pose behaves, magnetic heading, fake head-movement scenarios, calibration, decoding the sensor data, the screen layout, the virtual display logic, projection and the controller. The coordinate, recentering and small-movement bugs above each have a test scenario that failed before the fix and passes after. You still need the glasses to check how it feels, but I don't have to put them on to know the maths is right.
 
 The [code is on GitHub](https://github.com/AkshayReddyGujjula/Rayneo-Spatial-App). It's my own project and isn't affiliated with RayNeo.
