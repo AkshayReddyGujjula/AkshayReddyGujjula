@@ -175,6 +175,45 @@ const nodes: JourneyNode[] = [
     }
   }
 
+  /* Tighten the stacked intro on phones so the actions and scroll cue fit the opening viewport. */
+  @media (max-width: 40rem) {
+    h1 {
+      font-size: clamp(2rem, 1rem + 6vw, 2.6rem);
+    }
+
+    .lede {
+      margin-top: 1rem;
+      font-size: var(--step-0);
+    }
+
+    .actions {
+      margin-top: 1.25rem;
+      gap: 0.6rem;
+    }
+
+    .actions a {
+      height: 2.75rem;
+      padding-inline: 1.05rem;
+      font-size: 1rem;
+    }
+  }
+
+  @media (max-width: 22rem) {
+    .kicker {
+      font-size: var(--step--1);
+    }
+
+    h1 {
+      margin-top: 0.75rem;
+      font-size: clamp(1.9rem, 1.5rem + 6vw, 2.3rem);
+    }
+
+    .lede {
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+  }
+
   /* The headline arrives condensed and opens out to its full width as it fades in. */
   @keyframes type-in {
     from {

@@ -16,7 +16,7 @@ const links = [
   <span class="progress" aria-hidden="true"></span>
   <div class="inner">
     <a class="name" href="/">{profile.name}</a>
-    <nav aria-label="Main">
+    <nav class="desktop" aria-label="Main">
       <ul>
         {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
       </ul>
@@ -24,7 +24,37 @@ const links = [
     <button class="palette" type="button" data-palette-open aria-label="Open command palette">
       <span>Search</span><kbd data-shortcut>Ctrl K</kbd>
     </button>
+    <button
+      class="menu-toggle"
+      type="button"
+      data-menu-toggle
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Open menu"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" data-icon-open>
+        <path
+          d="M2 4h12M2 8h12M2 12h12"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        ></path>
+      </svg>
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" data-icon-close data-hidden>
+        <path
+          d="M4 4l8 8M12 4l-8 8"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        ></path>
+      </svg>
+    </button>
   </div>
+  <nav id="mobile-menu" class="mobile" aria-label="Mobile" data-mobile-nav hidden>
+    <ul>
+      {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+    </ul>
+  </nav>
 </header>
 
 <script>
@@ -46,6 +76,58 @@ const links = [
   };
   window.addEventListener("scroll", update, { passive: true });
   update();
+
+  // Compact menu for phone and tablet widths. Links reuse the desktop
+  // destinations; focus is never trapped, Escape or a link dismisses it.
+  const menuToggle = document.querySelector("[data-menu-toggle]");
+  const mobileNav = document.querySelector("[data-mobile-nav]");
+  const iconOpen = document.querySelector("[data-icon-open]");
+  const iconClose = document.querySelector("[data-icon-close]");
+
+  const setMenuOpen = (open: boolean) => {
+    menuToggle?.setAttribute("aria-expanded", String(open));
+    menuToggle?.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    if (open) {
+      mobileNav?.removeAttribute("hidden");
+    } else {
+      mobileNav?.setAttribute("hidden", "");
+    }
+    bar?.toggleAttribute("data-menu-open", open);
+    iconOpen?.toggleAttribute("data-hidden", open);
+    iconClose?.toggleAttribute("data-hidden", !open);
+  };
+
+  menuToggle?.addEventListener("click", () => {
+    const open = menuToggle.getAttribute("aria-expanded") !== "true";
+    setMenuOpen(open);
+  });
+
+  mobileNav?.addEventListener("click", (event) => {
+    if ((event.target as HTMLElement).closest("a")) {
+      setMenuOpen(false);
+    }
+  });
+
+  document.addEventListener("pointerdown", (event) => {
+    if (menuToggle?.getAttribute("aria-expanded") === "true" && !bar?.contains(event.target as Node)) {
+      setMenuOpen(false);
+    }
+  });
+
+  document.querySelector("[data-palette-open]")?.addEventListener("click", () => setMenuOpen(false));
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && menuToggle?.getAttribute("aria-expanded") === "true") {
+      setMenuOpen(false);
+      (menuToggle as HTMLButtonElement).focus();
+    }
+  });
+
+  window.matchMedia("(min-width: 56.001rem)").addEventListener("change", (event) => {
+    if (event.matches) {
+      setMenuOpen(false);
+    }
+  });
 </script>
 
 <style>
@@ -88,9 +170,14 @@ const links = [
     }
   }
 
-  .bar[data-scrolled] {
+  .bar[data-scrolled],
+  .bar[data-menu-open] {
     background: var(--bg);
     box-shadow: inset 0 -1px 0 var(--line);
+  }
+
+  .bar[data-menu-open] {
+    transition: none;
   }
 
   @keyframes arrive {
@@ -113,13 +200,14 @@ const links = [
     font-weight: 600;
     letter-spacing: -0.02em;
     text-decoration: none;
+    white-space: nowrap;
   }
 
-  nav {
+  .desktop {
     margin-left: auto;
   }
 
-  ul {
+  .desktop ul {
     display: flex;
     gap: 1.75rem;
     padding: 0;
@@ -127,7 +215,7 @@ const links = [
     font-size: var(--step--1);
   }
 
-  nav a {
+  .desktop a {
     color: var(--ink-2);
     text-decoration: none;
     transition: color 160ms var(--ease-out);
@@ -155,8 +243,56 @@ const links = [
     scale: 0.97;
   }
 
+  .menu-toggle {
+    display: none;
+    width: 2.25rem;
+    padding: 0;
+    flex-shrink: 0;
+    justify-content: center;
+  }
+
+  .menu-toggle svg {
+    display: block;
+  }
+
+  .menu-toggle svg[data-hidden] {
+    display: none;
+  }
+
+  .mobile[hidden] {
+    display: none;
+  }
+
+  .mobile {
+    border-top: 1px solid var(--line);
+  }
+
+  .mobile ul {
+    display: flex;
+    flex-direction: column;
+    width: min(100% - 2 * var(--gutter), var(--content));
+    margin-inline: auto;
+    padding: 0.25rem 0 0.75rem;
+    list-style: none;
+    font-size: var(--step--1);
+  }
+
+  .mobile a {
+    display: block;
+    padding: 0.625rem 0;
+    border-top: 1px solid var(--line);
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: color 160ms var(--ease-out);
+  }
+
+  .mobile li:first-child a {
+    border-top: 0;
+  }
+
   @media (hover: hover) and (pointer: fine) {
-    nav a:hover {
+    .desktop a:hover,
+    .mobile a:hover {
       color: var(--ink);
     }
 
@@ -179,13 +315,45 @@ const links = [
     }
   }
 
+  @media (min-width: 56.001rem) {
+    .menu-toggle,
+    .mobile {
+      display: none;
+    }
+  }
+
   @media (max-width: 56rem) {
-    nav {
+    .inner {
+      gap: 0.75rem;
+    }
+
+    .desktop {
       display: none;
     }
 
-    button {
+    .palette {
       margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .menu-toggle {
+      display: inline-flex;
+    }
+  }
+
+  @media (max-width: 24rem) {
+    .inner {
+      gap: 0.5rem;
+    }
+
+    .name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .palette {
+      padding-inline: 0.6rem;
     }
   }
 

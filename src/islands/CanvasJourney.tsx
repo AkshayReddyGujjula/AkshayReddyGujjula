@@ -313,6 +313,7 @@ export default function CanvasJourney({ nodes, children }: Props) {
             style={place(INTRO)}
           >
             {children}
+            <span className={styles.cueInline}>Scroll to explore</span>
           </div>
 
           {nodes.map((node) => {
@@ -348,7 +349,9 @@ export default function CanvasJourney({ nodes, children }: Props) {
               100%
             </span>
           </span>
-          <span className={styles.cue}>Scroll to zoom out</span>
+          <span className={styles.cue}>
+            <span className={styles.cueLabel}>Scroll to zoom out</span>
+          </span>
         </div>
       </div>
     </div>
