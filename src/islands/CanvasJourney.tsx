@@ -181,6 +181,7 @@ function useFlight({ track, stage, world, zoom }: Refs, rects: Map<string, Rect>
         y: approach(drift.y, pointer.y, elapsed, 180),
       };
       render(progress);
+      if (!stageEl.dataset.ready) stageEl.dataset.ready = "";
       const settled =
         Math.abs(progress - goal) < 1e-4 &&
         Math.abs(drift.x - pointer.x) < 0.05 &&
@@ -267,6 +268,17 @@ export default function CanvasJourney({ nodes, children }: Props) {
     for (const node of el.querySelectorAll("[data-node]")) observer.observe(node);
     document.fonts?.ready.then(update);
     return () => observer.disconnect();
+  }, [flying]);
+
+  // Arm the entrance gate while the camera is being set up. The CSS holds the
+  // world invisible until the first painted frame (see useFlight), so the
+  // handoff from the static pre-hydration pose never snaps. Without React the
+  // attribute is never set and the content stays visible.
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    if (flying) el.dataset.flightArmed = "";
+    else el.removeAttribute("data-flight-armed");
   }, [flying]);
 
   useFlight({ track, stage, world, zoom }, rects, flying);

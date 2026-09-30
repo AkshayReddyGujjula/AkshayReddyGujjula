@@ -193,6 +193,18 @@
     transform: translate3d(calc(50vw - 170px), 50dvh, 0);
   }
 
+  /* Entrance gate: the island arms it while setting up and marks ready after
+     the camera's first painted frame, so the handoff from the static pose
+     above fades in instead of snapping. Only applies when JS is running. */
+  .stage[data-ready] .world {
+    opacity: 1;
+    transition: opacity 600ms var(--ease-out);
+  }
+
+  .stage[data-flight-armed]:not([data-ready]) .world {
+    opacity: 0;
+  }
+
   .node {
     --hair: max(1px, calc(1px / var(--s, 1)));
     position: absolute;

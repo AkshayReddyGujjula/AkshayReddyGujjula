@@ -115,7 +115,8 @@ const nodes: JourneyNode[] = [
     font-weight: 600;
     line-height: 0.98;
     letter-spacing: -0.05em;
-    animation: type-in 1300ms var(--ease-out) 450ms backwards;
+    transform-origin: 0 50%;
+    animation: type-in 1100ms var(--ease-out) 450ms backwards;
   }
 
   h1 span {
@@ -260,13 +261,14 @@ const nodes: JourneyNode[] = [
     }
   }
 
-  /* The headline arrives condensed and opens out to its full width as it fades in. */
+  /* The headline arrives condensed and opens out to its full width as it fades in.
+     Compositor-only (opacity/translate/scale): no blur or font-stretch, so the
+     entrance stays smooth even on phones. */
   @keyframes type-in {
     from {
       opacity: 0;
-      font-stretch: 75%;
       translate: 0 0.15em;
-      filter: blur(6px);
+      scale: 0.94 1;
     }
   }
 
