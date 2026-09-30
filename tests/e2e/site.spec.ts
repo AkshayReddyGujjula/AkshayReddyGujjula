@@ -206,14 +206,17 @@ test.describe("contact form", () => {
 });
 
 test.describe("other pages", () => {
-  test("the footer links to the privacy policy and terms", async ({ page }) => {
+  test("the footer signs off and links to the privacy policy and terms", async ({ page }) => {
     await page.goto("/");
-    const footer = page.getByRole("navigation", { name: "Site information" });
-    await footer.getByRole("link", { name: "Privacy" }).click();
+    const footer = page.getByRole("contentinfo");
+    await expect(footer.getByText("then I make it faster.")).toBeVisible();
+    await expect(footer.getByText("No cookies, no analytics")).toBeVisible();
+    const nav = page.getByRole("navigation", { name: "Site information" });
+    await nav.getByRole("link", { name: "Privacy" }).click();
     await expect(page).toHaveURL(/\/privacy$/);
     await expect(page.getByRole("heading", { name: "Privacy policy" })).toBeVisible();
     await page.goBack();
-    await footer.getByRole("link", { name: "Terms" }).click();
+    await nav.getByRole("link", { name: "Terms" }).click();
     await expect(page.getByRole("heading", { name: "Terms of use" })).toBeVisible();
   });
 
