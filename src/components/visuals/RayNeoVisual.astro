@@ -322,6 +322,27 @@ const game = await getImage({ src: town, width: 800, format: "webp" });
     }
   }
 
+  /* Very narrow phones: pull the arc closer and shrink the screens so the
+     side displays stay readable instead of clipping to slivers. */
+  @media (max-width: 30rem) {
+    .room {
+      --r: 320px;
+      height: clamp(20rem, 110vw, 26rem);
+    }
+
+    .screen {
+      --w: 13.5rem;
+    }
+
+    pre {
+      font-size: 0.6rem;
+    }
+
+    .readout {
+      left: 1rem;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hint {
       display: none;

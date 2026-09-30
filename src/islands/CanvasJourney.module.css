@@ -39,6 +39,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  width: fit-content;
   max-width: 100%;
   margin-top: 1.5rem;
   padding: 0.55rem 0.95rem;
@@ -49,6 +50,8 @@
   font-size: var(--step-0);
   line-height: 1.25;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cueInline::after {

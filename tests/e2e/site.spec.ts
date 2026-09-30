@@ -75,6 +75,32 @@ test.describe("home page", () => {
   });
 });
 
+test.describe("mobile navigation", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("the menu opens, closes with Escape and follows a link", async ({ page }) => {
+    await page.goto("/");
+    const toggle = page.getByRole("button", { name: /menu/ });
+    const menu = page.getByRole("navigation", { name: "Mobile" });
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(menu).toBeHidden();
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await expect(menu).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(menu).toBeHidden();
+
+    await toggle.click();
+    await menu.getByRole("link", { name: "Work" }).click();
+    await expect(page).toHaveURL(/#studycanvas$/);
+    await expect(menu).toBeHidden();
+  });
+});
+
 test.describe("minimap", () => {
   test.use({ viewport: { width: 1680, height: 1000 } });
   test.skip(({ isMobile }) => isMobile, "the minimap needs a wide gutter");
