@@ -27,6 +27,7 @@
   --danger: #ff7a7a;
 
   --font: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
 
   /* Type scale: a perfect fourth from a 17px base, with a display size for the hero. */
   --step--1: 0.875rem;
@@ -36,6 +37,7 @@
   --step-3: clamp(1.75rem, 1.35rem + 1.6vw, 2.5rem);
   --step-4: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
   --step-5: clamp(2.75rem, 1.4rem + 5.4vw, 6rem);
+  --step-6: clamp(3.25rem, 1.75rem + 6vw, 7rem);
 
   --gutter: clamp(1rem, 4vw, 3rem);
   --content: 76rem;
