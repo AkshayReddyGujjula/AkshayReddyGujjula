@@ -87,11 +87,6 @@ const nodes: JourneyNode[] = [
       <a href="/cv">CV</a>
       <a href="#contact">Get in touch</a>
     </div>
-    <ul class="proof" aria-label="Highlights">
-      <li><b>1st</b> · WIF AI Summit</li>
-      <li><b>1st</b> · UCL DSS Finance Track</li>
-      <li><b>1 of 6</b> · on stage at Google A2A, from 50+</li>
-    </ul>
   </CanvasJourney>
 </section>
 
@@ -166,25 +161,6 @@ const nodes: JourneyNode[] = [
     scale: 0.97;
   }
 
-  /* Proof strip: the reason to believe the headline, above the fold. */
-  .proof {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    margin-top: 1.75rem;
-    padding-top: 1.25rem;
-    box-shadow: inset 0 1px 0 var(--line);
-    list-style: none;
-    font-size: var(--step--1);
-    color: var(--ink-2);
-    animation: rise 900ms var(--ease-out) 1050ms backwards;
-  }
-
-  .proof b {
-    color: var(--ink);
-    font-weight: 600;
-  }
-
   @media (hover: hover) and (pointer: fine) {
     .actions a:hover {
       box-shadow: inset 0 0 0 1px var(--ink);
@@ -210,10 +186,6 @@ const nodes: JourneyNode[] = [
     .lede {
       font-size: 23px;
     }
-
-    .proof {
-      font-size: 16px;
-    }
   }
 
   /* Tighten the stacked intro on phones so the actions and scroll cue fit the opening viewport. */
@@ -236,12 +208,6 @@ const nodes: JourneyNode[] = [
       height: 2.75rem;
       padding-inline: 1.05rem;
       font-size: 1rem;
-    }
-
-    .proof {
-      margin-top: 1.25rem;
-      padding-top: 1rem;
-      gap: 0.4rem 1rem;
     }
   }
 
