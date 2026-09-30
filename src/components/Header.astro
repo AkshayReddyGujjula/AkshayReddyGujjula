@@ -21,7 +21,7 @@ const links = [
         {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
       </ul>
     </nav>
-    <button class="palette" type="button" data-palette-open aria-label="Open command palette">
+    <button class="palette" type="button" data-palette-open aria-label="Search, open the command palette">
       <span>Search</span><kbd data-shortcut>Ctrl K</kbd>
     </button>
     <button
@@ -115,6 +115,14 @@ const links = [
   });
 
   document.querySelector("[data-palette-open]")?.addEventListener("click", () => setMenuOpen(false));
+
+  // The open menu dismisses when focus leaves the bar, so keyboard users
+  // can't strand it open under the fixed header.
+  document.addEventListener("focusin", (event) => {
+    if (menuToggle?.getAttribute("aria-expanded") === "true" && !bar?.contains(event.target as Node)) {
+      setMenuOpen(false);
+    }
+  });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && menuToggle?.getAttribute("aria-expanded") === "true") {

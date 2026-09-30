@@ -35,6 +35,16 @@ function footnote(jev: JevState): string {
   return "Type a question, like “has he built anything with computer vision?”";
 }
 
+/** Live-region phrasing kept distinct from the visual footnote (which tests match exactly). */
+function liveSummary(jev: JevState, count: number): string {
+  const head = count > 0 ? `${count} results. ` : "";
+  if (jev.status === "thinking") return `${head}Asking Jev.`;
+  if (jev.status === "done" && jev.matches.length > 0)
+    return `${head}Jev ranked the best matches in ${jev.ms} milliseconds.`;
+  if (jev.status === "done") return `${head}Jev found nothing that fits.`;
+  return `${head}Type a question to search.`;
+}
+
 async function run(item: PaletteItem): Promise<string | undefined> {
   if (item.action === "copy-email") {
     try {
@@ -120,7 +130,8 @@ export default function CommandPalette({ items }: Props) {
           className={styles.input}
           type="text"
           role="combobox"
-          aria-expanded="true"
+          aria-label="Search"
+          aria-expanded={results.length > 0}
           aria-controls={listId}
           aria-activedescendant={results.length > 0 ? optionId(active) : undefined}
           aria-autocomplete="list"
@@ -164,6 +175,10 @@ export default function CommandPalette({ items }: Props) {
         <p className={styles.footnote}>{footnote(jev)}</p>
         <p className={styles.status} role="status">
           {status}
+        </p>
+        {/* Announced but never seen: result count plus Jev's state. */}
+        <p className="visually-hidden" role="status">
+          {liveSummary(jev, results.length)}
         </p>
       </div>
     </dialog>

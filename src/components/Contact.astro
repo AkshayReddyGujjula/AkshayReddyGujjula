@@ -33,6 +33,7 @@ import { profile } from "~/data/profile";
             required
             maxlength="100"
             placeholder=" "
+            aria-label="Name"
             aria-describedby="error-name"
           />
           <span>Name</span>
@@ -45,6 +46,7 @@ import { profile } from "~/data/profile";
             autocomplete="email"
             required
             placeholder=" "
+            aria-label="Email"
             aria-describedby="error-email"
           />
           <span>Email</span>
@@ -58,6 +60,7 @@ import { profile } from "~/data/profile";
             minlength="10"
             maxlength="5000"
             placeholder=" "
+            aria-label="Message"
             aria-describedby="error-message"></textarea>
           <span>Message</span>
           <small id="error-message" data-error-for="message"></small>
@@ -148,7 +151,7 @@ import { profile } from "~/data/profile";
     flow.style.setProperty("--progress", String(ready / fields.length));
   }
 
-  // The address copies in one click; the label says so, then settles back.
+  // The address copies in one click; the accessible name says so, then settles back.
   for (const copy of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
     let timer = 0;
     copy.addEventListener("click", async () => {
@@ -159,8 +162,12 @@ import { profile } from "~/data/profile";
         return;
       }
       copy.dataset.copied = "";
+      copy.setAttribute("aria-label", "Copied to clipboard");
       clearTimeout(timer);
-      timer = window.setTimeout(() => delete copy.dataset.copied, 1800);
+      timer = window.setTimeout(() => {
+        delete copy.dataset.copied;
+        copy.removeAttribute("aria-label");
+      }, 1800);
     });
   }
 
@@ -174,7 +181,10 @@ import { profile } from "~/data/profile";
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      button.disabled = true;
+      // Focus stays on the button throughout: aria-disabled (not disabled)
+      // keeps it focusable while the guard below stops double submits.
+      if (button.getAttribute("aria-disabled") === "true") return;
+      button.setAttribute("aria-disabled", "true");
       status.textContent = "Sending…";
       flow.dataset.state = "sending";
 
@@ -199,7 +209,7 @@ import { profile } from "~/data/profile";
         flow.dataset.state = "error";
         status.textContent = "Your message couldn't be sent. Check your connection and try again.";
       } finally {
-        button.disabled = false;
+        button.removeAttribute("aria-disabled");
         window.turnstile?.reset(widgetId);
       }
     });
@@ -342,7 +352,7 @@ import { profile } from "~/data/profile";
     border: 0;
     border-radius: var(--radius);
     background: var(--bg);
-    box-shadow: inset 0 0 0 1px var(--line);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
     font-size: var(--step-0);
     resize: vertical;
     transition: box-shadow 200ms var(--ease-out);
@@ -423,7 +433,8 @@ import { profile } from "~/data/profile";
     scale: 0.97;
   }
 
-  button[type="submit"]:disabled {
+  button[type="submit"]:disabled,
+  button[type="submit"][aria-disabled="true"] {
     opacity: 0.6;
     cursor: progress;
   }

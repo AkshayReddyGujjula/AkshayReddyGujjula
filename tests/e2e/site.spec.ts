@@ -120,6 +120,28 @@ test.describe("minimap", () => {
     await expect(map.locator("[data-map-label]")).toHaveText("Smaller things.");
     await expect(map.locator('[aria-current="location"]')).toHaveCount(0);
   });
+
+  test("stays out of the tab order while hidden", async ({ page }) => {
+    await page.goto("/");
+    const map = page.getByRole("navigation", { name: "Page map" });
+    await expect(map).not.toHaveAttribute("data-visible", "");
+    await expect(map).toHaveAttribute("inert", "");
+  });
+});
+
+test.describe("minimap folded", () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+  test.skip(({ isMobile }) => isMobile, "the folded map needs a mid-size viewport");
+
+  test("its label opens the map for keyboard users", async ({ page }) => {
+    await page.goto("/#hackathons");
+    const map = page.getByRole("navigation", { name: "Page map" });
+    const trigger = map.getByRole("button");
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await trigger.click();
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect(map.locator(".map")).toHaveCSS("opacity", "1");
+  });
 });
 
 test.describe("command palette", () => {
@@ -127,6 +149,7 @@ test.describe("command palette", () => {
 
   test("jumps to a project from the keyboard", async ({ page }) => {
     await openPalette(page);
+    await expect(page.getByRole("combobox")).toHaveAccessibleName("Search");
     await page.getByRole("combobox").fill("canvas");
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#studycanvas$/);

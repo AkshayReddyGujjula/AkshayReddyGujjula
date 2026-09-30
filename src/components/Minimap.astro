@@ -45,7 +45,7 @@ const nodes = graph.map((node) => {
 ---
 
 <nav class="minimap" aria-label="Page map" data-minimap>
-  <div class="map">
+  <div class="map" id="pagemap">
   <svg viewBox={`0 0 ${WIDTH} ${height}`} width={WIDTH} height={height} aria-hidden="true">
     {nodes.map((node) => <path d={node.edge} data-edge={node.id} />)}
     <rect x={intro.x} y={intro.y} width={intro.w} height={intro.h} rx="2" class="intro" />
@@ -64,21 +64,34 @@ const nodes = graph.map((node) => {
     }
   </ul>
   </div>
-  <p class="current" aria-hidden="true" data-map-label>Intro</p>
+  <button type="button" class="current" data-map-trigger aria-expanded="false" aria-controls="pagemap">
+    <span data-map-label>Intro</span>
+  </button>
 </nav>
 
 <script>
   const map = document.querySelector<HTMLElement>("[data-minimap]");
   const hero = document.querySelector("[data-hero]");
   const label = map?.querySelector<HTMLElement>("[data-map-label]");
+  const trigger = map?.querySelector<HTMLElement>("[data-map-trigger]");
 
   if (map && hero && label) {
     // Shown between the hero (which is its own map) and the footer (whose links it
-    // would otherwise sit on top of).
+    // would otherwise sit on top of). Hidden means inert: an invisible map must
+    // never hold tab stops.
     const footer = document.querySelector("body > footer");
     let pastHero = false;
     let atFooter = false;
-    const update = () => map.toggleAttribute("data-visible", pastHero && !atFooter);
+    const update = () => {
+      const visible = pastHero && !atFooter;
+      map.toggleAttribute("data-visible", visible);
+      if (visible) map.removeAttribute("inert");
+      else {
+        map.setAttribute("inert", "");
+        map.removeAttribute("data-open");
+        trigger?.setAttribute("aria-expanded", "false");
+      }
+    };
     new IntersectionObserver(([entry]) => {
       pastHero = !entry?.isIntersecting && hero.getBoundingClientRect().top < 0;
       update();
@@ -105,6 +118,14 @@ const nodes = graph.map((node) => {
         edge.toggleAttribute("data-active", edge.dataset.edge === id);
       }
     };
+
+    // Where the map folds away, its label is a real button that opens it for
+    // keyboard users too — :focus-within alone could never be reached.
+    trigger?.addEventListener("click", () => {
+      const open = !map.hasAttribute("data-open");
+      map.toggleAttribute("data-open", open);
+      trigger.setAttribute("aria-expanded", String(open));
+    });
 
     // The chapter crossing the middle of the viewport is the one being read.
     const chapters = document.querySelectorAll<HTMLElement>("[data-chapter]");
@@ -242,9 +263,14 @@ const nodes = graph.map((node) => {
     align-items: center;
     gap: 0.45rem;
     margin-top: 0.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
     font-size: 0.75rem;
     line-height: 1.2;
-    color: var(--ink-2);
+    text-align: left;
+    cursor: pointer;
   }
 
   .current::before {
@@ -293,7 +319,8 @@ const nodes = graph.map((node) => {
     }
 
     .minimap:hover .map,
-    .minimap:focus-within .map {
+    .minimap:focus-within .map,
+    .minimap[data-open] .map {
       opacity: 1;
       translate: none;
       visibility: visible;

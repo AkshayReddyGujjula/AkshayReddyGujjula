@@ -22,6 +22,7 @@ export function startChapterKeys() {
     const chapter = chapters[next];
     if (!chapter) return;
     event.preventDefault();
-    chapter.scrollIntoView({ behavior: "smooth", block: "start" });
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    chapter.scrollIntoView({ behavior: calm ? "instant" : "smooth", block: "start" });
   });
 }
