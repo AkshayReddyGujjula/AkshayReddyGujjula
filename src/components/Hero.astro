@@ -77,7 +77,7 @@ const nodes: JourneyNode[] = [
 <section class="hero" aria-labelledby="hero-title">
   <CanvasJourney client:load nodes={nodes}>
     <p class="kicker"><span aria-hidden="true">—</span> Akshay Gujjula · CS at UCL</p>
-    <h1 id="hero-title">I build software, then I make it <span>faster.</span></h1>
+    <h1 id="hero-title"><span class="line">I build software,</span> <span class="line">then I make it</span> <span class="line accent">faster.</span></h1>
     <p class="lede">
       I'm in my second year at UCL. Most days I'm working on StudyCanvas, a study app
       10 students use every week. Most evenings I'm making AI agents quicker and cheaper to run.
@@ -114,7 +114,11 @@ const nodes: JourneyNode[] = [
     animation: type-in 1100ms var(--ease-out) 450ms backwards;
   }
 
-  h1 span {
+  h1 .line {
+    display: block;
+  }
+
+  h1 .accent {
     color: var(--accent);
   }
 

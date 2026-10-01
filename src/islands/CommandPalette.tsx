@@ -61,6 +61,7 @@ async function run(item: PaletteItem): Promise<string | undefined> {
 
 export default function CommandPalette({ items }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const input = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [status, setStatus] = useState("");
@@ -80,6 +81,8 @@ export default function CommandPalette({ items }: Props) {
       setActive(0);
       setStatus("");
       dialog.current?.showModal();
+      // The scrollable panel is focusable too, so showModal can land on it; typing must start in the field.
+      input.current?.focus();
     };
     const onKey = (event: globalThis.KeyboardEvent) => {
       if (event.key.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey)) return;
@@ -127,6 +130,7 @@ export default function CommandPalette({ items }: Props) {
     >
       <div className={styles.panel}>
         <input
+          ref={input}
           className={styles.input}
           type="text"
           role="combobox"

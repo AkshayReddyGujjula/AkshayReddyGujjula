@@ -34,24 +34,17 @@
   display: none;
 }
 
-/* Inline scroll invitation for the stacked layout (phones, tablets, reduced motion). */
+/* Inline scroll invitation for the stacked layout (phones, tablets, reduced motion).
+   Plain muted text, so it never reads as a fourth button under the actions. */
 .cueInline {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  width: fit-content;
   max-width: 100%;
   margin-top: 1.5rem;
-  padding: 0.55rem 0.95rem;
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--line-strong);
-  color: var(--ink);
-  font-size: var(--step-0);
+  color: var(--ink-3);
+  font-size: var(--step--1);
   line-height: 1.25;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .cueInline::after {

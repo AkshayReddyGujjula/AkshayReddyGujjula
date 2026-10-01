@@ -118,7 +118,8 @@ import { profile } from "~/data/profile";
       widgetId = window.turnstile?.render(widget, {
         sitekey: widget.dataset.sitekey,
         theme: "dark",
-        size: "flexible",
+        // Flexible never shrinks below 300px; narrower phones get the compact box.
+        size: widget.clientWidth < 300 ? "compact" : "flexible",
       });
     };
     document.head.appendChild(script);
@@ -565,7 +566,7 @@ import { profile } from "~/data/profile";
 
   @media (max-width: 56rem) {
     .contact {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 
