@@ -1,6 +1,6 @@
 /**
- * Facts about me that more than one page shows. The home page, the CV and the
- * command palette all read from here, so they cannot drift apart.
+ * Facts about me that more than one place shows. The home page and the command
+ * palette both read from here, so they cannot drift apart.
  */
 
 export const profile = {
@@ -55,12 +55,13 @@ export const experience = [
 ];
 
 export const skills: Record<string, string[]> = {
-  Languages: ["Python", "TypeScript", "JavaScript", "Java", "C", "Haskell", "SQL"],
+  Languages: ["Python", "C++", "TypeScript", "JavaScript", "Java", "C", "Haskell", "SQL"],
   "Frameworks and libraries": [
     "React",
     "Next.js",
     "FastAPI",
     "Flask",
+    "PyTorch",
     "LangGraph",
     "pandas",
     "scikit-learn",
@@ -68,8 +69,10 @@ export const skills: Record<string, string[]> = {
   ],
   "Tools, infrastructure and APIs": [
     "Git and GitHub",
+    "CMake",
     "GitHub Actions",
     "Docker",
+    "Direct3D 11",
     "SQLite",
     "Vercel",
     "WebAssembly (WASM SIMD)",

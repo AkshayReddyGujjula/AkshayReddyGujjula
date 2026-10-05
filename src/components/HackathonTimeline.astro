@@ -16,7 +16,7 @@ const monthYear = new Intl.DateTimeFormat("en-GB", { month: "short", year: "nume
         <details>
           <summary>
             <time datetime={entry.data.date.toISOString().slice(0, 10)}>
-              {monthYear.format(entry.data.date)}
+              {entry.data.period ?? monthYear.format(entry.data.date)}
             </time>
             <span class="name">
               <strong>{entry.data.project}</strong>

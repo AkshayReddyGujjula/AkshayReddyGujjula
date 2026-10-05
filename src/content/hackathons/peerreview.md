@@ -1,6 +1,6 @@
 ---
 project: PeerReview.ai
-event: London A2A and A2UI Hackathon
+event: Google Generative UI/A2A Hackathon
 date: 2026-06-13
 result: 1 of 6 projects from 50+ chosen to present on stage
 stack: [Next.js, FastAPI, LangGraph, A2UI, Gemini API]

@@ -71,7 +71,7 @@ export async function paletteItems(): Promise<PaletteItem[]> {
       keywords: "resume",
       href: "/cv",
       description:
-        "Akshay's printable one-page CV: education, technical skills and languages, projects, competitions and experience.",
+        "Akshay's one-page CV as a PDF: education, technical skills and languages, projects, competitions and experience.",
     },
     {
       id: "contact",

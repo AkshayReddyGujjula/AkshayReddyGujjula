@@ -50,8 +50,7 @@
       "path": "/",
       "goal": "Open the CV page using the link in the top navigation.",
       "expect": {
-        "url_contains": "/cv",
-        "text_contains": ["University College London", "Print or save as PDF"]
+        "url_contains": "Akshay_Reddy_Gujjula_CV.pdf"
       }
     },
     {

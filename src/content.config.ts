@@ -34,6 +34,8 @@ const hackathons = defineCollection({
     project: z.string(),
     event: z.string(),
     date: z.coerce.date(),
+    /** Shown instead of the month of `date` when the event ran across months. */
+    period: z.string().optional(),
     result: z.string().optional(),
     stack: z.array(z.string()).min(1),
     links: z.array(link).default([]),

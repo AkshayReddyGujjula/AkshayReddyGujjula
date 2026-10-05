@@ -9,6 +9,8 @@ export default defineConfig({
   // Pages are served as /cv, never /cv/, so internal links never redirect.
   trailingSlash: "never",
   build: { format: "file" },
+  // The CV is the PDF itself, kept at a filename that reads well once downloaded.
+  redirects: { "/cv": { status: 302, destination: "/Akshay_Reddy_Gujjula_CV.pdf" } },
   adapter: cloudflare({ imageService: "compile" }),
   // The site has no per-visitor state, so it needs no session store.
   session: false,

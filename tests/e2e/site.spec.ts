@@ -243,10 +243,11 @@ test.describe("other pages", () => {
     await expect(page.getByRole("heading", { name: "Terms of use" })).toBeVisible();
   });
 
-  test("the CV page has the education section", async ({ page }) => {
-    await page.goto("/cv");
-    await expect(page.getByRole("heading", { name: "Education" })).toBeVisible();
-    await expect(page.getByText("University College London")).toBeVisible();
+  test("the CV link serves the PDF", async ({ request }) => {
+    const response = await request.get("/cv");
+    expect(response.ok()).toBe(true);
+    expect(response.url()).toMatch(/\/Akshay_Reddy_Gujjula_CV\.pdf$/);
+    expect(response.headers()["content-type"]).toContain("application/pdf");
   });
 
   test("unknown pages return a 404 with a way back", async ({ page }) => {

@@ -2,6 +2,7 @@
 project: Congress vs the market
 event: UCL Data Science Society Hackathon
 date: 2026-03-07
+period: Feb – Mar 2026
 result: 1st place, Finance Track
 stack: [Python, pandas, scikit-learn, SciPy]
 links:

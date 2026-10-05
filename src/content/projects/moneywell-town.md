@@ -1,11 +1,11 @@
 ---
 title: Moneywell Town
-tagline: A browser game that teaches UK teenagers how money works, from interest and tax to credit and scams. Built in a week and won first place.
+tagline: A browser game that teaches UK teenagers how money works, from interest and tax to credit and scams. Built in a week by a team of 6, it placed 1st of 20 teams.
 order: 2
 tier: flagship
 search: "It is an educational game about personal finance for teenagers, with spaced repetition and an AI helper."
 period: Aug 2026 – present
-award: 1st place, Work in Fintech AI Summit hackathon
+award: 1st of 20 teams, Work in Fintech AI Summit (1,300+ applicants)
 stack: [React, TypeScript, Vite, CSS]
 links:
   - { label: Play at moneywelltown.com, href: "https://moneywelltown.com" }
@@ -23,6 +23,6 @@ You learn a topic from someone in town, then walk into the outskirts where creat
 
 Answers feed a five-box Leitner scheduler on 1, 3, 7, 14 and 30 day intervals. A wrong answer drops a question by one box, so a single slip never wipes out a month of progress. A correct answer only promotes a question that was actually due, so "mastered" has to be earned across weeks of reviews.
 
-The town is a custom 2D tile renderer. Moving ambient updates across the 792-tile world out of React's render cycle and into CSS made tile updates 2.5 times faster, and end-to-end frame rate rose 53% once camera, movement and input scheduling were rebalanced.
+We were a team of 6, selected from 1,300+ applicants, and I owned the rendering pipeline. The town is a custom 2D tile renderer. Moving ambient updates across the 792-tile world out of React's render cycle and into CSS made tile updates 2.5 times faster, and end-to-end frame rate rose 53% once camera, movement and input scheduling were rebalanced.
 
 We are taking it to Web Summit Lisbon in November as an ALPHA startup.
