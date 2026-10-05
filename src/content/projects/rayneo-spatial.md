@@ -11,7 +11,7 @@ links:
 facts:
   - { value: "~20°", label: thermal drift removed over a 22-minute worn session }
   - { value: "6×", label: less on-screen text jitter }
-  - { value: "19", label: synthetic test scenarios, plus recorded on-head sessions }
+  - { value: "19", label: "synthetic test scenarios, plus recorded on-head sessions" }
   - { value: "1–8", label: screens in any layout }
 ---
 

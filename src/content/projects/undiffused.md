@@ -11,8 +11,8 @@ links:
   - { label: Source and evaluation, href: "https://github.com/AkshayReddyGujjula/UnDiffused-AI" }
 facts:
   - { value: "0.954", label: AUROC on 400 unseen pairs }
-  - { value: "24.9 MB", label: INT8 model, 3.55× smaller }
-  - { value: "0.7–0.9 s", label: per image, on-device }
+  - { value: "24.9 MB", label: "INT8 model, 3.55× smaller" }
+  - { value: "0.7–0.9 s", label: "per image, on-device" }
   - { value: "10", label: forensic tools }
 ---
 
