@@ -27,6 +27,14 @@ const screens = [
     caption: "Five review boxes. A question only moves up when it was actually due.",
   },
 ];
+
+/*
+ * The live tutorial, framed the way moneywelltown.com frames it on its own landing page:
+ * the game centres its 800x512 screen in a 924x660 viewport, so that screen is cut out of
+ * a larger iframe. The game turns touch-only devices away, so those get a link instead.
+ */
+const site = "https://moneywelltown.com";
+const game = "https://www.moneywelltown.com/game?tutorial=1";
 ---
 
 <div class="moneywell" data-console>
@@ -39,7 +47,7 @@ const screens = [
     <span class="hit right" data-step="1" aria-hidden="true"></span>
 
     <div class="bezel">
-      <div class="screen">
+      <div class="screen" data-screen-box>
         {
           screens.map((screen, index) => (
             <Image
@@ -52,6 +60,13 @@ const screens = [
             />
           ))
         }
+        <div class="cover" data-cover>
+          <button type="button" class="play" data-play data-game={game}>
+            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5v9l7.5-4.5z"></path></svg>
+            Play the tutorial
+          </button>
+          <a class="play play-out" href={site}>Play on moneywelltown.com</a>
+        </div>
       </div>
     </div>
 
@@ -62,13 +77,43 @@ const screens = [
   </div>
 
   <div class="captions" aria-live="polite">
-    {screens.map((screen, index) => <p data-caption={index} hidden={index > 0}>{screen.caption}</p>)}
-    <p class="counter" data-counter aria-hidden="true">Screen 1 of {screens.length}</p>
-    <p class="hint">Press A or the D-pad to look around.</p>
+    <div data-tour>
+      {screens.map((screen, index) => <p data-caption={index} hidden={index > 0}>{screen.caption}</p>)}
+      <p class="counter" data-counter aria-hidden="true">Screen 1 of {screens.length}</p>
+      <p class="hint">
+        Press A or the D-pad to look around.{" "}
+        <span class="hint-play">Play runs the real tutorial right here.</span>
+        <span class="hint-touch">The game plays with a keyboard, so open it on a computer.</span>
+      </p>
+    </div>
+    <div data-live hidden>
+      <p>The live tutorial: learn the tax lesson, read the payslip, then beat the Gatekeeper.</p>
+      <p class="hint">
+        Arrow keys or WASD to walk, any key or a click to read on, Esc for the menu. Progress stays
+        in your browser.
+      </p>
+      <div class="live-controls">
+        <button type="button" data-fullscreen>Full screen</button>
+        <button type="button" data-stop>Stop the game</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
+  // The game lays its 800x512 screen out at this offset inside a 924x660 viewport.
+  const FRAME = { width: 924, height: 660, screen: 800 };
+  const SANDBOX = [
+    "allow-scripts",
+    "allow-same-origin",
+    "allow-forms",
+    "allow-popups",
+    "allow-popups-to-escape-sandbox",
+    "allow-top-navigation-by-user-activation",
+  ];
+  const playable = () =>
+    matchMedia("(hover: hover) and (pointer: fine) and (min-width: 40rem)").matches;
+
   for (const root of document.querySelectorAll<HTMLElement>("[data-console]")) {
     const images = root.querySelectorAll<HTMLElement>("[data-screen]");
     const captions = root.querySelectorAll<HTMLElement>("[data-caption]");
@@ -86,29 +131,99 @@ const screens = [
     };
 
     root.addEventListener("click", (event) => {
+      if (root.hasAttribute("data-playing")) return;
       const control = (event.target as Element).closest<HTMLElement>("[data-step]");
       if (control) show(current + Number(control.dataset.step));
+    });
+
+    const box = root.querySelector<HTMLElement>("[data-screen-box]");
+    const play = root.querySelector<HTMLButtonElement>("[data-play]");
+    const tour = root.querySelector<HTMLElement>("[data-tour]");
+    const live = root.querySelector<HTMLElement>("[data-live]");
+    const stop = root.querySelector<HTMLButtonElement>("[data-stop]");
+    const fullscreen = root.querySelector<HTMLButtonElement>("[data-fullscreen]");
+    if (!box || !play || !tour || !live || !stop || !fullscreen) continue;
+    const src = play.dataset.game ?? "";
+    const steps = root.querySelectorAll<HTMLButtonElement>(".buttons button");
+    let frame: HTMLIFrameElement | null = null;
+
+    // The cut-out window scales to whatever width the screen has.
+    new ResizeObserver(() => {
+      box.style.setProperty("--fit", String(box.clientWidth / FRAME.screen));
+    }).observe(box);
+
+    // The connection is warmed only once a visitor shows interest.
+    const warm = () => {
+      const link = document.createElement("link");
+      link.rel = "preconnect";
+      link.href = new URL(src).origin;
+      document.head.appendChild(link);
+    };
+    play.addEventListener("pointerenter", warm, { once: true });
+    play.addEventListener("focus", warm, { once: true });
+
+    const setPlaying = (playing: boolean) => {
+      root.toggleAttribute("data-playing", playing);
+      tour.hidden = playing;
+      live.hidden = !playing;
+      for (const step of steps) step.disabled = playing;
+    };
+
+    play.addEventListener("click", () => {
+      if (frame || !playable()) return;
+      const next = document.createElement("iframe");
+      next.title = "Moneywell Town, the playable tutorial";
+      next.loading = "lazy";
+      next.allow = "fullscreen";
+      next.referrerPolicy = "strict-origin-when-cross-origin";
+      next.setAttribute("sandbox", SANDBOX.join(" "));
+      next.setAttribute("scrolling", "no");
+      next.width = String(FRAME.width);
+      next.height = String(FRAME.height);
+      // Keys go to the game as soon as it can take them.
+      next.addEventListener("load", () => next.focus(), { once: true });
+      next.src = src;
+      box.appendChild(next);
+      frame = next;
+      setPlaying(true);
+      next.focus();
+    });
+
+    stop.addEventListener("click", () => {
+      if (frame && document.fullscreenElement === frame) void document.exitFullscreen();
+      frame?.remove();
+      frame = null;
+      setPlaying(false);
+      play.focus();
+    });
+
+    fullscreen.addEventListener("click", () => {
+      const current = frame;
+      if (!current) return;
+      current.requestFullscreen().then(
+        () => current.focus(),
+        () => {},
+      );
     });
   }
 </script>
 
 <style>
+  /* The console takes the full width so the game is big enough to play; the words sit underneath. */
   .moneywell {
     display: grid;
-    grid-template-columns: minmax(0, 46rem) minmax(0, 1fr);
-    align-items: center;
-    gap: clamp(1.5rem, 5vw, 4rem);
+    gap: 1.75rem;
   }
 
   /* A landscape handheld: D-pad, screen, A and B. The screen keeps the game's 800x512. */
   .console {
     position: relative;
     display: grid;
-    grid-template-columns: 5.5rem minmax(0, 1fr) 5.5rem;
+    grid-template-columns: 8rem minmax(0, 1fr) 8rem;
     align-items: center;
-    gap: 1rem;
-    padding: 1.25rem 1rem;
-    border-radius: 2.75rem;
+    gap: 1.25rem;
+    padding: 1.5rem 1.25rem;
+    border-radius: 3.25rem;
     background: #101013;
     box-shadow:
       inset 0 0 0 1px #26262b,
@@ -123,10 +238,136 @@ const screens = [
   }
 
   .screen {
+    --fit: 1;
+    position: relative;
     aspect-ratio: 800 / 512;
     overflow: hidden;
     border-radius: 4px;
     background: #000;
+  }
+
+  /* The game's own 924x660 layout, shifted so only its 800x512 screen shows, then scaled. */
+  .screen :global(iframe) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 924px;
+    height: 660px;
+    max-width: none;
+    border: 0;
+    background: #000;
+    transform-origin: 0 0;
+    transform: scale(var(--fit)) translate(-62px, -86px);
+  }
+
+  /* While the game holds the keyboard, the screen says so. */
+  [data-playing] .screen:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .cover {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.45), transparent 60%);
+  }
+
+  [data-playing] .cover {
+    display: none;
+  }
+
+  .play {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.25rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 6px 24px rgb(0 0 0 / 0.5);
+    color: var(--on-accent);
+    font: inherit;
+    font-size: var(--step-0);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: scale 160ms var(--ease-out);
+  }
+
+  /* The link out sits on a phone-sized screen, so it may wrap rather than clip. */
+  .play-out {
+    max-width: calc(100% - 2rem);
+    padding: 0.6rem 1rem;
+    font-size: var(--step--1);
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .play svg {
+    width: 0.9rem;
+    fill: currentColor;
+  }
+
+  .play:hover {
+    scale: 1.04;
+  }
+
+  .play:active {
+    scale: 0.97;
+  }
+
+  /* The game turns touch-only devices away, and a small window would shrink it past reading. */
+  button.play,
+  .hint-play {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) and (min-width: 40rem) {
+    button.play {
+      display: inline-flex;
+    }
+
+    .hint-play {
+      display: inline;
+    }
+
+    .play-out,
+    .hint-touch {
+      display: none;
+    }
+  }
+
+  .live-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 1.25rem;
+  }
+
+  .live-controls button {
+    padding: 0.6rem 1.25rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--step--1);
+    cursor: pointer;
+  }
+
+  .live-controls button:hover {
+    border-color: var(--accent);
+  }
+
+  .buttons button:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  [data-playing] .hit {
+    pointer-events: none;
   }
 
   .screen :global(img) {
@@ -155,7 +396,7 @@ const screens = [
   }
 
   .dpad {
-    width: 4.25rem;
+    width: 6rem;
     justify-self: center;
     fill: #1d1d22;
   }
@@ -163,18 +404,18 @@ const screens = [
   .hit {
     position: absolute;
     top: 50%;
-    width: 2.75rem;
-    height: 3rem;
-    margin-top: -1.5rem;
+    width: 3.75rem;
+    height: 4rem;
+    margin-top: -2rem;
     cursor: pointer;
   }
 
   .hit.left {
-    left: 0.9rem;
+    left: 1.5rem;
   }
 
   .hit.right {
-    left: 3.6rem;
+    left: 5.25rem;
   }
 
   .buttons {
@@ -186,14 +427,14 @@ const screens = [
   }
 
   .buttons button {
-    width: 2.3rem;
-    height: 2.3rem;
+    width: 3.1rem;
+    height: 3.1rem;
     border: 0;
     border-radius: 50%;
     background: var(--accent);
     box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.3);
     color: var(--on-accent);
-    font-size: 0.8rem;
+    font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
   }
@@ -213,7 +454,25 @@ const screens = [
   }
 
   .buttons button:first-child {
-    margin-top: 1rem;
+    margin-top: 1.4rem;
+  }
+
+  /* Under the console: the caption and hint on the left, the counter or game controls on the right. */
+  .captions > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 2.5rem;
+    padding-inline: 0.5rem;
+  }
+
+  .captions > div[hidden] {
+    display: none;
+  }
+
+  .captions > div > * {
+    grid-column: 1;
+    max-width: 48rem;
   }
 
   .captions p {
@@ -222,14 +481,30 @@ const screens = [
   }
 
   .captions .hint {
-    margin-top: 1rem;
+    margin-top: 0.6rem;
     font-size: var(--step--1);
     color: var(--ink-3);
   }
 
+  .captions > div > .counter,
+  .captions > div > .live-controls {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+    margin-top: 0;
+  }
+
   @media (max-width: 52rem) {
-    .moneywell {
+    .captions > div {
       grid-template-columns: 1fr;
+      padding-inline: 0;
+    }
+
+    .captions > div > .counter,
+    .captions > div > .live-controls {
+      grid-column: 1;
+      grid-row: auto;
+      margin-top: 1rem;
     }
 
     .console {
@@ -241,6 +516,12 @@ const screens = [
 
     .dpad {
       width: 2.9rem;
+    }
+
+    .hit {
+      width: 2.75rem;
+      height: 3rem;
+      margin-top: -1.5rem;
     }
 
     .hit.left {
@@ -257,8 +538,18 @@ const screens = [
       font-size: 0.65rem;
     }
 
+    .buttons button:first-child {
+      margin-top: 1rem;
+    }
+
     .bezel {
       padding: 0.45rem;
+    }
+
+    .play {
+      padding: 0.5rem 0.9rem;
+      font-size: var(--step--1);
+      white-space: nowrap;
     }
   }
 </style>

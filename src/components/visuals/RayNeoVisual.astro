@@ -53,7 +53,7 @@ const game = await getImage({ src: town, width: 800, format: "webp" });
       <div class="screen" style="--at: 0deg">
         <div class="browser">
           <span class="address">studycanvas.app</span>
-          <img src={browser.src} alt="" width="1200" height="686" loading="lazy" />
+          <img src={browser.src} alt="" width="1200" height="750" loading="lazy" />
         </div>
         <span class="label">Display 2</span>
       </div>
@@ -260,6 +260,7 @@ const game = await getImage({ src: town, width: 800, format: "webp" });
   }
 
   .address {
+    flex: none;
     margin: 0.45rem auto;
     padding: 0.15rem 1.5rem;
     border-radius: 999px;
@@ -270,7 +271,8 @@ const game = await getImage({ src: town, width: 800, format: "webp" });
 
   .browser img {
     width: 100%;
-    flex: 1;
+    flex: 1 1 0;
+    min-height: 0;
     object-fit: cover;
     object-position: top left;
   }

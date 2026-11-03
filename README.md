@@ -15,10 +15,10 @@ I'm a second-year Computer Science student at UCL. I build full-stack, AI and pe
       <p><sub>React, TypeScript, Vite. A five-box spaced-repetition engine and a custom tile renderer.</sub></p>
     </td>
     <td width="50%" valign="top">
-      <a href="https://studycanvas.app"><img src="src/assets/projects/studycanvas/learning-canvas.png" alt="A StudyCanvas workspace with a PDF and linked answer nodes"></a>
+      <a href="https://studycanvas.app"><img src="src/assets/projects/studycanvas/learning-canvas.png" alt="A StudyCanvas workspace with a PDF and linked answer, flashcard and quiz nodes"></a>
       <h3><a href="https://studycanvas.app">StudyCanvas</a></h3>
       <p>A spatial AI study workspace. Highlight a passage in a PDF, ask about it, and the answer streams into a node you can branch, quiz yourself on or turn into flashcards.</p>
-      <p><sub>React, React Flow, FastAPI, Gemini. <a href="https://github.com/AkshayReddyGujjula/StudyCanvas-Public">Read the engineering record</a>.</sub></p>
+      <p><sub>React, React Flow, FastAPI, Claude Haiku 5.5. <a href="https://github.com/AkshayReddyGujjula/StudyCanvas-Public">Read the engineering record</a>.</sub></p>
     </td>
   </tr>
   <tr>

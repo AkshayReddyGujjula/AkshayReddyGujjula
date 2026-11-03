@@ -35,7 +35,8 @@ export default defineConfig({
         "media-src 'self'",
         "font-src 'self'",
         "connect-src 'self'",
-        "frame-src https://challenges.cloudflare.com",
+        // Turnstile, and the Moneywell Town tutorial that plays inside its console.
+        "frame-src https://challenges.cloudflare.com https://www.moneywelltown.com",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",
