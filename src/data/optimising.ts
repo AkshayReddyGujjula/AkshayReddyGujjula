@@ -23,5 +23,16 @@ export const piBenchmark = {
   },
 } as const;
 
-/** Jev Ultrafast v2, from docs/performance.md in the local jev-ultrafast checkout (21 Sep 2026). */
-export const jevChecks = { checks: 5, parallelSeconds: 3.2, serialSeconds: 12.2 } as const;
+/**
+ * Recorded StudyCanvas suite, Jev-BUA REPORT.md, 30–31 Oct 2026.
+ * The replay is the third run after recording, not the immediate second run.
+ * Costs cover model calls only; these are recorded results, not a new benchmark.
+ */
+export const jevReplay = {
+  tests: 5,
+  recorded: "30–31 Oct 2026",
+  first: { calls: 55, cost: 0.0119, passed: 5 },
+  replay: { calls: 0, cost: 0, passed: 5 },
+  source:
+    "https://github.com/AkshayReddyGujjula/Jev-BUA/blob/fdd69e5/REPORT.md#studycanvas-hand-written-suite-examplesstudycanvascoremd",
+} as const;

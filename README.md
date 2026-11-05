@@ -35,7 +35,7 @@ I'm a second-year Computer Science student at UCL. I build full-stack, AI and pe
   </tr>
 </table>
 
-Most evenings I'm making AI agents quicker and cheaper to run: a leaner harness for the Pi coding agent (23% fewer tool calls over 96 matched tasks, every task still passing) and a second engine for the Jev browser agent, with a [knowledge base](https://github.com/AkshayReddyGujjula/jev-knowledge) any coding agent can load.
+Most evenings I'm making AI agents quicker and cheaper to run: a leaner harness for the Pi coding agent (23% fewer tool calls over 96 matched tasks, every task still passing) and [Jev-BUA](https://github.com/AkshayReddyGujjula/Jev-BUA), my browser agent and plain-English web-app test runner. It checks outcomes in code and records verified steps for replay: a recorded five-test StudyCanvas suite passed with zero model calls on replay. I also keep a [knowledge base](https://github.com/AkshayReddyGujjula/jev-knowledge) any coding agent can load to build with Jev.
 
 Hackathons: 1st at the UCL Data Science Society Finance Track, 5th of 100+ at the Imperial × Anthropic Claude Hackathon, and one of 6 projects from 50+ presented on stage at the London A2A and A2UI Hackathon. [The full list is on my site](https://akshaygujjula.com/#hackathons).
 

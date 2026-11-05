@@ -41,10 +41,10 @@ export async function paletteItems(): Promise<PaletteItem[]> {
       id: "optimising",
       label: "Optimising AI agents",
       group: "Go to",
-      keywords: "pi jev tokens speed benchmark",
+      keywords: "pi jev jev-bua browser testing replay tokens speed benchmark",
       href: "/#optimising",
       description:
-        "Akshay's work making AI agents cheaper and faster: a leaner harness for the Pi coding agent that uses 23% fewer tool calls, and a quicker version of the Jev Ultrafast browser automation agent, with benchmarks. This is what he is working on in the evenings right now.",
+        "Akshay's work making AI agents cheaper and faster: a leaner Pi coding harness with 23% fewer tool calls over 96 matched tasks, and Jev-BUA, his public browser agent and plain-English web-app test runner. Jev-BUA checks outcomes in code and records verified steps for replay. A recorded five-test StudyCanvas suite passed with zero model calls on replay.",
     },
     {
       id: "hackathons",
