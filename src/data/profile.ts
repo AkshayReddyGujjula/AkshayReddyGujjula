@@ -9,7 +9,7 @@ export const profile = {
   location: "London, UK",
   email: "akshayreddyg07@gmail.com",
   summary:
-    "Second-year Computer Science student at UCL, graduating 2028, building full-stack, AI and performance-sensitive systems.",
+    "Second-year Computer Science student at UCL and co-founder and CTO of Vasmio, the startup behind Moneywell Town.",
   links: {
     github: "https://github.com/AkshayReddyGujjula",
     linkedin: "https://www.linkedin.com/in/akshayreddygujjula/",

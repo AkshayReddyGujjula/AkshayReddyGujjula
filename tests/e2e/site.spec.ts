@@ -38,7 +38,10 @@ test.describe("home page", () => {
     test.skip(isMobile, "the flight only runs on wide screens");
     await page.goto("/");
     const zoom = page.locator("[data-zoom]");
-    await expect(zoom).toHaveText("100%");
+    // The opening shot sits close up; the intro's height decides whether it is exactly 100%.
+    await expect(async () => {
+      expect(Number.parseInt((await zoom.textContent()) ?? "", 10)).toBeGreaterThan(90);
+    }).toPass();
     await page.evaluate(() => {
       const track = document.querySelector<HTMLElement>("[data-hero]");
       if (track) window.scrollTo(0, (track.offsetHeight - innerHeight) * 0.47);
@@ -52,7 +55,8 @@ test.describe("home page", () => {
     page,
   }) => {
     await page.goto("/");
-    const node = page.locator("[data-hero]").getByRole("link", { name: /Moneywell Town/ });
+    // The map node, not the Moneywell Town link in the intro's description.
+    const node = page.locator('[data-hero] a[data-node="moneywell-town"]');
     await node.focus();
     await expect(node).toBeInViewport();
     await node.click();
@@ -232,7 +236,7 @@ test.describe("other pages", () => {
   test("the footer signs off and links to the privacy policy and terms", async ({ page }) => {
     await page.goto("/");
     const footer = page.getByRole("contentinfo");
-    await expect(footer.getByText("then I make it faster.")).toBeVisible();
+    await expect(footer.getByText("Co-founder & CTO @ Vasmio.")).toBeVisible();
     await expect(footer.getByText("No cookies, no analytics")).toBeVisible();
     const nav = page.getByRole("navigation", { name: "Site information" });
     await nav.getByRole("link", { name: "Privacy" }).click();

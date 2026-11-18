@@ -76,12 +76,18 @@ const nodes: JourneyNode[] = [
 
 <section class="hero" aria-labelledby="hero-title">
   <CanvasJourney client:load nodes={nodes}>
-    <p class="kicker"><span aria-hidden="true">—</span> Akshay Gujjula · CS at UCL</p>
-    <h1 id="hero-title"><span class="line">I build software,</span> <span class="line">then I make it</span> <span class="line accent">faster.</span></h1>
-    <p class="lede">
-      I'm in my second year at UCL. Most days I'm working on StudyCanvas, a study app
-      10 students use every week. Most evenings I'm making AI agents quicker and cheaper to run.
-    </p>
+    <p class="kicker"><span aria-hidden="true">—</span> Akshay Gujjula · London</p>
+    <div class="copy">
+      <h1 id="hero-title"><span class="line">CS @ UCL.</span> <span class="line">Co-founder & CTO</span> <span class="line accent">@ Vasmio.</span></h1>
+      <p class="lede">
+        I'm a second-year Computer Science student at UCL and <span class="nowrap">co-founder</span> and CTO of <a
+          href="https://vasmio.com">Vasmio</a>, the startup behind <a
+          href="https://moneywelltown.com">Moneywell Town</a>. Moneywell Town is a free browser game
+        that teaches UK teenagers how money works, and it took first place out of 20 teams at the
+        Work in Fintech AI Summit. In my free time I build StudyCanvas, a spatial learning tool for
+        visual learners.
+      </p>
+    </div>
     <div class="actions">
       <a class="primary" href="#studycanvas">See the work</a>
       <a href="/cv">CV</a>
@@ -122,13 +128,35 @@ const nodes: JourneyNode[] = [
     color: var(--accent);
   }
 
+  /* The headline's widest line sets the measure: the lede fills that width but never widens it. */
+  .copy {
+    width: fit-content;
+    max-width: 100%;
+  }
+
   .lede {
-    max-width: 38ch;
+    contain: inline-size;
     margin-top: 1.5rem;
     font-size: var(--step-1);
     line-height: 1.5;
     color: var(--ink-2);
     animation: rise 900ms var(--ease-out) 750ms backwards;
+  }
+
+  .lede .nowrap {
+    white-space: nowrap;
+  }
+
+  .lede a {
+    color: var(--ink);
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 0.2em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .lede a:hover {
+      text-decoration-color: var(--accent);
+    }
   }
 
   .actions {
@@ -222,7 +250,7 @@ const nodes: JourneyNode[] = [
 
     h1 {
       margin-top: 0.75rem;
-      font-size: clamp(1.9rem, 1.5rem + 6vw, 2.3rem);
+      font-size: clamp(1.75rem, 1rem + 6vw, 2.2rem);
     }
 
     .lede {

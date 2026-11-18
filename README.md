@@ -1,4 +1,4 @@
-<a href="https://akshaygujjula.com"><img alt="I build software, then I make it faster. Akshay Gujjula, Computer Science at UCL." src="docs/readme/banner.png"></a>
+<a href="https://akshaygujjula.com"><img alt="CS @ UCL. Co-founder & CTO @ Vasmio. Akshay Gujjula, London." src="docs/readme/banner.png"></a>
 
 I'm a second-year Computer Science student at UCL. I build full-stack, AI and performance-sensitive systems, and I like getting them in front of real people: ten students use StudyCanvas every week, and Moneywell Town won the Work in Fintech AI Summit hackathon.
 

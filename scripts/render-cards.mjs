@@ -55,8 +55,8 @@ function html({ width, height, headline, list }) {
 </style>
 <div class="root">
   <i></i><i></i><i></i><i></i>
-  <h1>I build software, then I make it faster.</h1>
-  <p>Akshay Gujjula, Computer Science at UCL</p>
+  <h1>CS @ UCL.<br>Co-founder &amp; <span style="white-space: nowrap">CTO @ Vasmio.</span></h1>
+  <p>Akshay Gujjula, London</p>
 </div>
 <ul>${projects.map(([title, meta]) => `<li><b>${title}</b><span>${meta}</span></li>`).join("")}</ul>`;
 }
